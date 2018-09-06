@@ -115,7 +115,7 @@ firstPrimeOfSumOf101Primes = head (filter prime (sumsOfNElements 101 primes))
 -- Another way is checking that the example provided in the assignment if present.
 
 firstPrimeOfSumOf5PrimesTest :: Bool
-firstPrimeOfSumOf5PrimesTest = any (==101)  (filter prime (sumsOfNElements 5 primes))
+firstPrimeOfSumOf5PrimesTest = any (==101) (filter prime (sumsOfNElements 5 primes))
 
 -- ASSIGNMENT 1.6 --
 
