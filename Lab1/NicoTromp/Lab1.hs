@@ -88,3 +88,14 @@ permutationsSizeTest (Positive n) = n <= 10 --> length (permutations [1..n]) == 
 -- Once again this test is way to slow to be practical. So in the end we test only if the specification is partially satiafied.
 
 -- 20 minutes
+
+
+-- ASSIGNMENT 1.4 --
+
+isReversalPrime :: Integer -> Bool
+isReversalPrime n = prime (reversal n)
+
+reversalPrimes :: [Integer]
+reversalPrimes = filter isReversalPrime (takeWhile (< 10000) primes)
+
+-- 15 minutes writing the reversalPrimes function
