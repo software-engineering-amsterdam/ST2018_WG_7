@@ -83,6 +83,8 @@ fact 0 = 1
 fact n = n * fact (n - 1)
 
 permutationsSizeTest :: (Positive Int) -> Bool
-permutationsSizeTest (Positive n) = n <= 12 --> length (permutations [1..n]) == fact n
+permutationsSizeTest (Positive n) = n <= 10 --> length (permutations [1..n]) == fact n
+
+-- Once again this test is way to slow to be practical. So in the end we test only if the specification is partially satiafied.
 
 -- 20 minutes
