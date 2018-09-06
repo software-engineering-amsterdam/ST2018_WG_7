@@ -2,7 +2,7 @@ module Lab1 where
 import Data.List
 import Test.QuickCheck
 
--- Redo Workshop 5, time 00:00 start time 11:51
+-- Redo Workshop 5, time 00:20
 perms :: [a] ->[[a]]
 perms [] = [[]]
 perms (x:xs) = concat (map (insrt x) (perms xs)) where
