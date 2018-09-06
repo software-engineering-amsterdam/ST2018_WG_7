@@ -128,3 +128,34 @@ counterExamplesPrimesProductIsPrime = [n | n <- [1..], not (prime (productOfNEle
 smallesCounterExample :: Int
 smallesCounterExample = head counterExamplesPrimesProductIsPrime
 
+-- ASSIGNMENT 1.7 --
+
+luhnDouble :: Integer -> Integer
+luhnDouble n | x < 10    = x
+             | otherwise = x - 9
+           where x = 2 * n
+
+luhnify :: Integer -> Integer
+luhnify x | x < 10    = x
+          | x < 100   = mod x 10 + luhnDouble (x `div` 10)
+          | otherwise = luhnify (mod x 100) + luhnify (x `div` 100)
+
+isValidLuhn :: Integer -> Bool
+isValidLuhn n = mod (luhnify n) 10 == 0
+
+isValidLuhnTest :: Bool
+isValidLuhnTest = isValidLuhn 79927398713
+
+lengthCheck :: Int -> Integer -> Bool
+lengthCheck n x = x >= 10^(n-1) && x < 10^n
+
+isAmericanExpress :: Integer -> Bool
+isAmericanExpress x = isValidLuhn x && lengthCheck 15 x && elem (x `div` 10^13) [34, 36]
+
+isMastercard :: Integer -> Bool
+isMastercard x = isValidLuhn x && lengthCheck 16 x && (elem (x `div` 10^14) [51..55] || elem (x `div` 10^12) [2221..2720])
+
+isVisa :: Integer -> Bool
+isVisa x = isValidLuhn x && lengthCheck 16 x && elem (x `div` 10^15) [4]
+
+-- 1 hour, rough version
