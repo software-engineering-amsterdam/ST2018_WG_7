@@ -117,3 +117,14 @@ firstPrimeOfSumOf101Primes = head (filter prime (sumsOfNElements 101 primes))
 firstPrimeOfSumOf5PrimesTest :: Bool
 firstPrimeOfSumOf5PrimesTest = any (==101)  (filter prime (sumsOfNElements 5 primes))
 
+-- ASSIGNMENT 1.6 --
+
+productOfNElements :: Int -> [Integer] -> Integer
+productOfNElements n xs = product(take n xs) + 1
+
+counterExamplesPrimesProductIsPrime :: [Int]
+counterExamplesPrimesProductIsPrime = [n | n <- [1..], not (prime (productOfNElements n primes))]
+
+smallesCounterExample :: Int
+smallesCounterExample = head counterExamplesPrimesProductIsPrime
+
