@@ -99,3 +99,21 @@ reversalPrimes :: [Integer]
 reversalPrimes = filter isReversalPrime (takeWhile (< 10000) primes)
 
 -- 15 minutes writing the reversalPrimes function
+-- 
+
+-- ASSIGNMENT 1.5 --
+
+sumsOfNElements :: Int -> [Integer] -> [Integer]
+sumsOfNElements n xs = [sum(take n xs)] ++ sumsOfNElements n (tail xs)
+
+firstPrimeOfSumOf101Primes :: Integer
+firstPrimeOfSumOf101Primes = head (filter prime (sumsOfNElements 101 primes))
+
+-- 1 hour including discussing with teammates
+-- The function firstPrimeOfSumOf101Primes uses standard Haskell constructs and is straight forward.
+-- So the only part that should be checked is the summation of n consequtive numers, aka the sumsOfNElements function.
+-- Another way is checking that the example provided in the assignment if present.
+
+firstPrimeOfSumOf5PrimesTest :: Bool
+firstPrimeOfSumOf5PrimesTest = any (==101)  (filter prime (sumsOfNElements 5 primes))
+
