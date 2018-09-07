@@ -81,7 +81,7 @@ myPrimeConjecture n = isPrime( product(take n primes)+1 )
 
 myMinimumPrimeConjectureDisprove = head [x | x <- [1..], not (myPrimeConjecture x)]
 
-{- 5 -}
+{- the counterexample is n=5, giving (2*3*5*7*11*13)+1 = 30031, which is not a prime. -}
 --time:30m
 -------------------------------------------------------------------------
 --Exercise 7

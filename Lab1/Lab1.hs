@@ -112,7 +112,7 @@ firstPrimeOfSumOf101Primes = head [p | p <- (sumsOfNElements 101 primes), prime 
 -- So the only part that should be checked is the summation of n consecutive numbers, aka the sumsOfNElements function.
 
 -- Testing the functionality of our functions can be done by testing them against the example given in the exercise:
-Another way is checking that the example provided in the assignment if present:
+-- Another way is checking that the example provided in the assignment if present:
 firstPrimeOfSumOf5PrimesTest :: Bool
 firstPrimeOfSumOf5PrimesTest = any (==101)  (filter prime (sumsOfNElements 5 primes))
 
