@@ -146,16 +146,36 @@ isValidLuhn n = mod (luhnify n) 10 == 0
 isValidLuhnTest :: Bool
 isValidLuhnTest = isValidLuhn 79927398713
 
-lengthCheck :: Int -> Integer -> Bool
-lengthCheck n x = x >= 10^(n-1) && x < 10^n
+isValidLength :: Int -> Integer -> Bool
+isValidLength n x = x >= 10^(n-1) && x < 10^n
 
 isAmericanExpress :: Integer -> Bool
-isAmericanExpress x = isValidLuhn x && lengthCheck 15 x && elem (x `div` 10^13) [34, 36]
+isAmericanExpress x = isValidLuhn x && isValidLength 15 x && elem (x `div` 10^13) [34, 36]
 
 isMastercard :: Integer -> Bool
-isMastercard x = isValidLuhn x && lengthCheck 16 x && (elem (x `div` 10^14) [51..55] || elem (x `div` 10^12) [2221..2720])
+isMastercard x = isValidLuhn x && isValidLength 16 x && (elem (x `div` 10^14) [51..55] || elem (x `div` 10^12) [2221..2720])
 
 isVisa :: Integer -> Bool
-isVisa x = isValidLuhn x && lengthCheck 16 x && elem (x `div` 10^15) [4]
+isVisa x = isValidLuhn x && isValidLength 16 x && elem (x `div` 10^15) [4]
 
 -- 1 hour, rough version
+
+-- ASSIGNMENT 1.7 --
+
+accuse :: Boy -> Boy -> Bool
+accuse Matthew accused = not (elem accused [Carl, Matthew])
+accuse Peter accused   = elem accused [Matthew, Jack]
+accuse Jack accused    = not (accuse Matthew accused) && not (accuse Peter accused)
+accuse Arnold accused  = (((accuse Matthew accused) && not (accuse Peter accused)) 
+                         || (not (accuse Matthew accused) && (accuse Peter accused))) 
+                         && not((accuse Matthew accused) && (accuse Peter accused))
+accuse Carl accused    = not (accuse Arnold accused)
+
+accusers :: Boy -> [Boy]
+accusers accusee = [boy | boy <- boys, accuse boy accusee]
+
+guilty :: [Boy]
+guilty = []
+
+honest :: [Boy]
+honest = []
