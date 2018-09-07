@@ -149,16 +149,23 @@ isValidLuhnTest = isValidLuhn 79927398713
 isValidLength :: Int -> Integer -> Bool
 isValidLength n x = x >= 10^(n-1) && x < 10^n
 
+fitMask :: Integer -> Integer -> Integer
+fitMask n m = n `div` (10 ^ (length (show n) - length (show m)))
+
+startsWithAny :: Integer -> [Integer] -> Bool
+startsWithAny n ms = or [ fitMask n m == m | m <- ms]
+
 isAmericanExpress :: Integer -> Bool
-isAmericanExpress x = isValidLuhn x && isValidLength 15 x && elem (x `div` 10^13) [34, 36]
+isAmericanExpress x = isValidLuhn x && isValidLength 15 x && startsWithAny x [34, 36]
 
 isMastercard :: Integer -> Bool
-isMastercard x = isValidLuhn x && isValidLength 16 x && (elem (x `div` 10^14) [51..55] || elem (x `div` 10^12) [2221..2720])
+isMastercard x = isValidLuhn x && isValidLength 16 x && startsWithAny x ([51..55] ++ [2221..2720])
 
 isVisa :: Integer -> Bool
-isVisa x = isValidLuhn x && isValidLength 16 x && elem (x `div` 10^15) [4]
+isVisa x = isValidLuhn x && isValidLength 16 x && startsWithAny x [4]
 
 -- 1 hour, rough version
+-- 30 minutes refactoring IIN identification
 
 -- ASSIGNMENT 1.7 --
 
