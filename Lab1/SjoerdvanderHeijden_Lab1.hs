@@ -81,23 +81,25 @@ myPrimeConjecture n = isPrime( product(take n primes)+1 )
 
 myMinimumPrimeConjectureDisprove = head [x | x <- [1..], not (myPrimeConjecture x)]
 
-{- the counterexample is n=5, giving (2*3*5*7*11*13)+1 = 30031, which is not a prime. -}
+{- the counterexample is n=6, giving (2*3*5*7*11*13)+1 = 30031, which is not a prime. -}
 --time:30m
 -------------------------------------------------------------------------
 --Exercise 7
-luhn :: Integer -> Bool
-luhnstep1 n = [ | x <- show(n)]
-[x | x <- read luhnstep1 :: []]
 
-for i in str(code):
-        
+intCodeList :: Int -> [Int]
+intCodeList n = [ read[ i ] :: Int | i <- show(n) ]
 
+doubledCodeNumbers :: [Int] -> [Int]
+--doubledCodeNumbers intCodeList = [ if (mod i 2 == mod (length intCodeList) 2) then (2* (intCodeList!!i)) else (intCodeList!!i) | i <- [0..length(intCodeList)-1]]
+doubledCodeNumbers intCodeList = [ if mod i 2 /= mod (length intCodeList) 2 then 2* intCodeList!!i else intCodeList!!i | i <- [0..length(intCodeList)-1]]
 
+reducedDoubledCodeNumbers :: [Int] -> [Int]
+reducedDoubledCodeNumbers doubledCodeNumbers = [if x > 9 then x-9 else x | x <- doubledCodeNumbers]
 
+checkLuhn :: [Inta] -> Bool
+checkLuhn n = mod(sum(reducedDoubledCodeNumbers(doubledCodeNumbers(intCodeList(n))))) 10 == 0
 
-
-
-
+--time: 2h
 
 
 
