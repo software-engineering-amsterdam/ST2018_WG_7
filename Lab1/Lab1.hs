@@ -45,7 +45,7 @@ bruteForceCardinality n = length( subsequences[1..n] )
 formalCardinality :: Int -> Int
 formalCardinality n = 2 ^ n
 
-cardinalityProof :: (Positive Integer) -> Bool
+cardinalityProof :: (Positive Int) -> Bool
 cardinalityProof (Positive n) = bruteForceCardinality n == formalCardinality n
 
 -- Logically the property is simple to test. To do so in a timely manner is hard,
