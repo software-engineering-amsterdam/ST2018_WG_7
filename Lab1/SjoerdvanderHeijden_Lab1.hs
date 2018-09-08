@@ -86,24 +86,41 @@ myMinimumPrimeConjectureDisprove = head [x | x <- [1..], not (myPrimeConjecture 
 -------------------------------------------------------------------------
 --Exercise 7
 
+-- Splits up a number into a list of single digits; 2018 becomes [2,0,1,8]
 intCodeList :: Int -> [Int]
 intCodeList n = [ read[ i ] :: Int | i <- show(n) ]
 
+-- Returns the input list, but with every second entry being doubled, according to Luhn's algorithm.
 doubledCodeNumbers :: [Int] -> [Int]
 --doubledCodeNumbers intCodeList = [ if (mod i 2 == mod (length intCodeList) 2) then (2* (intCodeList!!i)) else (intCodeList!!i) | i <- [0..length(intCodeList)-1]]
 doubledCodeNumbers intCodeList = [ if mod i 2 /= mod (length intCodeList) 2 then 2* intCodeList!!i else intCodeList!!i | i <- [0..length(intCodeList)-1]]
 
+-- Reduces numbers in the input list if they are greater than 10, according to Luhn's algorithm.
 reducedDoubledCodeNumbers :: [Int] -> [Int]
 reducedDoubledCodeNumbers doubledCodeNumbers = [if x > 9 then x-9 else x | x <- doubledCodeNumbers]
 
-checkLuhn :: [Inta] -> Bool
+-- Final check to see whether a number is valid according to Luhn's algorithm
+checkLuhn :: Int -> Bool
 checkLuhn n = mod(sum(reducedDoubledCodeNumbers(doubledCodeNumbers(intCodeList(n))))) 10 == 0
 
+-- It just works, alright? Get off my back about the way it looks
 --time: 2h
+-------------------------------------------------------------------------
+--Exercise 8
 
+data Boy = Matthew | Peter | Jack | Arnold | Carl 
+           deriving (Eq,Show)
 
+boys = [Matthew, Peter, Jack, Arnold, Carl]
 
+accuses :: Boy -> Boy -> Bool
+accuses Peter Matthew = True
+accuses Peter Jack = True
+accuses _ _ = False
 
+accusers :: Boy -> [Boy]
+accusers Matthew = [Peter]
+accusers Jack = [Peter]
 
 
 
