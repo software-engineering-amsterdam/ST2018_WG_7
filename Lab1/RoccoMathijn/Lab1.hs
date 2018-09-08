@@ -20,11 +20,6 @@ forall = flip all
 reversal :: Integer -> Integer
 reversal = read . reverse . show
 
-data Boy = Matthew | Peter | Jack | Arnold | Carl 
-           deriving (Eq,Show)
-
-boys = [Matthew, Peter, Jack, Arnold, Carl]
-
 --exercise 1: ~30 minutes
 sumToN :: Int -> Int
 sumToN n = n * (n + 1) `div` 2
@@ -133,7 +128,7 @@ isAmericanExpress n = luhn n &&
 isMaster :: Integer -> Bool
 isMaster n = luhn n &&
              numberOfDigits == 16 &&
-             ((firstFour > 5100 && firstFour < 5599) || (firstFour > 2221 && firstFour =< 2720))
+             ((firstFour > 5100 && firstFour < 5599) || (firstFour > 2221 && firstFour <= 2720))
              where firstFour = firstNDigits 4 n
                    numberOfDigits = length (show n)
 
@@ -143,4 +138,53 @@ isVisa n =  luhn n &&
             first == 4
             where first = firstNDigits 1 n
                   numberOfDigits = length (show n)
+
+--exercise 8: 2hr so far
+data Boy = Matthew | Peter | Jack | Arnold | Carl 
+           deriving (Eq,Show)
+
+boys :: [Boy]
+boys = [Matthew, Peter, Jack, Arnold, Carl]
+
+statements :: [Bool]
+statements = [True, True, False, False, False]
+
+xor :: Bool -> Bool -> Bool
+xor True x = not x
+xor False x = x
+
+biconditional :: Bool -> Bool -> Bool
+biconditional True True = True
+biconditional True False = False
+biconditional False True = False
+biconditional False False = True
+
+accuses :: Boy -> Boy -> Bool
+accuses Matthew accusee = not (elem accusee [Carl, Matthew])
+accuses Peter accusee = elem accusee [Matthew, Jack]
+accuses Jack accusee = not (accuses Matthew accusee) && not (accuses Peter accusee)
+accuses Arnold accusee = (accuses Matthew accusee) `xor` (accuses Peter accusee)
+accuses Carl accusee = not (accuses Arnold accusee)
+
+accusers :: Boy -> [Boy]
+accusers accusee = [b | b <- boys, accuses b accusee]
+
+rmdups :: Eq a => [a] -> [a]
+rmdups [] = []
+rmdups (x:xs) = x : filter (/= x) (rmdups xs)
+
+type TruthConfiguration = [(Boy, Bool)]
+truthConfigurations :: [TruthConfiguration]
+truthConfigurations = [zip boys permutation | permutation <- (rmdups (permutations statements))]
+
+-- this is not working as expected (yet)
+thiefAccordingToTruthConfiguration :: TruthConfiguration -> [Boy]
+thiefAccordingToTruthConfiguration tc = foldl1 intersect [[b2 | b2 <- boys, biconditional (accuses b1 b2) t] | (b1, t) <- tc]
+
+
+-- guilty :: [Boy]
+
+-- honest :: [Boy]
+-- honest = []
+
 
