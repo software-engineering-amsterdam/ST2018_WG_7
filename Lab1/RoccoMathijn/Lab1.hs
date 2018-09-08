@@ -99,6 +99,48 @@ smallestCounterExample :: Int
 smallestCounterExample = head counterExamples
 
 
---exercise 7: 
+--exercise 7: 75 minutes
+luhnDouble :: Integer -> Integer
+luhnDouble i =  if res > 9 then res - 9 else res
+                where res = i * 2
 
+mapEveryOther :: (a -> a) -> [a] -> [a]
+mapEveryOther f []        = []
+mapEveryOther f (x:[])    = [x]
+mapEveryOther f (x:x2:xs) = x : (f x2) : mapEveryOther f xs 
+
+numberToList :: Integer -> [Integer]
+numberToList n = [read [c] | c <- show n]
+
+luhn :: Integer -> Bool
+luhn n =  if sumDigits `mod` 10 == 0 then True else False
+          where sumDigits = sum luhnDoubled
+                numberInList = numberToList n
+                luhnDoubled = mapEveryOther luhnDouble (reverse numberInList)
+
+firstNDigits :: Int -> Integer -> Integer
+firstNDigits n digits = read firstNAsString
+                        where firstNAsString = foldr (++) "" [show d | d <- listOfDigits]
+                              listOfDigits = take n (numberToList digits)
+
+isAmericanExpress :: Integer -> Bool
+isAmericanExpress n = luhn n && 
+                      numberOfDigits == 15 && 
+                      (firstTwo == 34 || firstTwo == 37)
+                      where firstTwo = firstNDigits 2 n
+                            numberOfDigits = length (show n)
+
+isMaster :: Integer -> Bool
+isMaster n = luhn n &&
+             numberOfDigits == 16 &&
+             ((firstFour > 5100 && firstFour < 5599) || (firstFour > 2221 && firstFour =< 2720))
+             where firstFour = firstNDigits 4 n
+                   numberOfDigits = length (show n)
+
+isVisa :: Integer -> Bool
+isVisa n =  luhn n &&
+            numberOfDigits == 16 &&
+            first == 4
+            where first = firstNDigits 1 n
+                  numberOfDigits = length (show n)
 
