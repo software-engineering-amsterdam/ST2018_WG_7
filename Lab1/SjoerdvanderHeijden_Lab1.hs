@@ -122,8 +122,13 @@ accusers :: Boy -> [Boy]
 accusers Matthew = [Peter]
 accusers Jack = [Peter]
 
-
-
+{-
+Matthew honest innocent
+Peter honest innocent
+Jack liar guilty
+Arnold liar innocent
+Carl honest innocent
+-}
 
 
 
