@@ -139,15 +139,12 @@ isVisa n =  luhn n &&
             where first = firstNDigits 1 n
                   numberOfDigits = length (show n)
 
---exercise 8: 2hr so far
+--exercise 8: 2.5 hours
 data Boy = Matthew | Peter | Jack | Arnold | Carl 
            deriving (Eq,Show)
 
 boys :: [Boy]
 boys = [Matthew, Peter, Jack, Arnold, Carl]
-
-statements :: [Bool]
-statements = [True, True, False, False, False]
 
 xor :: Bool -> Bool -> Bool
 xor True x = not x
@@ -173,18 +170,25 @@ rmdups :: Eq a => [a] -> [a]
 rmdups [] = []
 rmdups (x:xs) = x : filter (/= x) (rmdups xs)
 
+statements :: [Bool]
+statements = [True, True, True, False, False]
 type TruthConfiguration = [(Boy, Bool)]
+-- List of possible configurations when 3 boys are speaking the truth and 2 boys are lying
 truthConfigurations :: [TruthConfiguration]
 truthConfigurations = [zip boys permutation | permutation <- (rmdups (permutations statements))]
 
--- this is not working as expected (yet)
+-- For every configuration we get a list of accused boys per boy. The intersect of these list should be the thief
 thiefAccordingToTruthConfiguration :: TruthConfiguration -> [Boy]
 thiefAccordingToTruthConfiguration tc = foldl1 intersect [[b2 | b2 <- boys, biconditional (accuses b1 b2) t] | (b1, t) <- tc]
 
+-- We flatten the lists of intersections
+guilty :: [Boy]
+guilty = concat (map thiefAccordingToTruthConfiguration truthConfigurations)
 
--- guilty :: [Boy]
-
--- honest :: [Boy]
--- honest = []
+-- This is a lot of code but it really just gets the boys that are speaking the truth from the winning game configuration
+honest :: [Boy]
+honest =  map fst (filter ((==True).snd) winningTruthConfiguration)
+          where winningTruthConfiguration = head (map fst (filter ((/=[]).snd) truthConfigurationsAndThiefs))
+                truthConfigurationsAndThiefs = zip truthConfigurations (map thiefAccordingToTruthConfiguration truthConfigurations)
 
 
