@@ -193,6 +193,14 @@ isValidVisa x = validate x isVisa [isAmericanExpress, isMastercard]
 xor :: Bool -> Bool -> Bool
 xor p q = (p || q) && not (p && q)
 
+-- Set like equals operators that are not sensitive for the order of the elements in the list
+equals :: (Eq a) => [a] -> [a] -> Bool
+equals xs ys = length xs == length ys && and [ elem x ys | x <- xs]
+
+notEquals :: [Boy] -> [Boy] -> Bool
+notEquals xs ys = not (equals xs ys)
+
+
 accuses :: Boy -> Boy -> Bool
 accuses Matthew accused = not (elem accused [Carl, Matthew])
 accuses Peter accused   = elem accused [Matthew, Jack]
@@ -212,19 +220,20 @@ potentialAngels = filter (\ bs -> length bs == 3) (subsequences boys)
 potentialLiers :: [Boy] -> [Boy]
 potentialLiers ys = boys \\ ys
 
--- Set like equals operators that are not sensitive for the order of the elements in the list
-equals :: (Eq a) => [a] -> [a] -> Bool
-equals xs ys = length xs == length ys && and [ elem x ys | x <- xs]
+truthfullyAccusedBy :: Boy -> [Boy] -> Bool
+truthfullyAccusedBy c ys = accusers c `equals` ys
 
-notEquals :: [Boy] -> [Boy] -> Bool
-notEquals xs ys = not (equals xs ys)
+falselyAccusedBy :: Boy -> [Boy] -> Bool
+falselyAccusedBy c xs = accusers c `notEquals` xs
 
 judge :: [(Boy, [Boy])]
-judge = [ (c, ys) | c <- boys, ys <- potentialAngels, (accusers c `equals` ys) && (accusers c `notEquals` potentialLiers ys)]
+judge = [ ([c], ys) | c <- boys, ys <- potentialAngels, truthfullyAccusedBy c ys && falselyAccuses c (potentialLiers ys)]
 
 guilty :: [Boy]
 guilty = [fst (head judge)]
 
 honest :: [Boy]
 honest = snd (head judge)
+
+-- 3 hours. 
 
