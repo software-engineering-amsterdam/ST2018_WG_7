@@ -193,25 +193,34 @@ isValidVisa x = validate x isVisa [isAmericanExpress, isMastercard]
 xor :: Bool -> Bool -> Bool
 xor p q = (p || q) && not (p && q)
 
-accuse :: Boy -> Boy -> Bool
-accuse Matthew accused = not (elem accused [Carl, Matthew])
-accuse Peter accused   = elem accused [Matthew, Jack]
-accuse Jack accused    = not (accuse Matthew accused) && not (accuse Peter accused)
-accuse Arnold accused  = xor (accuse Matthew accused) (accuse Peter accused)
-accuse Carl accused    = not (accuse Arnold accused)
+accuses :: Boy -> Boy -> Bool
+accuses Matthew accused = not (elem accused [Carl, Matthew])
+accuses Peter accused   = elem accused [Matthew, Jack]
+accuses Jack accused    = not (accuses Matthew accused) && not (accuses Peter accused)
+accuses Arnold accused  = xor (accuses Matthew accused) (accuses Peter accused)
+accuses Carl accused    = not (accuses Arnold accused)
 
 accusers :: Boy -> [Boy]
-accusers accusee = [b | b <- boys, accuse b accusee]
+accusers accusee = [b | b <- boys, accuses b accusee]
 
 -- The following two function capture the knowledge of the teacher
-angels :: [[Boy]]
-angels = filter (\ bs -> length bs == 3) (subsequences boys)
+-- Three boys are telling the truth.
+potentialAngels :: [[Boy]]
+potentialAngels = filter (\ bs -> length bs == 3) (subsequences boys)
 
-liers :: [Boy] -> [Boy]
-liers ys = boys \\ ys
+-- Two boys are lying given the possible angels
+potentialLiers :: [Boy] -> [Boy]
+potentialLiers ys = boys \\ ys
+
+-- Set like equals operators that are not sensitive for the order of the elements in the list
+equals :: (Eq a) => [a] -> [a] -> Bool
+equals xs ys = length xs == length ys && and [ elem x ys | x <- xs]
+
+notEquals :: [Boy] -> [Boy] -> Bool
+notEquals xs ys = not (equals xs ys)
 
 judge :: [(Boy, [Boy])]
-judge = [ (c, ys) | c <- boys, ys <- angels, (accusers c == ys) && (accusers c /= liers ys)]
+judge = [ (c, ys) | c <- boys, ys <- potentialAngels, (accusers c `equals` ys) && (accusers c `notEquals` potentialLiers ys)]
 
 guilty :: [Boy]
 guilty = [fst (head judge)]
