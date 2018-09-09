@@ -227,7 +227,7 @@ falselyAccusedBy :: Boy -> [Boy] -> Bool
 falselyAccusedBy c xs = accusers c `notEquals` xs
 
 judge :: [(Boy, [Boy])]
-judge = [ ([c], ys) | c <- boys, ys <- potentialAngels, truthfullyAccusedBy c ys && falselyAccuses c (potentialLiers ys)]
+judge = [ (c, ys) | c <- boys, ys <- potentialAngels, truthfullyAccusedBy c ys && falselyAccusedBy c (potentialLiers ys)]
 
 guilty :: [Boy]
 guilty = [fst (head judge)]
