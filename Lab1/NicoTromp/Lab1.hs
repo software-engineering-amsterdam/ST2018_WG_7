@@ -169,8 +169,24 @@ visaIINs = [4]
 isVisa :: Integer -> Bool
 isVisa x = isValidLuhn x && isValidLength 16 x && startsWithAny x visaIINs
 
+-- Test
+
+-- Check that a creditcard number is valid for a single company
+validate :: Integer -> (Integer -> Bool) -> [(Integer -> Bool)] -> Bool
+validate x v fs = v x && not (or [ f x | f <- fs ])
+
+isValidAmericanExpress :: Integer -> Bool
+isValidAmericanExpress x = validate x isAmericanExpress [isMastercard, isVisa]
+
+isValidMastercard :: Integer -> Bool
+isValidMastercard x = validate x isMastercard [isAmericanExpress, isVisa]
+
+isValidVisa :: Integer -> Bool
+isValidVisa x = validate x isVisa [isAmericanExpress, isMastercard]
+
 -- 1 hour, rough version
 -- 30 minutes refactoring IIN identification
+-- 20 minutes adding validation per company
 
 -- ASSIGNMENT 1.8 --
 
