@@ -172,22 +172,34 @@ isVisa x = isValidLuhn x && isValidLength 16 x && startsWithAny x visaIINs
 -- 1 hour, rough version
 -- 30 minutes refactoring IIN identification
 
--- ASSIGNMENT 1.7 --
+-- ASSIGNMENT 1.8 --
+
+xor :: Bool -> Bool -> Bool
+xor p q = (p || q) && not (p && q)
 
 accuse :: Boy -> Boy -> Bool
 accuse Matthew accused = not (elem accused [Carl, Matthew])
 accuse Peter accused   = elem accused [Matthew, Jack]
 accuse Jack accused    = not (accuse Matthew accused) && not (accuse Peter accused)
-accuse Arnold accused  = (((accuse Matthew accused) && not (accuse Peter accused)) 
-                         || (not (accuse Matthew accused) && (accuse Peter accused))) 
-                         && not((accuse Matthew accused) && (accuse Peter accused))
+accuse Arnold accused  = xor (accuse Matthew accused) (accuse Peter accused)
 accuse Carl accused    = not (accuse Arnold accused)
 
 accusers :: Boy -> [Boy]
-accusers accusee = [boy | boy <- boys, accuse boy accusee]
+accusers accusee = [b | b <- boys, accuse b accusee]
+
+-- The following two function capture the knowledge of the teacher
+angels :: [[Boy]]
+angels = filter (\ bs -> length bs == 3) (subsequences boys)
+
+liers :: [Boy] -> [Boy]
+liers ys = boys \\ ys
+
+judge :: [(Boy, [Boy])]
+judge = [ (c, ys) | c <- boys, ys <- angels, (accusers c == ys) && (accusers c /= liers ys)]
 
 guilty :: [Boy]
-guilty = []
+guilty = [fst (head judge)]
 
 honest :: [Boy]
-honest = []
+honest = snd (head judge)
+
