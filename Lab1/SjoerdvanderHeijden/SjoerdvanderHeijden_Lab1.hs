@@ -81,30 +81,54 @@ myPrimeConjecture n = isPrime( product(take n primes)+1 )
 
 myMinimumPrimeConjectureDisprove = head [x | x <- [1..], not (myPrimeConjecture x)]
 
-{- the counterexample is n=5, giving (2*3*5*7*11*13)+1 = 30031, which is not a prime. -}
+{- the counterexample is n=6, giving (2*3*5*7*11*13)+1 = 30031, which is not a prime. -}
 --time:30m
 -------------------------------------------------------------------------
 --Exercise 7
-luhn :: Integer -> Bool
-luhnstep1 n = [ | x <- show(n)]
-[x | x <- read luhnstep1 :: []]
 
-for i in str(code):
-        
+-- Splits up a number into a list of single digits; 2018 becomes [2,0,1,8]
+intCodeList :: Int -> [Int]
+intCodeList n = [ read[ i ] :: Int | i <- show(n) ]
 
+-- Returns the input list, but with every second entry being doubled, according to Luhn's algorithm.
+doubledCodeNumbers :: [Int] -> [Int]
+--doubledCodeNumbers intCodeList = [ if (mod i 2 == mod (length intCodeList) 2) then (2* (intCodeList!!i)) else (intCodeList!!i) | i <- [0..length(intCodeList)-1]]
+doubledCodeNumbers intCodeList = [ if mod i 2 /= mod (length intCodeList) 2 then 2* intCodeList!!i else intCodeList!!i | i <- [0..length(intCodeList)-1]]
 
+-- Reduces numbers in the input list if they are greater than 10, according to Luhn's algorithm.
+reducedDoubledCodeNumbers :: [Int] -> [Int]
+reducedDoubledCodeNumbers doubledCodeNumbers = [if x > 9 then x-9 else x | x <- doubledCodeNumbers]
 
+-- Final check to see whether a number is valid according to Luhn's algorithm
+checkLuhn :: Int -> Bool
+checkLuhn n = mod(sum(reducedDoubledCodeNumbers(doubledCodeNumbers(intCodeList(n))))) 10 == 0
 
+-- It just works, alright? Get off my back about the way it looks
+--time: 2h
+-------------------------------------------------------------------------
+--Exercise 8
 
+data Boy = Matthew | Peter | Jack | Arnold | Carl 
+           deriving (Eq,Show)
 
+boys = [Matthew, Peter, Jack, Arnold, Carl]
 
+accuses :: Boy -> Boy -> Bool
+accuses Peter Matthew = True
+accuses Peter Jack = True
+accuses _ _ = False
 
+accusers :: Boy -> [Boy]
+accusers Matthew = [Peter]
+accusers Jack = [Peter]
 
-
-
-
-
-
+{-
+Matthew honest innocent
+Peter honest innocent
+Jack liar guilty
+Arnold liar innocent
+Carl honest innocent
+-}
 
 
 
