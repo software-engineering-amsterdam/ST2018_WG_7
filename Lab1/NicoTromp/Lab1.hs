@@ -237,3 +237,18 @@ honest = snd (head judge)
 
 -- 3 hours. 
 
+
+-- == PROJECT EULER == --
+
+-- PROBLEM 9 --
+
+pythagoreanWithCircumference :: Int -> [[Int]]
+pythagoreanWithCircumference n = [ [a, b, n - a - b] | a <- [1..n], b <- [(a+1)..n], a^2 + b^2 == (n - a - b)^2 ]
+
+specialPythagoreanValues :: [Int]
+specialPythagoreanValues = head (pythagoreanWithCircumference 1000)
+
+specialPythagoreanProduct :: Int
+specialPythagoreanProduct = product specialPythagoreanValues
+
+-- 25 minutes, including generalisation
