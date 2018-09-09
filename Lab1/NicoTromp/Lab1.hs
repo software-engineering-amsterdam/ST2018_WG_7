@@ -151,11 +151,11 @@ isValidLength n x = x >= 10^(n-1) && x < 10^n
 
 -- Using show is more accurate then logBase 10 since that returns a number and I have seen cases
 -- where it was rounded up while it should not have been rounded up!
-fitMask :: Integer -> Integer -> Integer
-fitMask n m = n `div` (10 ^ (length (show n) - length (show m)))
+fitToLengthOfMask :: Integer -> Integer -> Integer
+fitToLengthOfMask n m = n `div` (10 ^ (length (show n) - length (show m)))
 
 startsWithAny :: Integer -> [Integer] -> Bool
-startsWithAny n ms = or [ fitMask n m == m | m <- ms]
+startsWithAny n ms = or [ fitToLengthOfMask n m == m | m <- ms]
 
 americanExpresIINs = [34, 36]
 isAmericanExpress :: Integer -> Bool
