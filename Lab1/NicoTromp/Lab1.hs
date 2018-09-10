@@ -207,7 +207,7 @@ xor p q = (p || q) && not (p && q)
 equals :: (Eq a) => [a] -> [a] -> Bool
 equals xs ys = length xs == length ys && and [ elem x ys | x <- xs]
 
-notEquals :: [Boy] -> [Boy] -> Bool
+notEquals :: (Eq a) => [a] -> [a] -> Bool
 notEquals xs ys = not (equals xs ys)
 
 
