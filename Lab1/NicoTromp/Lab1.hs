@@ -268,9 +268,12 @@ toDigits :: Int -> [Int]
 toDigits x | x < 10    = [x]
            | otherwise = toDigits (x `div` 10) ++ [x `mod` 10]
 
+permutationExists :: [[Int]] -> [Int] -> Bool
+permutationExists ps xs = or (map (\x -> (elem (toDigits x) ps)) xs)
+
 findPermutations :: [Int] -> [Int]
 findPermutations []     = []
-findPermutations (p:xs) | or (map (\x -> (elem (toDigits x) (permutations (toDigits p)))) xs) = [p] ++ findPermutations xs
-                        | otherwise                                                           = findPermutations xs
+findPermutations (p:xs) | permutationExists (permutations (toDigits p)) xs = [p] ++ findPermutations xs
+                        | otherwise                            = findPermutations xs
 
 -- findPermutations fourDigitPrimes
