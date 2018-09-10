@@ -78,12 +78,12 @@ powerSetSizeTest (Positive n) = n <= 15 --> length (subsequences [1..n]) == 2^n
 -- ASSIGNMENT 1.3 --
 -- Permutations
 
-factoral :: Integral i => i -> i
-factoral 0 = 1
-factoral n = n * factoral (n - 1)
+factorial :: Integral i => i -> i
+factorial 0 = 1
+factorial n = n * factorial (n - 1)
 
 permutationsSizeTest :: (Positive Int) -> Bool
-permutationsSizeTest (Positive n) = n <= 10 --> length (permutations [1..n]) == factoral n
+permutationsSizeTest (Positive n) = n <= 10 --> length (permutations [1..n]) == factorial n
 
 -- Once again this test is way to slow to be practical. So in the end we test only if the specification is partially satiafied.
 
