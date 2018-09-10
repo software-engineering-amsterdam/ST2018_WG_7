@@ -171,7 +171,17 @@ isVisa x = isValidLuhn x && isValidLength 16 x && startsWithAny x visaIINs
 
 -- Test
 
--- Check that a creditcard number is valid for a single company
+-- Check that a creditcard number is valid for a single company. Credit card numbers that
+-- are valid for one company should be invalid for the other companies.
+-- The problem with testing our code is that we should not use this code when generating 
+-- credit card numbers.
+-- We can however search for a number of valid creditcard numbers using the internet and
+-- generaring different valid numbers out of them using the following trick.
+-- Assume creditcard numbers take the following form: iiixyxyxyxyxyxyc
+-- Where iii is the indentification number, c is the check digit and x and x are the remainder
+-- of the credit card number. We can replace all the y's and x's with any permutation of the
+-- y values and the x values respectively. This would result for Visa in 7! * 7! (=25401600)
+-- and for mastercard to minium of 6! * 5! (=86400) different numbers.
 validate :: Integer -> (Integer -> Bool) -> [(Integer -> Bool)] -> Bool
 validate x v fs = v x && not (or [ f x | f <- fs ])
 
