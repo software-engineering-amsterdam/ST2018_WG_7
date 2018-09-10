@@ -274,16 +274,29 @@ sumOfPrimes = sum (filter prime [2..2000000])
 fourDigitPrimes :: [Int]
 fourDigitPrimes = [ n | n <- [1001..9997], prime (toInteger n)]
 
-toDigits :: Int -> [Int]
-toDigits x | x < 10    = [x]
-           | otherwise = toDigits (x `div` 10) ++ [x `mod` 10]
+isPermutaton :: Int -> Int -> Bool
+isPermutaton x y = sort (show x) == sort (show y)
 
-permutationExists :: [[Int]] -> [Int] -> Bool
-permutationExists ps xs = or (map (\x -> (elem (toDigits x) ps)) xs)
+findPermutations :: Int -> [Int] -> [Int]
+findPermutations p xs = [ x | x <- xs, isPermutaton p x]
 
-findPermutations :: [Int] -> [Int]
-findPermutations []     = []
-findPermutations (p:xs) | permutationExists (permutations (toDigits p)) xs = [p] ++ findPermutations xs
-                        | otherwise                            = findPermutations xs
+rmdups :: Eq a => [a] -> [a]
+rmdups [] = []
+rmdups (x:xs) = x : filter (/= x) (rmdups xs)
 
--- findPermutations fourDigitPrimes
+primePermutations :: [Int] -> [[Int]]
+primePermutations xs = rmdups [ findPermutations x xs | x <- xs]
+
+specialPrimeCandidates :: [[Int]]
+specialPrimeCandidates = filter (\x -> length x >= 3) (primePermutations fourDigitPrimes)
+
+specialPrimeCandidatesTriplets :: [[Int]]
+specialPrimeCandidatesTriplets = [ ys | xs <- specialPrimeCandidates, ys <- subsequences xs, length ys == 3]
+
+isSpecialPrimes :: [Int] -> Bool
+isSpecialPrimes (x:y:zs) = 2*y - x == head zs
+
+specialPrimes :: [[Int]]
+specialPrimes = filter isSpecialPrimes specialPrimeCandidatesTriplets
+
+-- 4 hours
