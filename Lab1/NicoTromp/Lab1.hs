@@ -258,3 +258,19 @@ sumOfPrimes :: Integer
 sumOfPrimes = sum (filter prime [2..2000000])
 
 -- 15 minutes
+
+-- PROBLEM 49 --
+
+fourDigitPrimes :: [Int]
+fourDigitPrimes = [ n | n <- [1001..9997], prime (toInteger n)]
+
+toDigits :: Int -> [Int]
+toDigits x | x < 10    = [x]
+           | otherwise = toDigits (x `div` 10) ++ [x `mod` 10]
+
+findPermutations :: [Int] -> [Int]
+findPermutations []     = []
+findPermutations (p:xs) | or (map (\x -> (elem (toDigits x) (permutations (toDigits p)))) xs) = [p] ++ findPermutations xs
+                        | otherwise                                                           = findPermutations xs
+
+-- findPermutations fourDigitPrimes
