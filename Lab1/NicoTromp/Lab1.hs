@@ -254,11 +254,7 @@ specialPythagoreanProduct = product specialPythagoreanValues
 -- 25 minutes, including generalisation
 
 -- PROBLEM 10 --
-takeToMax :: Integer -> [Integer] -> [Integer]
-takeToMax n (x:xs) | x <= n    = x : takeToMax n xs
-                   | otherwise = []
-
 sumOfPrimes :: Integer
-sumOfPrimes = sum (takeToMax 2000000 primes)
+sumOfPrimes = sum (filter prime [2..2000000])
 
 -- 15 minutes
