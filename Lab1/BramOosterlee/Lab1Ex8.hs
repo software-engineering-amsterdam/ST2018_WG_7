@@ -31,6 +31,15 @@ accusers accused  = [boy | boy <- boys, (accuses boy accused)]
 
 --if well designed, guilty should give a singleton list, so not all liars,
 --but just the thief.
+
+--We assume all boys know who did it. Therefore, if they were all honest, we would
+--expect 5 accusers for a particular person. Since three people are honest,
+--we'll definitely see 3 accusations pointing to a particular person.
+--then the two liars will point to someone else.
+
+--Luckily, only one person has three accusers. We could imagine that the three honest people
+--would point to two people and still be honest. This would give two possible guilty people
+--and wouldn't let us pick a cuplrit, even though we know who the three honest people are.
 guilty, honest :: [Boy]
 guilty = [boy | boy <- boys, (length (accusers boy) == 3)]
 
