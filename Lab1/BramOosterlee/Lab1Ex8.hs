@@ -28,12 +28,9 @@ accuses accuser accused | accuser == Matthew = case () of
 accusers :: Boy -> [Boy]
 accusers accused  = [boy | boy <- boys, (accuses boy accused)]
 
-honestcombinations :: [[Boy]]
-honestcombinations = [l | l <- subsequences(boys), ((length l) == 3)]
-
 --if well designed, guilty should give a singleton list, so not all liars,
 --but just the thief.
 guilty, honest :: [Boy]
-guilty = [boy | boy <- boys, (any (\y -> y == True) [((accusers boy) == honestboys) | honestboys <- honestcombinations])]
+guilty = [boy | boy <- boys, (length (accusers boy) == 3)]
 
 honest = accusers (guilty !! 0)
