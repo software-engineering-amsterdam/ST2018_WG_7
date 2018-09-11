@@ -152,7 +152,7 @@ fitToLengthOfMask :: Integer -> Integer -> Integer
 fitToLengthOfMask n m = n `div` (10 ^ (length (show n) - length (show m)))
 
 startsWithAny :: Integer -> [Integer] -> Bool
-startsWithAny n ms = or [ fitToLengthOfMask n m == m | m <- ms]
+startsWithAny n ms = elem (fitToLengthOfMask n (head ms)) ms
 
 americanExpresIINs = [34, 36]
 isAmericanExpress :: Integer -> Bool
