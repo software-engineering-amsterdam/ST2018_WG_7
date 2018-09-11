@@ -14,8 +14,12 @@ primes = 2 : filter prime [3..]
 reversal :: Integer -> Integer
 reversal = read . reverse . show
 
--- ASSIGNMENT 1.1 --
+infix 1 --> 
 
+(-->) :: Bool -> Bool -> Bool
+p --> q = (not p) || q
+
+-- ASSIGNMENT 1.1 --
 sumOfSquares :: Int -> Int
 sumOfSquares n = sum [ x^2 | x <- [1..n]]
 
@@ -25,10 +29,8 @@ formalSumOfSquares n = n * (n + 1) * (2 * n + 1) `div` 6
 sumOfSquaresTest :: (Positive Int) -> Bool
 sumOfSquaresTest (Positive n) = sumOfSquares n == formalSumOfSquares n
 
-runSumOfSquaresTest = quickCheck myCubeSumProof
-
+runSumOfSquaresTest = quickCheck sumOfSquaresTest
 -- ASSIGNMENT 1.2 --
-
 sumOfQubic :: Int -> Int
 sumOfQubic n = sum [ x^3 | x <- [1..n]]
 
@@ -40,16 +42,17 @@ sumOfQubicTest (Positive n) = sumOfQubic n == formalSumOfQubic n
 
 runSumOfQubicTest = quickCheck sumOfQubicTest
 
--- ASSIGNMENT 2 --
 
+-- ASSIGNMENT 2 --
 bruteForceCardinality :: Int -> Int
 bruteForceCardinality n = length( subsequences[1..n] )
 
 formalCardinality :: Int -> Int
 formalCardinality n = 2 ^ n
 
+-- n <= 15 --> ensures that the tests finish in time.
 cardinalityProof :: (Positive Int) -> Bool
-cardinalityProof (Positive n) = bruteForceCardinality n == formalCardinality n
+cardinalityProof (Positive n) = n <= 15 --> (bruteForceCardinality n == formalCardinality n)
 
 runCardinalityProof = quickCheck cardinalityProof
 -- Logically the property is simple to test. To do so in a timely manner is hard,
@@ -69,8 +72,9 @@ formalNumberOfPermutations n = product[1..n]
 countedNumberOfPermutations :: Int -> Int
 countedNumberOfPermutations n = cardinality(permutations[1..n])
 
+-- n <= 10 --> ensures that the tests finish in time.
 permutationsProof :: (Positive Int) -> Bool
-permutationsProof (Positive n) = formalNumberOfPermutations n == countedNumberOfPermutations n
+permutationsProof (Positive n) = n <= 10 --> formalNumberOfPermutations n == countedNumberOfPermutations n
 
 -- We "guess" that the number of possible permutations scales with n!.
 -- Logically the property is simple to test. To do so in a timely manner is hard,
@@ -79,8 +83,8 @@ permutationsProof (Positive n) = formalNumberOfPermutations n == countedNumberOf
 -- We're testing whether the number of sets returned by permutations(A) corresponds to
 -- the factorial of the cardinality of A. We do not check whether the content of the lists
 -- returned by permutations() is correct.
-
 runPermutationsProof = quickCheck permutationsProof
+
 
 -- ASSIGNMENT 4 --
 isReversalPrime :: Integer -> Bool
@@ -98,13 +102,11 @@ testReversal :: (Positive Integer) -> Bool
 testReversal (Positive n) = (reversal (reversal n)) == n
 -- The reversal function does not work correctly for integers that end with a zero. For example
 -- 30 would be reversed to 03. Since 03 is just 3 it can't be reversed back to 30.
-
 runReversalPrimes = reversalPrimes
-
 runTestReversal = quickCheck testReversal
 
--- ASSIGNMENT 5 --
 
+-- ASSIGNMENT 5 --
 sumsOfNElements :: Int -> [Integer] -> [Integer]
 sumsOfNElements n xs = [sum(take n xs)] ++ sumsOfNElements n (tail xs)
 
@@ -250,6 +252,7 @@ isValidVisa x = validate x isVisa [isAmericanExpress, isMastercard]
 testVisaCards = and (take 20000 [ isValidVisa x | x <- generatePermutations (toCCInfo 4 48520577603243 6)])
 testMasterCards = and (take 20000 [ isValidMastercard x | x <- generatePermutations (toCCInfo 52 4717353806721 3)])
 testAmericanExpressCards = and (take 20000 [ isValidAmericanExpress x | x <- generatePermutations (toCCInfo 34 904591690693 1)])
+-- These tests return true when the first 20000 permutations of the given numbers are valid credit card numbers (for the given company).
 
 
 -- ASSIGNMENT 8 -- 
@@ -274,7 +277,17 @@ guilty =  [boy | boy <- boys, length (accusers boy) == 3]
 
 honest :: [Boy]
 honest = accusers (head guilty)
+--if well designed, guilty should give a singleton list, so not all liars,
+--but just the thief.
 
+--We assume all boys know who did it. Therefore, if they were all honest, we would
+--expect 5 accusers for a particular person. Since three people are honest,
+--we'll definitely see 3 accusations pointing to a particular person.
+--then the two liars will point to someone else.
+
+--Luckily, only one person has three accusers. We could imagine that the three honest people
+--would point to two people and still be honest. This would give two possible guilty people
+--and wouldn't let us pick a cuplrit, even though we know who the three honest people are.
 
 
 -- == PROJECT EULER == --
@@ -291,6 +304,7 @@ specialPythagoreanProduct = product specialPythagoreanValues
 -- PROBLEM 10 --
 euler2 :: Integer
 euler2 = sum[x | x <- takeWhile (< 2*10^6) primes]
+-- The initially given primes function is very slow, this runs for about 30s.
 
 -- PROBLEM 49 --
 fourDigitPrimes :: [Int]

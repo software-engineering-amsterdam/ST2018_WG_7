@@ -1,6 +1,6 @@
 
 Manual:
-for each assignment, copy and paste the given line, and the functions will be executed and tests will be run (if available).
+for each assignment, copy and paste the given line, and the functions will be executed and tests will be run (if available) and shown.
 
 -- ASSIGNMENT 1.1 --
 runSumOfSquaresTest
@@ -25,11 +25,12 @@ runSmallestCounterExample
 
 -- ASSIGNMENT 7 --
 testVisaCards
-testMasterCardstest
-AmericanExpressCards
+testMasterCards
+testAmericanExpressCards
 
 -- ASSIGNMENT 8 --
-
+guilty
+honest
 
 
 -- == PROJECT EULER == --
@@ -38,6 +39,7 @@ specialPythagoreanProduct
 
 -- PROBLEM 10 --
 euler2
+-- This result runs slowly; ~30s.
 
 -- PROBLEM 49 --
 specialPrimes
