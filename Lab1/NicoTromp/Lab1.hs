@@ -182,6 +182,9 @@ isVisa x = isValidLuhn x && isValidLength 16 x && startsWithAny x visaIINs
 -- of the credit card number. We can replace all the y's and x's with any permutation of the
 -- y values and the x values respectively. This would result for Visa in 7! * 7! (=25401600)
 -- and for mastercard to minium of 6! * 5! (=86400) different numbers.
+-- The numbers that are used in the test where taken from https://www.freeformatter.com/credit-card-number-generator-validator.html#fakeNumbers
+-- Please keep in mind that on every load of the page new numbers are generated, so the
+-- change that the page will show the numbers used in the tests is very slim.
 
 data CCInfo = CCInfo { iin :: [Integer]
                      , doubles :: [Integer]
