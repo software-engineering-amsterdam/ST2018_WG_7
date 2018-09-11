@@ -87,13 +87,21 @@ myMinimumPrimeConjectureDisprove = head [x | x <- [1..], not (myPrimeConjecture 
 --Exercise 7
 
 -- Splits up a number into a list of single digits; 2018 becomes [2,0,1,8]
-intCodeList :: Int -> [Int]
-intCodeList n = [ read[ i ] :: Int | i <- show(n) ]
+intToDigitList :: Int -> [Int]
+intToDigitList n = [ read[ i ] :: Int | i <- show(n) ]
+
+-- Takes first takeN digits of an int and turns it into and int again; takeFirstFromInt 2 2018 becomes 20
+takeFirstFromInt :: Int -> Int -> Int
+takeFirstFromInt takeN n = read(take takeN (show(n))) :: Int
+
+-- Returns the different lengths (in terms of number of digits) of the entries of a list of ints, for use with checkIIN
+intLengthsInList :: [Int] -> [Int]
+intLengthsInList list = nub( map length (map (show) list))
 
 -- Returns the input list, but with every second entry being doubled, according to Luhn's algorithm.
 doubledCodeNumbers :: [Int] -> [Int]
---doubledCodeNumbers intCodeList = [ if (mod i 2 == mod (length intCodeList) 2) then (2* (intCodeList!!i)) else (intCodeList!!i) | i <- [0..length(intCodeList)-1]]
-doubledCodeNumbers intCodeList = [ if mod i 2 /= mod (length intCodeList) 2 then 2* intCodeList!!i else intCodeList!!i | i <- [0..length(intCodeList)-1]]
+--doubledCodeNumbers digitList = [ if (mod i 2 == mod (length digitList) 2) then (2* (digitList!!i)) else (digitList!!i) | i <- [0..length(digitList)-1]]
+doubledCodeNumbers digitList = [ if mod i 2 /= mod (length digitList) 2 then 2* digitList!!i else digitList!!i | i <- [0..length(digitList)-1]]
 
 -- Reduces numbers in the input list if they are greater than 10, according to Luhn's algorithm.
 reducedDoubledCodeNumbers :: [Int] -> [Int]
@@ -101,12 +109,22 @@ reducedDoubledCodeNumbers doubledCodeNumbers = [if x > 9 then x-9 else x | x <- 
 
 -- Final check to see whether a number is valid according to Luhn's algorithm
 checkLuhn :: Int -> Bool
-checkLuhn n = mod(sum(reducedDoubledCodeNumbers(doubledCodeNumbers(intCodeList(n))))) 10 == 0
+checkLuhn n = mod(sum(reducedDoubledCodeNumbers(doubledCodeNumbers(strToDigitList(n))))) 10 == 0
+-- The above stuff just works, alright? Get off my back about the way it looks
+-- time: 2h
 
--- It just works, alright? Get off my back about the way it looks
---time: 2h
+
+-- Checks whether the first digits of a number are in checkIDs
+checkIIN :: Int -> [Int] -> Bool
+checkIIN n checkIDs = elem True [elem x (checkIDs) | y <- intLengthsInList checkIDs, x <- [takeFirstFromInt y n]]
+
+checkNAmEx n = checkIIN n [34,37] && length (intToDigitList n) == 15 && checkLuhn n
+checkNMC n = checkIIN n ([51..55]++[2221..2720]) && length (intToDigitList n) == 16 && checkLuhn n
+checkNAmEx n = checkIIN n [4] && length (intToDigitList n) == 16 && checkLuhn n
+
+-- time for this bit: 1h
 -------------------------------------------------------------------------
---Exercise 8
+-- Exercise 8
 
 data Boy = Matthew | Peter | Jack | Arnold | Carl 
            deriving (Eq,Show)
@@ -122,7 +140,7 @@ accusers :: Boy -> [Boy]
 accusers Matthew = [Peter]
 accusers Jack = [Peter]
 
-{-
+{- answers I derived myself: 
 Matthew honest innocent
 Peter honest innocent
 Jack liar guilty
