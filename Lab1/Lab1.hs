@@ -251,10 +251,30 @@ testVisaCards = and (take 20000 [ isValidVisa x | x <- generatePermutations (toC
 testMasterCards = and (take 20000 [ isValidMastercard x | x <- generatePermutations (toCCInfo 52 4717353806721 3)])
 testAmericanExpressCards = and (take 20000 [ isValidAmericanExpress x | x <- generatePermutations (toCCInfo 34 904591690693 1)])
 
--- 1 hour, rough version
--- 30 minutes refactoring IIN identification
--- 20 minutes adding validation per company
--- 2 hours implementing tests
+
+-- ASSIGNMENT 8 -- 
+data Boy = Matthew | Peter | Jack | Arnold | Carl 
+           deriving (Eq,Show)
+
+boys :: [Boy]
+boys = [Matthew, Peter, Jack, Arnold, Carl]
+
+accuses              :: Boy -> Boy -> Bool
+accuses Matthew boy  =  (boy /= Carl)              &&  (boy /= Matthew)
+accuses Peter   boy  =  (boy == Matthew)           ||  (boy == Jack)
+accuses Jack    boy  =  not (accuses Matthew boy)  &&  not (accuses Peter boy)
+accuses Arnold  boy  =  (accuses Matthew boy)      /=  (accuses Peter boy)
+accuses Carl    boy  =  not (accuses Arnold boy)
+
+accusers         :: Boy -> [Boy]
+accusers accusee = [b | b <- boys, accuses b accusee]
+
+guilty :: [Boy]
+guilty =  [boy | boy <- boys, length (accusers boy) == 3]
+
+honest :: [Boy]
+honest = accusers (head guilty)
+
 
 
 -- == PROJECT EULER == --
@@ -267,12 +287,10 @@ specialPythagoreanValues = head (pythagoreanWithCircumference 1000)
 
 specialPythagoreanProduct :: Int
 specialPythagoreanProduct = product specialPythagoreanValues
--- 25 minutes, including generalisation
 
 -- PROBLEM 10 --
 euler2 :: Integer
 euler2 = sum[x | x <- takeWhile (< 2*10^6) primes]
---time: 20min
 
 -- PROBLEM 49 --
 fourDigitPrimes :: [Int]
@@ -302,7 +320,6 @@ isSpecialPrimes (x:y:zs) = 2*y - x == head zs
 
 specialPrimes :: [[Int]]
 specialPrimes = filter isSpecialPrimes specialPrimeCandidatesTriplets
--- 4 hours
 
 
 
