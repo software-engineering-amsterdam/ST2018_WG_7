@@ -66,7 +66,7 @@ For each assignment, copy and paste the given line, and the functions will be ex
 
 `euler2`
 
-This result runs slowly; ~30s.
+This test runs slowly; ~30s.
 
 
 ### PROBLEM 49 ###
