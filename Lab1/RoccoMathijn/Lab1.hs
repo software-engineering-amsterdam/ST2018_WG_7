@@ -20,11 +20,6 @@ forall = flip all
 reversal :: Integer -> Integer
 reversal = read . reverse . show
 
-data Boy = Matthew | Peter | Jack | Arnold | Carl 
-           deriving (Eq,Show)
-
-boys = [Matthew, Peter, Jack, Arnold, Carl]
-
 --exercise 1: ~30 minutes
 sumToN :: Int -> Int
 sumToN n = n * (n + 1) `div` 2
@@ -99,6 +94,101 @@ smallestCounterExample :: Int
 smallestCounterExample = head counterExamples
 
 
---exercise 7: 
+--exercise 7: 75 minutes
+luhnDouble :: Integer -> Integer
+luhnDouble i =  if res > 9 then res - 9 else res
+                where res = i * 2
+
+mapEveryOther :: (a -> a) -> [a] -> [a]
+mapEveryOther f []        = []
+mapEveryOther f (x:[])    = [x]
+mapEveryOther f (x:x2:xs) = x : (f x2) : mapEveryOther f xs 
+
+numberToList :: Integer -> [Integer]
+numberToList n = [read [c] | c <- show n]
+
+luhn :: Integer -> Bool
+luhn n =  if sumDigits `mod` 10 == 0 then True else False
+          where sumDigits = sum luhnDoubled
+                numberInList = numberToList n
+                luhnDoubled = mapEveryOther luhnDouble (reverse numberInList)
+
+firstNDigits :: Int -> Integer -> Integer
+firstNDigits n digits = read firstNAsString
+                        where firstNAsString = foldr (++) "" [show d | d <- listOfDigits]
+                              listOfDigits = take n (numberToList digits)
+
+isAmericanExpress :: Integer -> Bool
+isAmericanExpress n = luhn n && 
+                      numberOfDigits == 15 && 
+                      (firstTwo == 34 || firstTwo == 37)
+                      where firstTwo = firstNDigits 2 n
+                            numberOfDigits = length (show n)
+
+isMaster :: Integer -> Bool
+isMaster n = luhn n &&
+             numberOfDigits == 16 &&
+             ((firstFour > 5100 && firstFour < 5599) || (firstFour > 2221 && firstFour <= 2720))
+             where firstFour = firstNDigits 4 n
+                   numberOfDigits = length (show n)
+
+isVisa :: Integer -> Bool
+isVisa n =  luhn n &&
+            numberOfDigits == 16 &&
+            first == 4
+            where first = firstNDigits 1 n
+                  numberOfDigits = length (show n)
+
+--exercise 8: 2.5 hours
+data Boy = Matthew | Peter | Jack | Arnold | Carl 
+           deriving (Eq,Show)
+
+boys :: [Boy]
+boys = [Matthew, Peter, Jack, Arnold, Carl]
+
+xor :: Bool -> Bool -> Bool
+xor True x = not x
+xor False x = x
+
+biconditional :: Bool -> Bool -> Bool
+biconditional True True = True
+biconditional True False = False
+biconditional False True = False
+biconditional False False = True
+
+accuses :: Boy -> Boy -> Bool
+accuses Matthew accusee = not (elem accusee [Carl, Matthew])
+accuses Peter accusee = elem accusee [Matthew, Jack]
+accuses Jack accusee = not (accuses Matthew accusee) && not (accuses Peter accusee)
+accuses Arnold accusee = (accuses Matthew accusee) `xor` (accuses Peter accusee)
+accuses Carl accusee = not (accuses Arnold accusee)
+
+accusers :: Boy -> [Boy]
+accusers accusee = [b | b <- boys, accuses b accusee]
+
+rmdups :: Eq a => [a] -> [a]
+rmdups [] = []
+rmdups (x:xs) = x : filter (/= x) (rmdups xs)
+
+statements :: [Bool]
+statements = [True, True, True, False, False]
+type TruthConfiguration = [(Boy, Bool)]
+-- List of possible configurations when 3 boys are speaking the truth and 2 boys are lying
+truthConfigurations :: [TruthConfiguration]
+truthConfigurations = [zip boys permutation | permutation <- (rmdups (permutations statements))]
+
+-- For every configuration we get a list of accused boys per boy. The intersect of these list should be the thief
+thiefAccordingToTruthConfiguration :: TruthConfiguration -> [Boy]
+thiefAccordingToTruthConfiguration tc = foldl1 intersect [[b2 | b2 <- boys, biconditional (accuses b1 b2) t] | (b1, t) <- tc]
+
+-- We flatten the lists of intersections
+guilty :: [Boy]
+guilty = concat (map thiefAccordingToTruthConfiguration truthConfigurations)
+
+-- This is a lot of code but it really just gets the boys that are speaking the truth from the winning game configuration
+honest :: [Boy]
+honest =  map fst (filter ((==True).snd) winningTruthConfiguration)
+          where winningTruthConfiguration = head (map fst (filter ((/=[]).snd) truthConfigurationsAndThiefs))
+                truthConfigurationsAndThiefs = zip truthConfigurations (map thiefAccordingToTruthConfiguration truthConfigurations)
 
 
