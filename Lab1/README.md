@@ -22,3 +22,22 @@ runFirstPrimeOfSumOf101Primes
 
 -- ASSIGNMENT 6 -- 
 runSmallestCounterExample
+
+-- ASSIGNMENT 7 --
+testVisaCards
+testMasterCardstest
+AmericanExpressCards
+
+-- ASSIGNMENT 8 --
+
+
+
+-- == PROJECT EULER == --
+-- PROBLEM 9 --
+specialPythagoreanProduct
+
+-- PROBLEM 10 --
+euler2
+
+-- PROBLEM 49 --
+specialPrimes
