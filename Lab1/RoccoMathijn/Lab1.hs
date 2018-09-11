@@ -128,7 +128,7 @@ isAmericanExpress n = luhn n &&
 isMaster :: Integer -> Bool
 isMaster n = luhn n &&
              numberOfDigits == 16 &&
-             ((firstFour > 5100 && firstFour < 5599) || (firstFour > 2221 && firstFour <= 2720))
+             ((firstFour >= 5100 && firstFour < 5599) || (firstFour >= 2221 && firstFour <= 2720))
              where firstFour = firstNDigits 4 n
                    numberOfDigits = length (show n)
 
