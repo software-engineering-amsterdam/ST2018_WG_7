@@ -2,16 +2,17 @@
 module Lab1_sjoerd where
 import Data.List
 import Test.QuickCheck
+import Data.Numbers.Primes
 
 (-->) :: Bool -> Bool -> Bool
 p --> q = (not p) || q
 
-primes :: [Integer]
-primes = 2 : filter isPrime [3..]
+--primes :: [Integer]
+--primes = 2 : filter isPrime [3..]
 
-isPrime :: Integer -> Bool
-isPrime n = n > 1 && all (\ x -> rem n x /= 0) xs
-  where xs = takeWhile (\ y -> y^2 <= n) primes
+--isPrime :: Integer -> Bool
+--isPrime n = n > 1 && all (\ x -> rem n x /= 0) xs
+  --where xs = takeWhile (\ y -> y^2 <= n) primes
   
 reversal :: Integer -> Integer
 reversal = read . reverse . show
@@ -109,7 +110,7 @@ reducedDoubledCodeNumbers doubledCodeNumbers = [if x > 9 then x-9 else x | x <- 
 
 -- Final check to see whether a number is valid according to Luhn's algorithm
 checkLuhn :: Int -> Bool
-checkLuhn n = mod(sum(reducedDoubledCodeNumbers(doubledCodeNumbers(strToDigitList(n))))) 10 == 0
+checkLuhn n = mod(sum(reducedDoubledCodeNumbers(doubledCodeNumbers(intToDigitList(n))))) 10 == 0
 -- The above stuff just works, alright? Get off my back about the way it looks
 -- time: 2h
 
@@ -120,7 +121,7 @@ checkIIN n checkIDs = elem True [elem x (checkIDs) | y <- intLengthsInList check
 
 checkNAmEx n = checkIIN n [34,37] && length (intToDigitList n) == 15 && checkLuhn n
 checkNMC n = checkIIN n ([51..55]++[2221..2720]) && length (intToDigitList n) == 16 && checkLuhn n
-checkNAmEx n = checkIIN n [4] && length (intToDigitList n) == 16 && checkLuhn n
+checkNVisa n = checkIIN n [4] && length (intToDigitList n) == 16 && checkLuhn n
 
 -- time for this bit: 1h
 -------------------------------------------------------------------------
@@ -147,12 +148,25 @@ Jack liar guilty
 Arnold liar innocent
 Carl honest innocent
 -}
+-- Not finished
 
+-------------------------------------------------------------------------
+-- Exercise Euler 
 
+euler1 :: [Int]
+euler1 = head [[a,b,c] | a <- [1..333], c <- [a+2..997], b <-[a..c], a+b+c==1000, a^2+b^2==c^2]
+--time: 10min
 
+euler2 :: Integer
+euler2 = sum[x | x <- takeWhile (< 2*10^6) primes]
+--time: 20min
 
+--euler3 :: Int
+fourDigitPrimes :: [Int]
+fourDigitPrimes = [x | x <- takeWhile (< 10^4) primes, x > 999]
 
-
+--permsOfN n = [[] | x <- fourDigitPrimes, 
+--[x | x <- takeWhile (< 10^4) primes, x > 999, not elem False ( map read (permutations (show x)) :: [Int] ) ]
 
 
 
