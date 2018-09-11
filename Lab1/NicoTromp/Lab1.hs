@@ -143,9 +143,6 @@ luhnify x | x < 10    = x
 isValidLuhn :: Integer -> Bool
 isValidLuhn n = mod (luhnify n) 10 == 0
 
-isValidLuhnTest :: Bool
-isValidLuhnTest = isValidLuhn 79927398713
-
 isValidLength :: Int -> Integer -> Bool
 isValidLength n x = x >= 10^(n-1) && x < 10^n
 
@@ -185,6 +182,9 @@ isVisa x = isValidLuhn x && isValidLength 16 x && startsWithAny x visaIINs
 -- The numbers that are used in the test where taken from https://www.freeformatter.com/credit-card-number-generator-validator.html#fakeNumbers
 -- Please keep in mind that on every load of the page new numbers are generated, so the
 -- change that the page will show the numbers used in the tests is very slim.
+
+isValidLuhnTest :: Bool
+isValidLuhnTest = isValidLuhn 79927398713
 
 data CCInfo = CCInfo { iin :: [Integer]
                      , doubles :: [Integer]
