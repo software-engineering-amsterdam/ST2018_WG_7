@@ -25,6 +25,8 @@ formalSumOfSquares n = n * (n + 1) * (2 * n + 1) `div` 6
 sumOfSquaresTest :: (Positive Int) -> Bool
 sumOfSquaresTest (Positive n) = sumOfSquares n == formalSumOfSquares n
 
+runSumOfSquaresTest = quickCheck myCubeSumProof
+
 -- ASSIGNMENT 1.2 --
 
 sumOfQubic :: Int -> Int
@@ -36,6 +38,7 @@ formalSumOfQubic n = (n * (n + 1) `div` 2) ^ 2
 sumOfQubicTest :: (Positive Int) -> Bool
 sumOfQubicTest (Positive n) = sumOfQubic n == formalSumOfQubic n
 
+runSumOfQubicTest = quickCheck sumOfQubicTest
 
 -- ASSIGNMENT 2 --
 
@@ -48,6 +51,7 @@ formalCardinality n = 2 ^ n
 cardinalityProof :: (Positive Int) -> Bool
 cardinalityProof (Positive n) = bruteForceCardinality n == formalCardinality n
 
+runCardinalityProof = quickCheck cardinalityProof
 -- Logically the property is simple to test. To do so in a timely manner is hard,
 -- as the powerset size supposedly grows exponentially.
 
@@ -76,9 +80,9 @@ permutationsProof (Positive n) = formalNumberOfPermutations n == countedNumberOf
 -- the factorial of the cardinality of A. We do not check whether the content of the lists
 -- returned by permutations() is correct.
 
+runPermutationsProof = quickCheck permutationsProof
 
 -- ASSIGNMENT 4 --
-
 isReversalPrime :: Integer -> Bool
 isReversalPrime n = prime (reversal n)
 
@@ -95,6 +99,9 @@ testReversal (Positive n) = (reversal (reversal n)) == n
 -- The reversal function does not work correctly for integers that end with a zero. For example
 -- 30 would be reversed to 03. Since 03 is just 3 it can't be reversed back to 30.
 
+runReversalPrimes = reversalPrimes
+
+runTestReversal = quickCheck testReversal
 
 -- ASSIGNMENT 5 --
 
@@ -116,6 +123,7 @@ firstPrimeOfSumOf101Primes = head [p | p <- (sumsOfNElements 101 primes), prime 
 firstPrimeOfSumOf5PrimesTest :: Bool
 firstPrimeOfSumOf5PrimesTest = any (==101)  (filter prime (sumsOfNElements 5 primes))
 
+runFirstPrimeOfSumOf101Primes = firstPrimeOfSumOf101Primes
 
 -- ASSIGNMENT 6 -- 
 
@@ -128,3 +136,5 @@ counterExamples = [n | n <- [1..], not (conjecture n)]
 smallestCounterExample :: Int
 smallestCounterExample = head counterExamples
 -- The smallest counterexample is the list of the first 6 primes: (2*3*5*7*11*13)+1 = 30031
+
+runSmallestCounterExample = smallestCounterExample
