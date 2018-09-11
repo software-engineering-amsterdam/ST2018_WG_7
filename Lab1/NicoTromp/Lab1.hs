@@ -193,8 +193,9 @@ toDigits :: Integer -> [Integer]
 toDigits x | x < 10    = [x]
            | otherwise = toDigits (x `div` 10) ++ [x `mod` 10]
 
-extractAccountNumber :: Int -> Integer -> Integer
-extractAccountNumber n x = (x `mod` (10^n)) `div` 10
+fromDigits :: [Integer] -> Integer
+fromDigits = foldl addDigit 0
+             where addDigit num d = 10*num + d
 
 getDoubles :: [Integer] -> [Integer]
 getDoubles []       = []
@@ -205,10 +206,6 @@ getSingles :: [Integer] -> [Integer]
 getSingles []       = []
 getSingles (x:y:zs) = [y] ++ getSingles zs
 getSingles [x]      = []
-
-fromDigits :: [Integer] -> Integer
-fromDigits = foldl addDigit 0
-             where addDigit num d = 10*num + d
 
 merge :: Ord a => [a] -> [a] -> [a]
 merge x [] = x
