@@ -2,7 +2,7 @@ module Lab1 where
 import Data.List
 import Test.QuickCheck
 
--- time started 00:40
+-- time taken 00:40
 prime :: Int -> Bool
 prime n = n > 1 && all (\ x -> rem n x /= 0) xs
   where xs = takeWhile (\ y -> y^2 <= n) primes
