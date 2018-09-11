@@ -1,43 +1,44 @@
 
-Manual:
-for each assignment, copy and paste the given line, and the functions will be executed and tests will be run (if available) and shown.
+# Manual #
 
--- ASSIGNMENT 1.1 --
+For each assignment, copy and paste the given line, and the functions will be executed and tests will be run (if available) and shown.
 
-runSumOfSquaresTest
+### ASSIGNMENT 1.1 ###
 
--- ASSIGNMENT 1.2 --
+`runSumOfSquaresTest`
+
+### ASSIGNMENT 1.2 ###
 
 runSumOfQubicTest
 
 
--- ASSIGNMENT 2 --
+### ASSIGNMENT 2 ###
 
 runCardinalityProof
 
 
--- ASSIGNMENT 3 --
+### ASSIGNMENT 3 ###
 
 runPermutationsProof
 
 
--- ASSIGNMENT 4 --
+### ASSIGNMENT 4 ###
 
 runReversalPrimes
 
 runTestReversal
 
 
--- ASSIGNMENT 5 --
+### ASSIGNMENT 5 ###
 
 runFirstPrimeOfSumOf101Primes
 
 
--- ASSIGNMENT 6 -- 
+### ASSIGNMENT 6 ### 
 
 runSmallestCounterExample
 
--- ASSIGNMENT 7 --
+### ASSIGNMENT 7 ###
 
 testVisaCards
 
@@ -46,7 +47,7 @@ testMasterCards
 testAmericanExpressCards
 
 
--- ASSIGNMENT 8 --
+### ASSIGNMENT 8 ###
 
 guilty
 
@@ -54,20 +55,20 @@ honest
 
 
 
--- == PROJECT EULER == --
+### PROJECT EULER ###
 
--- PROBLEM 9 --
+### PROBLEM 9 ###
 
 specialPythagoreanProduct
 
 
--- PROBLEM 10 --
+### PROBLEM 10 ###
 
 euler2
 
--- This result runs slowly; ~30s.
+This result runs slowly; ~30s.
 
 
--- PROBLEM 49 --
+### PROBLEM 49 ###
 
 specialPrimes
