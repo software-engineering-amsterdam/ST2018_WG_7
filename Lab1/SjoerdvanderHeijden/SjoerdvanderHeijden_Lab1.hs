@@ -117,7 +117,7 @@ checkLuhn n = mod(sum(reducedDoubledCodeNumbers(doubledCodeNumbers(intToDigitLis
 
 -- Checks whether the first digits of a number are in checkIDs
 checkIIN :: Int -> [Int] -> Bool
-checkIIN n checkIDs = elem True [elem x (checkIDs) | y <- intLengthsInList checkIDs, x <- [takeFirstFromInt y n]]
+checkIIN n checkIDs = or [elem x (checkIDs) | y <- intLengthsInList checkIDs, x <- [takeFirstFromInt y n]]
 
 checkNAmEx n = checkIIN n [34,37] && length (intToDigitList n) == 15 && checkLuhn n
 checkNMC n = checkIIN n ([51..55]++[2221..2720]) && length (intToDigitList n) == 16 && checkLuhn n
