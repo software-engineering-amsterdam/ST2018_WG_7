@@ -9,49 +9,49 @@ For each assignment, copy and paste the given line, and the functions will be ex
 
 ### ASSIGNMENT 1.2 ###
 
-runSumOfQubicTest
+`runSumOfQubicTest`
 
 
 ### ASSIGNMENT 2 ###
 
-runCardinalityProof
+`runCardinalityProof`
 
 
 ### ASSIGNMENT 3 ###
 
-runPermutationsProof
+`runPermutationsProof`
 
 
 ### ASSIGNMENT 4 ###
 
-runReversalPrimes
+`runReversalPrimes`
 
-runTestReversal
+`runTestReversal`
 
 
 ### ASSIGNMENT 5 ###
 
-runFirstPrimeOfSumOf101Primes
+`runFirstPrimeOfSumOf101Primes`
 
 
 ### ASSIGNMENT 6 ### 
 
-runSmallestCounterExample
+`runSmallestCounterExample`
 
 ### ASSIGNMENT 7 ###
 
-testVisaCards
+`testVisaCards`
 
-testMasterCards
+`testMasterCards`
 
-testAmericanExpressCards
+`testAmericanExpressCards`
 
 
 ### ASSIGNMENT 8 ###
 
-guilty
+`guilty`
 
-honest
+`honest`
 
 
 
@@ -59,16 +59,16 @@ honest
 
 ### PROBLEM 9 ###
 
-specialPythagoreanProduct
+`specialPythagoreanProduct`
 
 
 ### PROBLEM 10 ###
 
-euler2
+`euler2`
 
 This result runs slowly; ~30s.
 
 
 ### PROBLEM 49 ###
 
-specialPrimes
+`specialPrimes`
