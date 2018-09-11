@@ -108,7 +108,7 @@ numberToList :: Integer -> [Integer]
 numberToList n = [read [c] | c <- show n]
 
 luhn :: Integer -> Bool
-luhn n =  if sumDigits `mod` 10 == 0 then True else False
+luhn n =  sumDigits `mod` 10 == 0
           where sumDigits = sum luhnDoubled
                 numberInList = numberToList n
                 luhnDoubled = mapEveryOther luhnDouble (reverse numberInList)
