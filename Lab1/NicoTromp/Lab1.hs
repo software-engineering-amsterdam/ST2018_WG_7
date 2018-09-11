@@ -78,12 +78,12 @@ powerSetSizeTest (Positive n) = n <= 15 --> length (subsequences [1..n]) == 2^n
 -- ASSIGNMENT 1.3 --
 -- Permutations
 
-factoral :: Integral i => i -> i
-factoral 0 = 1
-factoral n = n * factoral (n - 1)
+factorial :: Integral i => i -> i
+factorial 0 = 1
+factorial n = n * factorial (n - 1)
 
 permutationsSizeTest :: (Positive Int) -> Bool
-permutationsSizeTest (Positive n) = n <= 10 --> length (permutations [1..n]) == factoral n
+permutationsSizeTest (Positive n) = n <= 10 --> length (permutations [1..n]) == factorial n
 
 -- Once again this test is way to slow to be practical. So in the end we test only if the specification is partially satiafied.
 
@@ -171,7 +171,62 @@ isVisa x = isValidLuhn x && isValidLength 16 x && startsWithAny x visaIINs
 
 -- Test
 
--- Check that a creditcard number is valid for a single company
+-- Check that a creditcard number is valid for a single company. Credit card numbers that
+-- are valid for one company should be invalid for the other companies.
+-- The problem with testing our code is that we should not use this code when generating 
+-- credit card numbers.
+-- We can however search for a number of valid creditcard numbers using the internet and
+-- generaring different valid numbers out of them using the following trick.
+-- Assume creditcard numbers take the following form: iiixyxyxyxyxyxyc
+-- Where iii is the indentification number, c is the check digit and x and x are the remainder
+-- of the credit card number. We can replace all the y's and x's with any permutation of the
+-- y values and the x values respectively. This would result for Visa in 7! * 7! (=25401600)
+-- and for mastercard to minium of 6! * 5! (=86400) different numbers.
+-- The numbers that are used in the test where taken from https://www.freeformatter.com/credit-card-number-generator-validator.html#fakeNumbers
+-- Please keep in mind that on every load of the page new numbers are generated, so the
+-- change that the page will show the numbers used in the tests is very slim.
+
+data CCInfo = CCInfo { iin :: [Integer]
+                     , doubles :: [Integer]
+                     , singles :: [Integer]
+                     , check :: Integer
+                     } deriving (Show)
+
+toDigits :: Integer -> [Integer]
+toDigits x | x < 10    = [x]
+           | otherwise = toDigits (x `div` 10) ++ [x `mod` 10]
+
+fromDigits :: [Integer] -> Integer
+fromDigits = foldl addDigit 0
+             where addDigit num d = 10*num + d
+
+getDoubles :: [Integer] -> [Integer]
+getDoubles []       = []
+getDoubles (x:y:zs) = [x] ++ getDoubles zs
+getDoubles [x]      = [x]
+
+getSingles :: [Integer] -> [Integer]
+getSingles []       = []
+getSingles (x:y:zs) = [y] ++ getSingles zs
+getSingles [x]      = []
+
+merge :: Ord a => [a] -> [a] -> [a]
+merge x [] = x
+merge [] y = y
+merge (x:xs) (y:ys) = [x] ++ [y] ++ (merge xs ys)
+
+toCCInfo :: Integer -> Integer -> Integer -> CCInfo
+toCCInfo iin an check = CCInfo { iin = toDigits iin
+                         , doubles = reverse (getDoubles (reverse (toDigits an)))
+                         , singles = reverse (getSingles (reverse (toDigits an)))
+                         , check = check}
+
+fromCCInfo :: CCInfo -> Integer
+fromCCInfo (CCInfo iin doubles singles c) = fromDigits (iin ++ reverse (merge (reverse doubles) (reverse singles)) ++ [c])
+
+generatePermutations :: CCInfo -> [Integer]
+generatePermutations (CCInfo iin doubles singles c) = [ fromCCInfo (CCInfo iin ds ss c) | ds <- permutations doubles, ss <- permutations singles ] 
+
 validate :: Integer -> (Integer -> Bool) -> [(Integer -> Bool)] -> Bool
 validate x v fs = v x && not (or [ f x | f <- fs ])
 
@@ -184,9 +239,14 @@ isValidMastercard x = validate x isMastercard [isAmericanExpress, isVisa]
 isValidVisa :: Integer -> Bool
 isValidVisa x = validate x isVisa [isAmericanExpress, isMastercard]
 
+testVisaCards = and (take 20000 [ isValidVisa x | x <- generatePermutations (toCCInfo 4 48520577603243 6)])
+testMasterCards = and (take 20000 [ isValidMastercard x | x <- generatePermutations (toCCInfo 52 4717353806721 3)])
+testAmericanExpressCards = and (take 20000 [ isValidAmericanExpress x | x <- generatePermutations (toCCInfo 34 904591690693 1)])
+
 -- 1 hour, rough version
 -- 30 minutes refactoring IIN identification
 -- 20 minutes adding validation per company
+-- 2 hours implementing tests
 
 -- ASSIGNMENT 1.8 --
 
@@ -197,7 +257,7 @@ xor p q = (p || q) && not (p && q)
 equals :: (Eq a) => [a] -> [a] -> Bool
 equals xs ys = length xs == length ys && and [ elem x ys | x <- xs]
 
-notEquals :: [Boy] -> [Boy] -> Bool
+notEquals :: (Eq a) => [a] -> [a] -> Bool
 notEquals xs ys = not (equals xs ys)
 
 
@@ -264,13 +324,29 @@ sumOfPrimes = sum (filter prime [2..2000000])
 fourDigitPrimes :: [Int]
 fourDigitPrimes = [ n | n <- [1001..9997], prime (toInteger n)]
 
-toDigits :: Int -> [Int]
-toDigits x | x < 10    = [x]
-           | otherwise = toDigits (x `div` 10) ++ [x `mod` 10]
+isPermutaton :: Int -> Int -> Bool
+isPermutaton x y = sort (show x) == sort (show y)
 
-findPermutations :: [Int] -> [Int]
-findPermutations []     = []
-findPermutations (p:xs) | or (map (\x -> (elem (toDigits x) (permutations (toDigits p)))) xs) = [p] ++ findPermutations xs
-                        | otherwise                                                           = findPermutations xs
+findPermutations :: Int -> [Int] -> [Int]
+findPermutations p xs = [ x | x <- xs, isPermutaton p x]
 
--- findPermutations fourDigitPrimes
+rmdups :: Eq a => [a] -> [a]
+rmdups [] = []
+rmdups (x:xs) = x : filter (/= x) (rmdups xs)
+
+primePermutations :: [Int] -> [[Int]]
+primePermutations xs = rmdups [ findPermutations x xs | x <- xs]
+
+specialPrimeCandidates :: [[Int]]
+specialPrimeCandidates = filter (\x -> length x >= 3) (primePermutations fourDigitPrimes)
+
+specialPrimeCandidatesTriplets :: [[Int]]
+specialPrimeCandidatesTriplets = [ ys | xs <- specialPrimeCandidates, ys <- subsequences xs, length ys == 3]
+
+isSpecialPrimes :: [Int] -> Bool
+isSpecialPrimes (x:y:zs) = 2*y - x == head zs
+
+specialPrimes :: [[Int]]
+specialPrimes = filter isSpecialPrimes specialPrimeCandidatesTriplets
+
+-- 4 hours
