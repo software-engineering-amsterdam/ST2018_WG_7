@@ -317,6 +317,7 @@ specialPythagoreanProduct = product specialPythagoreanValues
 -- PROBLEM 10 --
 sumOfPrimes :: Integer
 sumOfPrimes = sum (filter prime [2..2000000])
+sumOfPrimes = sum (takeWhile (<=2000000) primes)
 
 -- 15 minutes
 
