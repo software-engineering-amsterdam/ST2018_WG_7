@@ -182,6 +182,51 @@ isVisa x = isValidLuhn x && isValidLength 16 x && startsWithAny x visaIINs
 -- of the credit card number. We can replace all the y's and x's with any permutation of the
 -- y values and the x values respectively. This would result for Visa in 7! * 7! (=25401600)
 -- and for mastercard to minium of 6! * 5! (=86400) different numbers.
+
+data CCInfo = CCInfo { iin :: [Integer]
+                     , doubles :: [Integer]
+                     , singles :: [Integer]
+                     , check :: Integer
+                     } deriving (Show)
+
+toDigits :: Integer -> [Integer]
+toDigits x | x < 10    = [x]
+           | otherwise = toDigits (x `div` 10) ++ [x `mod` 10]
+
+extractAccountNumber :: Int -> Integer -> Integer
+extractAccountNumber n x = (x `mod` (10^n)) `div` 10
+
+getDoubles :: [Integer] -> [Integer]
+getDoubles []       = []
+getDoubles (x:y:zs) = [x] ++ getDoubles zs
+getDoubles [x]      = [x]
+
+getSingles :: [Integer] -> [Integer]
+getSingles []       = []
+getSingles (x:y:zs) = [y] ++ getSingles zs
+getSingles [x]      = []
+
+fromDigits :: [Integer] -> Integer
+fromDigits = foldl addDigit 0
+             where addDigit num d = 10*num + d
+
+merge :: Ord a => [a] -> [a] -> [a]
+merge x [] = x
+merge [] y = y
+merge (x:xs) (y:ys) = [x] ++ [y] ++ (merge xs ys)
+
+toCCInfo :: Integer -> Integer -> Integer -> CCInfo
+toCCInfo iin an check = CCInfo { iin = toDigits iin
+                         , doubles = reverse (getDoubles (reverse (toDigits an)))
+                         , singles = reverse (getSingles (reverse (toDigits an)))
+                         , check = check}
+
+fromCCInfo :: CCInfo -> Integer
+fromCCInfo (CCInfo iin doubles singles c) = fromDigits (iin ++ reverse (merge (reverse doubles) (reverse singles)) ++ [c])
+
+generatePermutations :: CCInfo -> [Integer]
+generatePermutations (CCInfo iin doubles singles c) = [ fromCCInfo (CCInfo iin ds ss c) | ds <- permutations doubles, ss <- permutations singles ] 
+
 validate :: Integer -> (Integer -> Bool) -> [(Integer -> Bool)] -> Bool
 validate x v fs = v x && not (or [ f x | f <- fs ])
 
@@ -194,9 +239,14 @@ isValidMastercard x = validate x isMastercard [isAmericanExpress, isVisa]
 isValidVisa :: Integer -> Bool
 isValidVisa x = validate x isVisa [isAmericanExpress, isMastercard]
 
+testVisaCards = and (take 20000 [ isValidVisa x | x <- generatePermutations (toCCInfo 4 48520577603243 6)])
+testMasterCards = and (take 20000 [ isValidMastercard x | x <- generatePermutations (toCCInfo 52 4717353806721 3)])
+testAmericanExpressCards = and (take 20000 [ isValidAmericanExpress x | x <- generatePermutations (toCCInfo 34 904591690693 1)])
+
 -- 1 hour, rough version
 -- 30 minutes refactoring IIN identification
 -- 20 minutes adding validation per company
+-- 2 hours implementing tests
 
 -- ASSIGNMENT 1.8 --
 
