@@ -40,7 +40,7 @@ data Shape = NoTriangle | Equilateral
            | Isosceles  | Rectangular | Other deriving (Eq,Show)
 
 triangle :: Int -> Int -> Int -> Shape
-triangle x y z | a + b <= c = NoTriangle
+triangle x y z | a + b <= c && a > 0 = NoTriangle
                | a == c = Equilateral
                | a == b || b == c = Isosceles
                | a^2 + b^2 == c^2 = Rectangular
@@ -52,6 +52,9 @@ triangle x y z | a + b <= c = NoTriangle
 
 -- time: 10 min
 
+testNoTriangle 
+
+--Credits to Nico for the idea of sorting the input for triangle.
 -----------------------------------------------------------------------------------
 -- Exercise Strenght tester
 threeOne :: Int -> Bool
@@ -66,8 +69,9 @@ threeThree x = (even x && x > 3) || even x
 threeFour :: Int -> Bool
 threeFour x = even x
 
-myPredicates :: [Int -> Bool]
-myPredicates = [threeOne, threeTwo, threeThree, threeFour]
+myPredicates :: [(String, (Int -> Bool))]
+myPredicates = [("threeOne", threeOne), ("threeTwo", threeTwo), ("threeThree", threeThree)
+                , ("threeFour", threeFour)]
 
 
 stronger, weaker :: [a] -> (a -> Bool) -> (a -> Bool) -> Bool
@@ -89,14 +93,14 @@ strengthChecker xs p q | strictlyStronger xs p q = LT
 
 
 -- Sorts predicates strongest to weakest
-sortPredicates :: [a] -> [(a->Bool)] -> [(a->Bool)]
-sortPredicates xs predicates = sortBy (\p q -> strengthChecker xs p q) predicates
+sortPredicates :: [a] -> [(String, (a -> Bool))] -> [(String, (a -> Bool))]
+sortPredicates xs predicates = sortBy (\p q -> strengthChecker xs (snd p) (snd q) ) predicates
 
-mySortedPredicates :: [(Int -> Bool)]
+mySortedPredicates :: [(String, (Int -> Bool))]
 mySortedPredicates = sortPredicates [(-10)..10] myPredicates
 
-interactPredicates :: [(a->Bool)] -> a -> [Bool]
-interactPredicates predicates a = [ p a | p <- predicates]
+interactPredicates :: [(String, (a -> Bool))] -> a -> [Bool]
+interactPredicates predicates a = [ snd p a | p <- predicates]
 
 interactMySortedPredicates :: Int -> [Bool]
 interactMySortedPredicates a = interactPredicates mySortedPredicates a
@@ -105,7 +109,11 @@ sorterTest :: Int -> Bool
 sorterTest a = sortedBools == sort (sortedBools) 
                 where sortedBools = interactMySortedPredicates a
 
+mySortedPredicateStrings :: [String]
+mySortedPredicateStrings = [fst p | p <- mySortedPredicates]
+
 -- I'm very proud of this. The idea to test the ordering of the result in this way was mine
+-- Credits to Rens for thinking of displaying the predicate names.
 -- time: 60 min
 
 -----------------------------------------------------------------------------------
@@ -114,3 +122,8 @@ sorterTest a = sortedBools == sort (sortedBools)
 
 isPermutation :: Eq a => [a] -> [a] -> Bool
 isPermutation list1 list2 = elem list1 (permutations list2)
+
+isPermutation2 :: Eq a => [a] -> [a] -> Bool
+isPermutation2 list1 list2 = length list1 == length list2 && and [elem x list2 | x <- list1]
+
+--isPermutationTest = 

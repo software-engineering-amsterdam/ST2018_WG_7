@@ -34,7 +34,7 @@ triangle a b c  | (any (\x -> x == True) [side <= 0 | side <- [a, b, c]]) = NoTr
                 | (a==b) || (a==c) || (b==c)                              = Isosceles
                 | otherwise                                               = Other
 
---Assignment 3, time 02:35
+--Assignment 3, time 02:15
 forall :: [a] -> (a -> Bool) -> Bool
 forall = flip all
 
@@ -57,3 +57,17 @@ strongerOrdering xs p q | (stronger xs p q) && (stronger xs q p) = EQ
 orderedproptuples = sortBy (\x y -> strongerOrdering [-10..10] (fst x) (fst y)) [(prop1, "prop1"), (prop2, "prop2"), (prop3, "prop3"), (prop4, "prop4")]
 orderedpropnames = [snd x | x <- orderedproptuples]
 
+--Assignment 4, started 14:20-15:05
+isPermutation :: Eq a => [a] -> [a] -> Bool
+isPermutation a b | length a /= length b = False
+                  | otherwise            = all (==True) [elem x b | x <- a]
+
+-- test1 = isPermutation [] []
+test2 = isPermutation [] [1, 2, 3]
+test3 = isPermutation [1, 2, 3] [1, 2, 3]
+test4 = isPermutation [1, 2, 3] [3, 2, 1]
+-- test5 = isPermutation [[]] [[]]
+-- test6 = isPermutation [[]] [[[]]]
+test7 = isPermutation [[[]]] [[[1, 2, 3]]]
+test8 = isPermutation [[1, 2, 3]] [[1, 2, 3]]
+test9 = isPermutation [[1, 2, 3]] [[3, 2, 1]]
