@@ -110,3 +110,7 @@ sorterTest a = sortedBools == sort (sortedBools)
 
 -----------------------------------------------------------------------------------
 
+-- Exercise Recognizing Permutations
+
+isPermutation :: Eq a => [a] -> [a] -> Bool
+isPermutation list1 list2 = elem list1 (permutations list2)
