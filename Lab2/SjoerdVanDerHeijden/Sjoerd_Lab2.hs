@@ -40,7 +40,7 @@ data Shape = NoTriangle | Equilateral
            | Isosceles  | Rectangular | Other deriving (Eq,Show)
 
 triangle :: Int -> Int -> Int -> Shape
-triangle x y z | a + b <= c && a > 0 = NoTriangle
+triangle x y z | a + b <= c || a < 1 = NoTriangle
                | a == c = Equilateral
                | a == b || b == c = Isosceles
                | a^2 + b^2 == c^2 = Rectangular
@@ -50,11 +50,27 @@ triangle x y z | a + b <= c && a > 0 = NoTriangle
                 b = sort[x, y, z] !! 1
                 c = sort[x, y, z] !! 2
 
+-- Credits to Nico for the idea of sorting the input for triangle.
 -- time: 10 min
 
-testNoTriangle 
+testNoTriangle :: Int -> Int -> Bool
+testNoTriangle a b = triangle a b (a+b+1) == NoTriangle
 
---Credits to Nico for the idea of sorting the input for triangle.
+testEquilateral :: (Positive Int) -> Bool
+testEquilateral (Positive a) = triangle a a a == Equilateral
+
+testIsosceles :: (Positive Int) -> (Positive Int) -> Bool
+testIsosceles (Positive a) (Positive b) | a == b = triangle a (b+1) (b+1) == Isosceles
+                                        | b <= a `div` 2 = triangle b a a == Isosceles
+                                        | otherwise = triangle a b b == Isosceles
+
+testRectangular :: (Positive Int) -> Bool
+testRectangular (Positive a) = triangle (3*a) (4*a) (5*a) == Rectangular
+
+-- testRectangular2 :: [Bool]
+-- testRectangular2 = map (==Rectangular) [triangle a b c | a <-[0..100], c <- [a..200], b <- [a..c], a^2 + b^2 == c^2] 
+
+
 -----------------------------------------------------------------------------------
 -- Exercise Strenght tester
 threeOne :: Int -> Bool
