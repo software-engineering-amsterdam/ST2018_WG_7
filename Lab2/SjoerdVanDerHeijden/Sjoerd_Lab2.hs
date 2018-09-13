@@ -67,9 +67,14 @@ testIsosceles (Positive a) (Positive b) | a == b = triangle a (b+1) (b+1) == Iso
 testRectangular :: (Positive Int) -> Bool
 testRectangular (Positive a) = triangle (3*a) (4*a) (5*a) == Rectangular
 
--- testRectangular2 :: [Bool]
--- testRectangular2 = map (==Rectangular) [triangle a b c | a <-[0..100], c <- [a..200], b <- [a..c], a^2 + b^2 == c^2] 
+-- Thanks to Nico again
+testRectangular2 :: Bool
+testRectangular2 = and [triangle a b c == Rectangular | a <-[0..100], c <- [a+1..200], b <- [a+1..c-1], a^2 + b^2 == c^2] 
 
+
+-- testOther (Positive a) (Positive b) | a+b <= 4 = triangle (a+1) (b+3) (a+b+3) == Other
+--                                     |a == b = triangle (b+1) (b+3) (b+4) == Other
+--                                     | otherwise = triangle a b (head [c| c <- [maximum([a,b])+1..a+b-1], triangle a b c /= Rectangular, a+b > c]) == Other
 
 -----------------------------------------------------------------------------------
 -- Exercise Strenght tester
