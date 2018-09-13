@@ -54,15 +54,17 @@ pythagoreanTriplets = [(a, b, c) | c <- [1..], b <- [1..c], a <- [1..c], a^2 + b
 otherTriangles :: [(Integer, Integer, Integer)]
 otherTriangles = [(a, b, c) | c <- [1..], b <- [1..c], a <- [1..c], a^2 + b^2 /= c^2, a < b, b < c, c < (a + b)]
 
+isoscelesTriangles :: [(Integer, Integer, Integer)]
+isoscelesTriangles = [(a, a, b) | b <- [1..], a <- [1..b], a /= b, 2*a > b]
+
 generateTriangle              :: Shape -> Gen (Integer, Integer, Integer)
 generateTriangle NoTriangle   = do  a <- arbitrary
                                     b <- arbitrary
                                     return (a, b, a + b + 1)
 generateTriangle Equilateral  = do  Positive n <- arbitrary
                                     return (n, n, n)
-generateTriangle Isosceles    = do  Positive a <- arbitrary
-                                    c <- choose(a+1, 2*a)
-                                    return (a, a, c) 
+generateTriangle Isosceles    = do  Positive n <- arbitrary
+                                    return (isoscelesTriangles !! n)
 generateTriangle Rectangular  = do  Positive n <- arbitrary
                                     return (pythagoreanTriplets !! n)
 generateTriangle Other        = do  Positive n <- arbitrary
