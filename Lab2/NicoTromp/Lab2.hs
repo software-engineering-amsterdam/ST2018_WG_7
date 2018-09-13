@@ -66,7 +66,7 @@ checkRandomness n = do
 
 -- The input is illegal if there are any values less then or equal to zero
 isIllegal :: Int -> Int -> Int -> Bool
-isIllegal a b c = length (filter (<=0) [a, b, c]) > 0
+isIllegal a b c = a <= 0
 
 -- Isosceles all values must be equal
 isIsosceles :: Int -> Int -> Int -> Bool
@@ -74,39 +74,32 @@ isIsosceles a b c = a == b && b == c
 
 -- After sorting the values accending, the first two values be equal and it
 -- must be a triangle 
-isEquilateral :: [Int] -> Bool
-isEquilateral xs = (a == b) && isTriangle xs
-                 where a = head ys
-                       b = head (tail ys)
-                       ys = sort xs
+isEquilateral :: Int -> Int -> Int -> Bool
+isEquilateral a b c = b == c
 
 -- After sorting the values accending, the first two values be greater then
 -- the largest
-isTriangle :: [Int] -> Bool
-isTriangle xs = a + b > c
-              where a = head ys
-                    b = head (tail ys)
-                    c = head (tail (tail ys)) 
-                    ys = sort xs
+isTriangle :: Int -> Int -> Int -> Bool
+isTriangle a b c = a + b > c
 
 -- After sorting the values accending they can be used using the Pythagorean 
 -- equation
-isRectangular :: [Int] -> Bool
-isRectangular xs = a^2 + b^2 == c^2
-              where a = head ys
-                    b = head (tail ys)
-                    c = head (tail (tail ys)) 
-                    ys = sort xs
+isRectangular :: Int -> Int -> Int -> Bool
+isRectangular a b c = a^2 + b^2 == c^2
 
 -- The checks are placed in order of their priority from top to bottom.
 -- If a check with higher priority is not satisfied, checks with lower priority
--- are executed.
+-- are executed. All checks asume that the parameters are sorted in ascending order.
 triangle :: Int -> Int -> Int -> Shape
-triangle a b c | isIllegal a b c         = NoTriangle
-               | isIsosceles a b c       = Isosceles
-               | isEquilateral [a, b, c] = Equilateral
-               | isRectangular [a, b, c] = Rectangular
-               | isTriangle [a, b, c]    = Other
-               | otherwise               = NoTriangle
-
--- Time spend: 1:30
+triangle x y z | isIllegal a b c     = NoTriangle
+               | isIsosceles a b c   = Isosceles
+               | isEquilateral a b c = Equilateral
+               | isRectangular a b c = Rectangular
+               | isTriangle a b c    = Other
+               | otherwise           = NoTriangle
+               where
+                  abc = sort [x, y, z]
+                  a = abc !! 0
+                  b = abc !! 1
+                  c = abc !! 2
+-- Time spend: 1:45
