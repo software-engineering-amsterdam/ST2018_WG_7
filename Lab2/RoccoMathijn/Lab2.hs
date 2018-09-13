@@ -4,7 +4,6 @@ import Data.List
 import Data.Char
 import System.Random
 import Test.QuickCheck
-import System.IO.Unsafe
 
 infix 1 --> 
 (-->) :: Bool -> Bool -> Bool
@@ -13,9 +12,6 @@ p --> q = (not p) || q
 
 data Shape =  NoTriangle | Equilateral| Isosceles  | Rectangular | Other 
               deriving (Eq,Show)
-
-getRandomInt :: Integer -> IO Integer
-getRandomInt n = getStdRandom (randomR (0,n))
 
 probs :: Int -> IO [Float]
 probs 0 = return []
