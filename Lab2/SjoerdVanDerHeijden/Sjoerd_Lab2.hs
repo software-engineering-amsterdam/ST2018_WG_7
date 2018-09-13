@@ -13,7 +13,7 @@ p --> q = (not p) || q
 
 forall = flip all
 
------------------------------
+-----------------------------------------------------------------------------------
 -- Exercise Curry
 
 probs :: Int -> IO [Float]
@@ -34,7 +34,7 @@ probsLengths n = fmap (map length) (mapSort n)
 
 -- time: 45 min
 
-----------------------------------------------------------------
+-----------------------------------------------------------------------------------
 -- Exercise Triangles
 data Shape = NoTriangle | Equilateral 
            | Isosceles  | Rectangular | Other deriving (Eq,Show)
@@ -51,7 +51,9 @@ triangle x y z | a + b <= c = NoTriangle
                 c = sort[x, y, z] !! 2
 
 -- time: 10 min
-----------------------------------------------------------------
+
+-----------------------------------------------------------------------------------
+-- Exercise Strenght tester
 threeOne :: Int -> Bool
 threeOne x = even x && x > 3
 
@@ -64,6 +66,10 @@ threeThree x = (even x && x > 3) || even x
 threeFour :: Int -> Bool
 threeFour x = even x
 
+myPredicates :: [Int -> Bool]
+myPredicates = [threeOne, threeTwo, threeThree, threeFour]
+
+
 stronger, weaker :: [a] -> (a -> Bool) -> (a -> Bool) -> Bool
 stronger xs p q = forall xs (\ x -> p x --> q x)
 weaker   xs p q = stronger xs q p 
@@ -71,6 +77,34 @@ weaker   xs p q = stronger xs q p
 strictlyStronger :: [a] -> (a -> Bool) -> (a -> Bool) -> Bool
 strictlyStronger xs p q = stronger xs p q && not (weaker xs p q)
 
---sortPredicates :: [a] -> [(a->Bool)] -> [(a->Bool)]
---sortPredicates xs predicates = sortBy (\p q -> strictlyStronger xs p q) predicates 
+strictlyWeaker :: [a] -> (a -> Bool) -> (a -> Bool) -> Bool
+strictlyWeaker xs p q = not (stronger xs p q) && weaker xs p q
 
+equallyStrong :: [a] -> (a -> Bool) -> (a -> Bool) -> Bool
+equallyStrong xs p q = stronger xs p q && weaker xs p q
+
+strengthChecker xs p q | strictlyStronger xs p q = GT
+                       | strictlyWeaker xs p q = LT
+                       | equallyStrong xs p q = EQ
+
+
+sortPredicates :: [a] -> [(a->Bool)] -> [(a->Bool)]
+sortPredicates xs predicates = sortBy (\p q -> strengthChecker xs p q) predicates 
+
+mySortedPredicates :: [(Int -> Bool)]
+mySortedPredicates = sortPredicates [(-10)..10] myPredicates
+
+interactPredicates :: [(a->Bool)] -> a -> [Bool]
+interactPredicates predicates a = [ p a | p <- predicates]
+
+interactMySortedPredicates :: Int -> [Bool]
+interactMySortedPredicates a = interactPredicates mySortedPredicates a
+
+sorterTest :: Int -> Bool
+sorterTest a = sortedBools == reverse(sort (sortedBools) )
+                where sortedBools = interactMySortedPredicates a
+
+-- I'm very proud of this. The idea to test the ordering of the result 
+-- time: 60 min
+
+-----------------------------------------------------------------------------------
