@@ -1,73 +1,74 @@
 
-Manual:
-for each assignment, copy and paste the given line, and the functions will be executed and tests will be run (if available) and shown.
+# Manual #
 
--- ASSIGNMENT 1.1 --
+For each assignment, copy and paste the given line, and the functions will be executed and tests will be run (if available) and shown.
 
-runSumOfSquaresTest
+### ASSIGNMENT 1.1 ###
 
--- ASSIGNMENT 1.2 --
+`runSumOfSquaresTest`
 
-runSumOfQubicTest
+### ASSIGNMENT 1.2 ###
 
-
--- ASSIGNMENT 2 --
-
-runCardinalityProof
+`runSumOfQubicTest`
 
 
--- ASSIGNMENT 3 --
+### ASSIGNMENT 2 ###
 
-runPermutationsProof
-
-
--- ASSIGNMENT 4 --
-
-runReversalPrimes
-
-runTestReversal
+`runCardinalityProof`
 
 
--- ASSIGNMENT 5 --
+### ASSIGNMENT 3 ###
 
-runFirstPrimeOfSumOf101Primes
-
-
--- ASSIGNMENT 6 -- 
-
-runSmallestCounterExample
-
--- ASSIGNMENT 7 --
-
-testVisaCards
-
-testMasterCards
-
-testAmericanExpressCards
+`runPermutationsProof`
 
 
--- ASSIGNMENT 8 --
+### ASSIGNMENT 4 ###
 
-guilty
+`runReversalPrimes`
 
-honest
-
-
-
--- == PROJECT EULER == --
-
--- PROBLEM 9 --
-
-specialPythagoreanProduct
+`runTestReversal`
 
 
--- PROBLEM 10 --
+### ASSIGNMENT 5 ###
 
-euler2
-
--- This result runs slowly; ~30s.
+`runFirstPrimeOfSumOf101Primes`
 
 
--- PROBLEM 49 --
+### ASSIGNMENT 6 ### 
 
-specialPrimes
+`runSmallestCounterExample`
+
+### ASSIGNMENT 7 ###
+
+`testVisaCards`
+
+`testMasterCards`
+
+`testAmericanExpressCards`
+
+
+### ASSIGNMENT 8 ###
+
+`guilty`
+
+`honest`
+
+
+
+### PROJECT EULER ###
+
+### PROBLEM 9 ###
+
+`specialPythagoreanProduct`
+
+
+### PROBLEM 10 ###
+
+`euler2`
+
+This test runs slowly; ~30s.
+
+
+### PROBLEM 49 ###
+
+`specialPrimes`
