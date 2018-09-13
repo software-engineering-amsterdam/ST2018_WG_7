@@ -64,21 +64,26 @@ checkRandomness n = do
 
 -- ASSIGNMENT 2 --
 
+-- The following properties hold if and only if the parameters are provided in
+-- ascending order! The calling function is responsible for ensuring this.
+
 -- The input is illegal if there are any values less then or equal to zero
 isIllegal :: Int -> Int -> Int -> Bool
 isIllegal a b c = a <= 0
 
+-- All sides are equal
 isEquilateral :: Int -> Int -> Int -> Bool
 isEquilateral a b c = a == b && b == c
 
--- Using the fact that the lengths are ordered the two longest need to be equal
--- to make it a isosceles triangle
+-- Either it is a flat or a sharp isosceles triangle.
 isIsosceles :: Int -> Int -> Int -> Bool
-isIsosceles a b c = a == b || b == c
+isIsosceles a b c = (a == b && a + b > c) || b == c 
 
+-- Pythagorean check
 isRectangular :: Int -> Int -> Int -> Bool
 isRectangular a b c = a^2 + b^2 == c^2
 
+-- When ordered ascending the sum of a and b must be larger then c
 isTriangle :: Int -> Int -> Int -> Bool
 isTriangle a b c = a + b > c
 
@@ -97,26 +102,28 @@ triangle x y z | isIllegal a b c     = NoTriangle
                   a = abc !! 0
                   b = abc !! 1
                   c = abc !! 2
--- Time spend: 1:45
+-- Time spend: 1:45 including a large amount of refactoring
 
 -- Any number less zero can't result in a triangle.
 -- By making one positive number negative this condition is assured.
 -- By shuffeling the order of the values we make sure that the negative number
 -- is randomy distributed over the sides.
-negativeLengthTest :: (Positive Int) -> (Positive Int) -> (Positive Int) -> Bool
-negativeLengthTest (Positive x) (Positive y) (Positive z) = triangle a b c == NoTriangle
+negativeLengthTest :: (Positive Int) -> (Positive Int) -> (Positive Int) -> (Positive Int) -> Bool
+negativeLengthTest (Positive x) (Positive y) (Positive z) (Positive i) = triangle a b c == NoTriangle
                           where
-                            abc = head (permutations [-x, y, z])
+                            abcs = permutations [-x, y, z]
+                            abc = abcs !! (i `mod` (length abcs))
                             a = abc !! 0
                             b = abc !! 1
                             c = abc !! 2
 
 -- By shuffeling the order of the values (with a single zero) we make sure that the zero
 -- is randomy distributed over the sides.
-zeroLengthTest :: (Positive Int) -> (Positive Int) -> Bool
-zeroLengthTest (Positive x) (Positive y) = triangle a b c == NoTriangle
+zeroLengthTest :: (Positive Int) -> (Positive Int) -> (Positive Int) -> Bool
+zeroLengthTest (Positive x) (Positive y) (Positive i)= triangle a b c == NoTriangle
                           where
-                            abc = head (permutations [x, y, 0])
+                            abcs = permutations [x, y, 0]
+                            abc = abcs !! (i `mod` (length abcs))
                             a = abc !! 0
                             b = abc !! 1
                             c = abc !! 2
@@ -131,16 +138,27 @@ equilateralTest (Positive x) = triangle x x x == Equilateral
 --   2: The isosceles sides are less then the non-isosceles side and sum of the
 --      isosceles sides is greater then the length of the non-isosceles side.
 -- If QuickCheck generates a even number we generate lengths that match the first situation
--- otherwise we generate the second situation.
+-- otherwise we generate the second situation. The same parameter is also used to randomly
+-- select a permutation for the order of the sides.
 -- By adding 2 to the maximum of the two we ensure that it is really larger then the minimum.
 isoscelesTest :: (Positive Int) -> (Positive Int) -> (Positive Int) -> Bool
 isoscelesTest (Positive x) (Positive y) (Positive i) = triangle a b c == Isosceles
                           where
-                            abc = abcs !! (i `mod` (length abcs))
-                            a = abc !! 0
-                            b = abc !! 1
-                            c = abc !! 2
                             maxxy = (max x y) + 2
                             minxy = min x y
                             abcs | even i = permutations [maxxy, maxxy, minxy]
                                  | odd i  = permutations [1 + (maxxy `div` 2), 1 + (maxxy `div` 2), maxxy]
+                            abc = abcs !! (i `mod` (length abcs))
+                            a = abc !! 0
+                            b = abc !! 1
+                            c = abc !! 2
+
+-- Test for non-triangles by adding 1 to the summing two numbers.
+noTriangleTest :: (Positive Int) -> (Positive Int) -> (Positive Int)-> Bool
+noTriangleTest (Positive x) (Positive y) (Positive i) = triangle a b c == NoTriangle
+                          where
+                            abcs = permutations [x, y, x + y + 1]
+                            abc = abcs !! (i `mod` (length abcs))
+                            a = abc !! 0
+                            b = abc !! 1
+                            c = abc !! 2
