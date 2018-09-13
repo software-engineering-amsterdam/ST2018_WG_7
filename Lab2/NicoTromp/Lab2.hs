@@ -50,13 +50,13 @@ checkRandomness n = do
                       values <- probs n
                       let quartiles = groupValues values
                       let distribution = map length quartiles
-                      putStrLn "Number of values in each quartile."
+                      putStr "Number of values in each quartile: "
                       print distribution
                       let mean = n `div` 4
                       let maxDeviation = maximum (map (\x -> abs(x - mean)) distribution)
-                      putStrLn "The maximum deviation from the mean "
+                      putStr "The maximum deviation from the mean: "
                       print maxDeviation
-                      putStrLn "That is as percentage"
+                      putStr "That is as percentage: "
                       print ((100 * maxDeviation) `div` mean)
 
 -- Time spend: 1 hour
@@ -102,7 +102,13 @@ triangle x y z | isIllegal a b c     = NoTriangle
                   a = abc !! 0
                   b = abc !! 1
                   c = abc !! 2
--- Time spend: 1:45 including a large amount of refactoring
+-- Time spend: 2:00 including a large amount of refactoring and bug fixing
+
+-- Shufles the elements of the array by selecting one of the permutations
+-- by using the number n
+rearrange :: Int -> [a] -> [a]
+rearrange n xs = xss !! (n `mod` (length xss))
+               where xss = permutations xs
 
 -- Any number less zero can't result in a triangle.
 -- By making one positive number negative this condition is assured.
@@ -111,8 +117,7 @@ triangle x y z | isIllegal a b c     = NoTriangle
 negativeLengthTest :: (Positive Int) -> (Positive Int) -> (Positive Int) -> (Positive Int) -> Bool
 negativeLengthTest (Positive x) (Positive y) (Positive z) (Positive i) = triangle a b c == NoTriangle
                           where
-                            abcs = permutations [-x, y, z]
-                            abc = abcs !! (i `mod` (length abcs))
+                            abc = rearrange i [-x, y, z]
                             a = abc !! 0
                             b = abc !! 1
                             c = abc !! 2
@@ -122,8 +127,7 @@ negativeLengthTest (Positive x) (Positive y) (Positive z) (Positive i) = triangl
 zeroLengthTest :: (Positive Int) -> (Positive Int) -> (Positive Int) -> Bool
 zeroLengthTest (Positive x) (Positive y) (Positive i)= triangle a b c == NoTriangle
                           where
-                            abcs = permutations [x, y, 0]
-                            abc = abcs !! (i `mod` (length abcs))
+                            abc = rearrange i [x, y, 0]
                             a = abc !! 0
                             b = abc !! 1
                             c = abc !! 2
@@ -146,19 +150,54 @@ isoscelesTest (Positive x) (Positive y) (Positive i) = triangle a b c == Isoscel
                           where
                             maxxy = (max x y) + 2
                             minxy = min x y
-                            abcs | even i = permutations [maxxy, maxxy, minxy]
-                                 | odd i  = permutations [1 + (maxxy `div` 2), 1 + (maxxy `div` 2), maxxy]
-                            abc = abcs !! (i `mod` (length abcs))
+                            abc | even i = rearrange i [maxxy, maxxy, minxy]
+                                | odd i  = rearrange i [1 + (maxxy `div` 2), 1 + (maxxy `div` 2), maxxy]
                             a = abc !! 0
                             b = abc !! 1
                             c = abc !! 2
 
--- Test for non-triangles by adding 1 to the summing two numbers.
+-- Test for non-triangles by adding 1 to the sum of the two numbers sides.
 noTriangleTest :: (Positive Int) -> (Positive Int) -> (Positive Int)-> Bool
 noTriangleTest (Positive x) (Positive y) (Positive i) = triangle a b c == NoTriangle
                           where
-                            abcs = permutations [x, y, x + y + 1]
-                            abc = abcs !! (i `mod` (length abcs))
+                            abc = rearrange i [x, y, x + y + 1]
                             a = abc !! 0
                             b = abc !! 1
                             c = abc !! 2
+
+-- Test all rectangular triangles with a length of maximum 100.
+-- Unfortunately this test uses basically the same code as the 'triangle' function.
+rectangularTest ::  Bool
+rectangularTest = and [ triangle a b c == Rectangular | a <- [1..100], b <- [a+1..100], c<-[b+1..142], a^2 + b^2 == c^2]
+
+-- Properties that should not be true for a triangle to be a 'regular' triangle.
+notAllowedProperties :: [(Int -> Int -> Int -> Bool)]
+notAllowedProperties = [isIllegal, isEquilateral, isIsosceles, isRectangular]
+
+-- Unfortunately this test auses most of code the triangle function uses.
+regularTest :: (Positive Int) -> (Positive Int) -> (Positive Int) -> (Positive Int) -> Bool
+regularTest (Positive x) (Positive y) (Positive z) (Positive i) = not (or [ p a b c | p <- notAllowedProperties ]) && isTriangle a b c --> True
+                    where
+                      abc = rearrange i [x, y, z]
+                      a = abc !! 0
+                      b = abc !! 1
+                      c = abc !! 2
+
+-- Time spend: 4:00
+
+-- This function runs all the tests
+main = do
+  putStrLn "Negative length side test."
+  quickCheck negativeLengthTest 
+  putStrLn "Zero length size test."
+  quickCheck zeroLengthTest 
+  putStrLn "Not a triangle test."
+  quickCheck noTriangleTest 
+  putStrLn "Equilateral triangle test."
+  quickCheck equilateralTest 
+  putStrLn "Isosceles triangle test."
+  quickCheck isoscelesTest 
+  putStrLn "Rectangular triangle test (different cases are generated by the test itself, so 1 QuickCheck run is sufficient)"
+  quickCheck rectangularTest
+  putStrLn "Regular triangle test"
+  quickCheck regularTest
