@@ -59,6 +59,10 @@ checkRandomness n = do
                       putStr "That is as percentage: "
                       print ((100 * maxDeviation) `div` mean)
 
+distributionTest = do
+  putStrLn "\n--== DISTRIBUTION ==--\n"
+  checkRandomness 10000
+
 -- Time spend: 1 hour
 
 
@@ -191,10 +195,8 @@ regularTest (Positive x) (Positive y) (Positive z) (Positive i) = not (or [ p a 
                       b = abc !! 1
                       c = abc !! 2
 
--- Time spend: 4:00
-
--- This function runs all the tests
-main = do
+triangleTests = do
+  putStrLn "\n--== TRIANGLE ==--\n"
   putStrLn "Negative length side test."
   quickCheck negativeLengthTest 
   putStrLn "Zero length size test."
@@ -209,6 +211,8 @@ main = do
   quickCheck rectangularTest
   putStrLn "Regular triangle test."
   quickCheck regularTest
+
+-- Time spend: 4:00
 
 
 -- ASSIGNMENT 3 - PROPERTY STRENGTH --
@@ -233,3 +237,8 @@ properties = [((\ x -> even x && x > 3), even),
   ((\ x -> (even x && x > 3) || even x) ,  even),
   (even ,  (\ x -> (even x && x > 3) || even x))]
 
+
+-- This function runs all the tests
+main = do
+  distributionTest
+  triangleTests
