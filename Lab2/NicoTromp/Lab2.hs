@@ -127,7 +127,7 @@ equilateralTest :: (Positive Int) -> Bool
 equilateralTest (Positive x) = triangle x x x == Equilateral
 
 -- When QuickCheck generates a number greater or equal to 2 we can subtract 1 from it
--- for once side to make a isosceles triangle.
+-- for one side to make a isosceles triangle.
 isoscelelTest :: (Positive Int) -> Bool
 isoscelelTest (Positive x) = (x >= 2) --> triangle a b c == Isosceles
                           where
