@@ -74,7 +74,7 @@ isEquilateral a b c = a == b && b == c
 -- Using the fact that the lengths are ordered the two longest need to be equal
 -- to make it a isosceles triangle
 isIsosceles :: Int -> Int -> Int -> Bool
-isIsosceles a b c = b == c
+isIsosceles a b c = a == b || b == c
 
 isRectangular :: Int -> Int -> Int -> Bool
 isRectangular a b c = a^2 + b^2 == c^2
@@ -126,15 +126,21 @@ zeroLengthTest (Positive x) (Positive y) = triangle a b c == NoTriangle
 equilateralTest :: (Positive Int) -> Bool
 equilateralTest (Positive x) = triangle x x x == Equilateral
 
--- When QuickCheck generates a two numbers the largets one is used for the two isosceles
--- sides and the minimum as the other sice. To ensure that we accedentely don't test for
--- a equilateral triangle 1 is added to the maximum value.
-isoscelelTest :: (Positive Int) -> (Positive Int) -> Bool
-isoscelelTest (Positive x) (Positive y) = triangle a b c == Isosceles
+-- When testing isosceles triangles there are two different situations. 
+--   1: The isosceles sides are bigger then the non-isosceles side
+--   2: The isosceles sides are less then the non-isosceles side and sum of the
+--      isosceles sides is greater then the length of the non-isosceles side.
+-- If QuickCheck generates a even number we generate lengths that match the first situation
+-- otherwise we generate the second situation.
+-- By adding 2 to the maximum of the two we ensure that it is really larger then the minimum.
+isoscelesTest :: (Positive Int) -> (Positive Int) -> (Positive Int) -> Bool
+isoscelesTest (Positive x) (Positive y) (Positive i) = triangle a b c == Isosceles
                           where
-                            abc = head (permutations [maxxy+1, maxxy+1, minxy])
+                            abc = abcs !! (i `mod` (length abcs))
                             a = abc !! 0
                             b = abc !! 1
                             c = abc !! 2
-                            maxxy = max x y
+                            maxxy = (max x y) + 2
                             minxy = min x y
+                            abcs | even i = permutations [maxxy, maxxy, minxy]
+                                 | odd i  = permutations [1 + (maxxy `div` 2), 1 + (maxxy `div` 2), maxxy]
