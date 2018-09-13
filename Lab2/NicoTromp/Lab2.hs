@@ -24,6 +24,43 @@ data Shape = NoTriangle | Equilateral
 
 -- ASSIGNMENT 1 --
 
+-- Map every quartile to a integer number starting from 0
+-- (0..0.25)   -> 0
+-- [0.25..0.5) -> 1
+-- [0.5..0.75) -> 2
+-- [0.75..1)   -> 3
+floatToClass :: Float -> Integer
+floatToClass x = toInteger (floor (4.0 * x))
+
+-- Check if two values belong to the same 
+isSameClass :: Float -> Float -> Bool
+isSameClass x y = floatToClass x == floatToClass y
+
+-- Group the sorted values according to their class
+groupValues :: [Float] -> [[Float]]
+groupValues xs = groupBy isSameClass (sort xs)
+
+-- Generates a number of random values, divides them into quartiles, determines
+-- the distribution and print the results, including the maximum deviation from
+-- the mean. The mean is defined as the number of generated numbers over 4.
+-- The number of random numbers that needs to be generated is the input parameter
+-- of this function.
+checkRandomness :: Int -> IO ()
+checkRandomness n = do
+                      values <- probs n
+                      let quartiles = groupValues values
+                      let distribution = map length quartiles
+                      putStrLn "Number of values in each quartile."
+                      print distribution
+                      let mean = n `div` 4
+                      let maxDeviation = maximum (map (\x -> abs(x - mean)) distribution)
+                      putStrLn "The maximum deviation from the mean "
+                      print maxDeviation
+                      putStrLn "That is as percentage"
+                      print ((100 * maxDeviation) `div` mean)
+
+-- Time spend: 1 hour
+
 
 -- ASSIGNMENT 2 --
 
