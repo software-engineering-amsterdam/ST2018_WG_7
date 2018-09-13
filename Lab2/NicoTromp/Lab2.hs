@@ -126,12 +126,15 @@ zeroLengthTest (Positive x) (Positive y) = triangle a b c == NoTriangle
 equilateralTest :: (Positive Int) -> Bool
 equilateralTest (Positive x) = triangle x x x == Equilateral
 
--- When QuickCheck generates a number greater or equal to 2 we can subtract 1 from it
--- for one side to make a isosceles triangle.
-isoscelelTest :: (Positive Int) -> Bool
-isoscelelTest (Positive x) = (x >= 2) --> triangle a b c == Isosceles
+-- When QuickCheck generates a two numbers the largets one is used for the two isosceles
+-- sides and the minimum as the other sice. To ensure that we accedentely don't test for
+-- a equilateral triangle 1 is added to the maximum value.
+isoscelelTest :: (Positive Int) -> (Positive Int) -> Bool
+isoscelelTest (Positive x) (Positive y) = triangle a b c == Isosceles
                           where
-                            abc = head (permutations [x, x, x-1])
+                            abc = head (permutations [maxxy+1, maxxy+1, minxy])
                             a = abc !! 0
                             b = abc !! 1
                             c = abc !! 2
+                            maxxy = max x y
+                            minxy = min x y
