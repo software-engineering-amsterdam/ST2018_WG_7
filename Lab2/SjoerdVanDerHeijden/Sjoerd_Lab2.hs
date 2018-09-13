@@ -33,7 +33,7 @@ probsLengths :: Int -> IO[Int]
 probsLengths n = fmap (map length) (mapSort n)
 
 -- time: 45 min
-
+-- Thanks to Nico and Rocoo for introducing me to the existance of groupBy and fmap.
 -----------------------------------------------------------------------------------
 -- Exercise Triangles
 data Shape = NoTriangle | Equilateral 
@@ -83,13 +83,14 @@ strictlyWeaker xs p q = not (stronger xs p q) && weaker xs p q
 equallyStrong :: [a] -> (a -> Bool) -> (a -> Bool) -> Bool
 equallyStrong xs p q = stronger xs p q && weaker xs p q
 
-strengthChecker xs p q | strictlyStronger xs p q = GT
-                       | strictlyWeaker xs p q = LT
+strengthChecker xs p q | strictlyStronger xs p q = LT
                        | equallyStrong xs p q = EQ
+                       | strictlyWeaker xs p q = GT
 
 
+-- Sorts predicates strongest to weakest
 sortPredicates :: [a] -> [(a->Bool)] -> [(a->Bool)]
-sortPredicates xs predicates = sortBy (\p q -> strengthChecker xs p q) predicates 
+sortPredicates xs predicates = sortBy (\p q -> strengthChecker xs p q) predicates
 
 mySortedPredicates :: [(Int -> Bool)]
 mySortedPredicates = sortPredicates [(-10)..10] myPredicates
@@ -101,10 +102,11 @@ interactMySortedPredicates :: Int -> [Bool]
 interactMySortedPredicates a = interactPredicates mySortedPredicates a
 
 sorterTest :: Int -> Bool
-sorterTest a = sortedBools == reverse(sort (sortedBools) )
+sorterTest a = sortedBools == sort (sortedBools) 
                 where sortedBools = interactMySortedPredicates a
 
--- I'm very proud of this. The idea to test the ordering of the result 
+-- I'm very proud of this. The idea to test the ordering of the result in this way was mine
 -- time: 60 min
 
 -----------------------------------------------------------------------------------
+
