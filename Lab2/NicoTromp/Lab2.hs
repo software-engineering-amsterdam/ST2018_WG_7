@@ -217,6 +217,9 @@ triangleTests = do
 
 -- ASSIGNMENT 3 - PROPERTY STRENGTH --
 
+instance Show (a->b) where
+  show f = "<function>"
+
 forall :: [a] -> (a -> Bool) -> Bool
 forall = flip all
 
@@ -224,21 +227,58 @@ stronger :: [a] -> (a -> Bool) -> (a -> Bool) -> Bool
 stronger xs p q = forall xs (\ x -> p x --> q x)
 
 weaker :: [a] -> (a -> Bool) -> (a -> Bool) -> Bool
-weaker   xs p q = stronger xs q p
+weaker xs p q = stronger xs q p
 
 strictlyStronger :: [a] -> (a -> Bool) -> (a -> Bool) -> Bool
 strictlyStronger xs p q = stronger xs p q && not (weaker xs p q)
 
 stricktlyWeaker :: [a] -> (a -> Bool) -> (a -> Bool) -> Bool
-stricktlyWeaker   xs p q = weaker xs p q && not (stronger xs q p)
+stricktlyWeaker xs p q = weaker xs p q && not (stronger xs q p)
 
-properties = [((\ x -> even x && x > 3), even),
-  ((\ x -> even x || x > 3) ,  even),
-  ((\ x -> (even x && x > 3) || even x) ,  even),
-  (even ,  (\ x -> (even x && x > 3) || even x))]
+equivelant :: [a] -> (a -> Bool) -> (a -> Bool) -> Bool
+equivelant xs p q = stronger xs p q && weaker xs p q
 
+type PropertyInfo = (String, (Int -> Bool))
+
+comparator :: PropertyInfo -> PropertyInfo -> Ordering
+comparator f g | strictlyStronger xs f' g' = LT
+               | stronger xs f' g'         = LT
+               | equivelant xs f' g'       = EQ
+               | weaker xs f' g'           = GT
+               | stricktlyWeaker xs f' g'  = GT
+               where
+                xs = [(-10)..10]
+                f' = snd f
+                g' = snd g
+
+properties :: [PropertyInfo]
+properties = [("even", even), 
+  ("(\\ x -> even x && x > 3)", (\ x -> even x && x > 3)),
+  ("(\\ x -> even x || x > 3)", (\ x -> even x || x > 3)),
+  ("(\\ x -> (even x && x > 3) || even x)", (\ x -> (even x && x > 3) || even x))]
+
+orderedProperties :: [PropertyInfo]
+orderedProperties = sortBy comparator properties
+
+orderedPropertyTexts :: [String]
+orderedPropertyTexts = [ fst p | p <- orderedProperties]
+
+printStrings :: [String] -> IO()
+printStrings[]      = putStrLn ""
+printStrings (x:xs) = do {
+      putStrLn x;
+      printStrings xs;
+    }
+
+printOrdereProperties = do
+  putStrLn "\n--== PROPERTY STRENGHT ==--\n"
+  putStrLn "Properties in descending order of strength."
+  printStrings orderedPropertyTexts
+
+-- Time spend: 2:00
 
 -- This function runs all the tests
 main = do
   distributionTest
   triangleTests
+  printOrdereProperties
