@@ -23,11 +23,11 @@ probs n = do
         ps <- probs (n-1) 
         return (p:ps)
 
-sortShit :: [Float] -> [[Float]]
-sortShit ioList = groupBy (\x y ->  floor (4 * x) == floor (4 * y) ) (sort ioList)
+bin :: [Float] -> [[Float]]
+bin ioList = groupBy (\x y ->  floor (4 * x) == floor (4 * y) ) (sort ioList)
 
 mapSort :: Int -> IO [[Float]]
-mapSort n = fmap sortShit (probs n)
+mapSort n = fmap bin (probs n)
 
 probsLengths :: Int -> IO[Int]
 probsLengths n = fmap (map length) (mapSort n)
@@ -160,6 +160,24 @@ isPermutation2 list1 list2 = length list1 == length list2 && and [elem x list2 |
 
 --isPermutationTest = 
 
+testlist :: [([[Int]], Bool)]
+testlist = [ ([ [],[] ], True), 
+             ([ [1,2,3], [3,2,1] ], True),
+             --([ [[]],[[]] ], True),
+             ([ [1,2,3],[1,2,4] ] , False),
+             ([ [1,2],[1,2,3] ], False)
+             --([ "abc", "cba" ], True)
+           ]
+
+testPermutation = and [isPermutation2 ((fst testcase) !! 0) ((fst testcase) !! 1)
+ == snd testcase | testcase <- testlist]
+
+-- would automated testing even make sense here?
+-----------------------------------------------------------------------------------
+
+isDerangement :: Eq a => [a] -> [a] -> Bool
+isDerangement list1 list2 = isPermutation2 list1 list2 && and [ list1 !! i /= list2 !! i | i <- [0..length(list1)-1]]
+
 
 
 
@@ -182,3 +200,6 @@ main = do
         print mySortedPredicateStrings
         putStrLn "Testing the predicate sorter"
         quickCheck sorterTest
+
+        putStrLn "Testing permutation checker"
+        quickCheck testPermutation
