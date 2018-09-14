@@ -23,17 +23,28 @@ probs n = do
         ps <- probs (n-1) 
         return (p:ps)
 
-sortShit :: [Float] -> [[Float]]
-sortShit ioList = groupBy (\x y ->  floor (4 * x) == floor (4 * y) ) (sort ioList)
+bin :: [Float] -> [[Float]]
+bin ioList = groupBy (\x y ->  floor (4 * x) == floor (4 * y) ) (sort ioList)
 
 mapSort :: Int -> IO [[Float]]
-mapSort n = fmap sortShit (probs n)
+mapSort n = fmap bin (probs n)
 
 probsLengths :: Int -> IO[Int]
 probsLengths n = fmap (map length) (mapSort n)
 
+std :: [Int] -> Float
+std xs = sqrt (fromIntegral (sum ([(x - avg)^2 | x <- xs ]) `div` (length xs)))
+        where
+         avg = (sum xs `div` length xs)
+
+printLengthsAndStd :: Int -> IO()
+printLengthsAndStd n = do
+                        lengths <- probsLengths n
+                        putStrLn (show lengths)
+                        putStrLn (show (std lengths))
+
 -- time: 45 min
--- Thanks to Nico and Rocoo for introducing me to the existance of groupBy and fmap.
+-- Thanks to Nico and Rocco for introducing me to the existance of groupBy and fmap.
 -----------------------------------------------------------------------------------
 -- Exercise Triangles
 data Shape = NoTriangle | Equilateral 
@@ -148,3 +159,47 @@ isPermutation2 :: Eq a => [a] -> [a] -> Bool
 isPermutation2 list1 list2 = length list1 == length list2 && and [elem x list2 | x <- list1]
 
 --isPermutationTest = 
+
+testlist :: [([[Int]], Bool)]
+testlist = [ ([ [],[] ], True), 
+             ([ [1,2,3], [3,2,1] ], True),
+             --([ [[]],[[]] ], True),
+             ([ [1,2,3],[1,2,4] ] , False),
+             ([ [1,2],[1,2,3] ], False)
+             --([ "abc", "cba" ], True)
+           ]
+
+testPermutation = and [isPermutation2 ((fst testcase) !! 0) ((fst testcase) !! 1)
+ == snd testcase | testcase <- testlist]
+
+-- would automated testing even make sense here?
+-----------------------------------------------------------------------------------
+
+isDerangement :: Eq a => [a] -> [a] -> Bool
+isDerangement list1 list2 = isPermutation2 list1 list2 && and [ list1 !! i /= list2 !! i | i <- [0..length(list1)-1]]
+
+
+
+
+-----------------------------------------------------------------------------------
+main = do
+        putStrLn "Random number distribution and standard deviation:"
+        printLengthsAndStd 20000
+        putStrLn "Testing NoTriangle"
+        quickCheck testNoTriangle
+        putStrLn "Testing Equilateral"
+        quickCheck testEquilateral
+        putStrLn "Testing Isosceles"
+        quickCheck testIsosceles
+        putStrLn "Testing Rectangular"
+        quickCheck testRectangular
+        putStrLn "Testing Rectangular2"
+        quickCheck testRectangular2
+
+        putStrLn "Printing the ordering from strongest to weakest predicates"
+        print mySortedPredicateStrings
+        putStrLn "Testing the predicate sorter"
+        quickCheck sorterTest
+
+        putStrLn "Testing permutation checker"
+        quickCheck testPermutation
