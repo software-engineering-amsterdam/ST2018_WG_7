@@ -32,8 +32,19 @@ mapSort n = fmap sortShit (probs n)
 probsLengths :: Int -> IO[Int]
 probsLengths n = fmap (map length) (mapSort n)
 
+std :: [Int] -> Float
+std xs = sqrt (fromIntegral (sum ([(x - avg)^2 | x <- xs ]) `div` (length xs)))
+        where
+         avg = (sum xs `div` length xs)
+
+printLengthsAndStd :: Int -> IO()
+printLengthsAndStd n = do
+                        lengths <- probsLengths n
+                        putStrLn (show lengths)
+                        putStrLn (show (std lengths))
+
 -- time: 45 min
--- Thanks to Nico and Rocoo for introducing me to the existance of groupBy and fmap.
+-- Thanks to Nico and Rocco for introducing me to the existance of groupBy and fmap.
 -----------------------------------------------------------------------------------
 -- Exercise Triangles
 data Shape = NoTriangle | Equilateral 
@@ -148,3 +159,26 @@ isPermutation2 :: Eq a => [a] -> [a] -> Bool
 isPermutation2 list1 list2 = length list1 == length list2 && and [elem x list2 | x <- list1]
 
 --isPermutationTest = 
+
+
+
+
+-----------------------------------------------------------------------------------
+main = do
+        putStrLn "Random number distribution and standard deviation:"
+        printLengthsAndStd 20000
+        putStrLn "Testing NoTriangle"
+        quickCheck testNoTriangle
+        putStrLn "Testing Equilateral"
+        quickCheck testEquilateral
+        putStrLn "Testing Isosceles"
+        quickCheck testIsosceles
+        putStrLn "Testing Rectangular"
+        quickCheck testRectangular
+        putStrLn "Testing Rectangular2"
+        quickCheck testRectangular2
+
+        putStrLn "Printing the ordering from strongest to weakest predicates"
+        print mySortedPredicateStrings
+        putStrLn "Testing the predicate sorter"
+        quickCheck sorterTest
