@@ -263,6 +263,12 @@ orderedProperties = sortBy comparator properties
 orderedPropertyTexts :: [String]
 orderedPropertyTexts = [ fst p | p <- orderedProperties]
 
+inputDomain :: [Int]
+inputDomain = [(-10)..10]
+
+orderedPropertyResults :: [String]
+orderedPropertyResults = [ show ( filter (snd p) inputDomain) | p <- orderedProperties]
+
 printStrings :: [String] -> IO()
 printStrings[]      = putStrLn ""
 printStrings (x:xs) = do {
@@ -274,6 +280,8 @@ printOrdereProperties = do
   putStrLn "\n--== PROPERTY STRENGHT ==--\n"
   putStrLn "Properties in descending order of strength."
   printStrings orderedPropertyTexts
+  putStrLn "And their corresponding results (given [-10..10] as the domain for the input)."
+  printStrings orderedPropertyResults
 
 -- Time spend: 2:00
 
