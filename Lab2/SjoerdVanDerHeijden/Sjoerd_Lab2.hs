@@ -62,7 +62,10 @@ function to these numbers which results in a list of four bins with a width of 0
 data Shape = NoTriangle | Equilateral 
            | Isosceles  | Rectangular | Other deriving (Eq,Show)
 
--- You know what this does
+-- You know what this does. It does so by first sorting the input, then checking what kind of triangle it is.
+-- Since the edges are sorted by length, fewer checks are necessary to find the type of a 
+-- triangle. E.g.: instead of needing a==b,b==c to check whether a triangle is Equilateral,
+-- it is only necessary to check whether a==c.
 triangle :: Int -> Int -> Int -> Shape
 triangle x y z | a + b <= c || a < 1 = NoTriangle
                | a == c = Equilateral
@@ -74,12 +77,7 @@ triangle x y z | a + b <= c || a < 1 = NoTriangle
                 b = sort[x, y, z] !! 1
                 c = sort[x, y, z] !! 2
 
-{-
- Credits to Nico for the idea of sorting the input for triangle.
- Since the edges are sorted by length, fewer checks are necessary to find the type of a triangle. E.g.: instead of needing a==b,b==c to check whether a triangle is Equilateral, only a==c is necessary.
- time: 10 min
--}
-
+-- Tests for the triangle function:
 -- Creates number combinations that could never represent triangles and checks whether the triangle function identifies them as such.
 testNoTriangle :: Int -> Int -> Bool
 testNoTriangle a b = triangle a b (a+b+1) == NoTriangle
@@ -118,17 +116,23 @@ testOther (Positive x) (Positive y) = triangle (a+1) (b+2) (a+b+2) == Other
                                     -- | a == b = triangle (b+1) (b+3) (b+4) == Other
                                     -- | otherwise = triangle a b (head [c| c <- [maximum([a,b])+1..a+b-1], triangle a b c /= Rectangular, a+b > c]) == Other
 
--- Since all triangles are tested for, it is not necessary to implement falsification tests; each test is a falsification test for the others.
-
+{-
+ Credits to Nico for the idea of sorting the input for triangle.
+ I test and verified the triangle function explicitly for every kind of triangle (and noTriangle).
+ Since all triangles are tested for, it is not necessary to implement dedicated falsification tests;
+ each test is a falsification test for the others.
+ total time: 60 min
+-}
 -----------------------------------------------------------------------------------
 -- Exercise Strenght tester
+
 property1 :: Int -> Bool
 property1 x = even x && x > 3
 
 property2 :: Int -> Bool
 property2 x = even x || x > 3
 
--- Due to the || , this property is equal to simply even x .
+-- Note: due to the || , this property is equal to simply "even x" .
 property3 :: Int -> Bool
 property3 x = (even x && x > 3) || even x
 
@@ -169,9 +173,9 @@ sortProperties xs properties = sortBy (\p q -> strengthChecker xs (snd p) (snd q
 interactProperties :: [(String, (a -> Bool))] -> a -> [Bool]
 interactProperties properties a = [ snd p a | p <- properties]
 
--- Checks whether my properties have been properly sorted, by checking whether the boolean list returned
--- by interactProperties is already sorted. This is a conclusive test, since the output should be sorted
--- according to the definition of stronger and weaker properties.
+-- Checks whether my properties have been properly sorted, by checking whether the boolean
+-- list returned by interactProperties is already sorted. This is a conclusive test, since
+-- the output should always be sorted according to the definition of "strength" of properties.
 sorterTest :: Int -> Bool
 sorterTest a = sortedBools == sort (sortedBools) 
                 where sortedBools = interactMySortedProperties a
@@ -190,13 +194,19 @@ interactMySortedProperties :: Int -> [Bool]
 interactMySortedProperties a = interactProperties mySortedProperties a
 
 
+{-
+ I take the list of properties, then use the supplied functions stronger and weaker to 
+ determine their relative strength, which I express in an Ordering type. The built in 
+ sortBy function then sorts them.
 
--- I'm very proud of this. The idea to test the ordering of the result in this way was mine
--- Credits to Rens for thinking of displaying the predicate names.
--- time: 60 min
+ I'm very proud of this. The idea to test the ordering of the result in this way was mine
+ Credits to Rens for thinking of displaying the predicate names.
+ time: 60 min
+ -}
 
 -----------------------------------------------------------------------------------
 -- Exercise Recognizing Permutations
+
  -- The first thing I thought of, but slow for long lists.
 isPermutation :: Eq a => [a] -> [a] -> Bool
 isPermutation list1 list2 = elem list1 (permutations list2)
@@ -205,10 +215,9 @@ isPermutation list1 list2 = elem list1 (permutations list2)
 isPermutation2 :: Eq a => [a] -> [a] -> Bool
 isPermutation2 list1 list2 = length list1 == length list2 && and [elem x list2 | x <- list1]
 
--- 
 testPermutation :: Bool
 testPermutation = and [
-                isPermutation2 [] ([] :: [Int]),
+                isPermutation2 [] ([] :: [Int]), -- I had to add Int to prevent ambiguous type errors.
                 isPermutation2 [1,2,3] [3,2,1],
                 isPermutation2 [[]] ([[]] :: [[Int]]),
                 not (isPermutation2 [1,2,3] [1,2,4]),
@@ -216,12 +225,25 @@ testPermutation = and [
                 isPermutation2 "abc" "cba"
                 ]
 
--- would automated testing even make sense here? If isPermutation works for [1,2,3], could it ever not work for any list?
+quickCheckPermutations :: Eq a => [a] -> Bool
+quickCheckPermutations list1 = isPermutation2 list1 (head (permutations list1))
+falsifyPermutations :: Eq a => [a] -> a -> Bool
+falsifyPermutations list1 x = not (isPermutation2 list1 (list1 ++ [x]))
+
+{-
+ Testable properties for isPermutation: takes any type of Eq. Takes two lists and returns
+ True when they are of the same length and each element of one list is also in the other
+ (assuming neither contains duplicate elements).
+ I assume that a list is also a permutation of itself, I am unsure of the definition in this aspect.
+ would automated testing even make sense here? If isPermutation works for [1,2,3], could it ever not work for any list?
+ Automated tested is made more difficult by the fact that I assume unique elements, but quickCheck doesnt know that.
+ For some mystical reason, falsifyPermutations does not work when I call it in main, but it does work from the command line.
+ time: 30m
+-}
+
 -----------------------------------------------------------------------------------
 -- Exercise Recognizing Derangement
 
--- The same constraints hold as for isPermutation2, but added is the requirement that none of the original
--- numbers may be on the same spot as they were before.
 isDerangement :: Eq a => [a] -> [a] -> Bool
 isDerangement list1 list2 = isPermutation2 list1 list2 && and [ list1 !! i /= list2 !! i | i <- [0..length(list1)-1]]
 
@@ -237,8 +259,88 @@ testDerangement = and [
                 isDerangement "abc" "bca"
                 ]
 
+quickCheckDerangement list1 = isDerangement list1 (drop 1 list1 ++ [head list1])
+
+{-
+ The same constraints hold as for isPermutation, but added is the requirement that none of the original
+ elements may be on the same spot as they were before.
+ time: 15min
+-}
+-----------------------------------------------------------------------------------
+-- Exercise Rot 13
+{-
+ Rot 13 takes a string, then replaces every letter with one 13 places away from
+ it in the alphabet (e.g., a -> n, n -> a). 
+-}
+rot13Char :: Char -> Char
+rot13Char char | char >= 'A' && char <= 'M' = chr (ord char +13)::Char
+               | char >= 'N' && char <= 'Z' = chr (ord char -13)::Char
+               | char >= 'a' && char <= 'm' = chr (ord char +13)::Char
+               | char >= 'n' && char <= 'z' = chr (ord char -13)::Char
+               | otherwise = char
+
+rot13String :: [Char] -> [Char]
+rot13String str = [rot13Char s | s <- str]
+
+testRot13 :: [Char] -> Bool
+testRot13 str = str == rot13String (rot13String str)
+
+{-
+ Since the alphabet is 13 letters long, rot13String (rot13String str) should return str
+ time: 15min
+-}
+-----------------------------------------------------------------------------------
+-- Exercise IBAN
+
+-- Moves the first four characters of a string to the back. 
+moveCharToBack :: [Char] -> [Char]
+moveCharToBack string = drop 4 string ++ take 4 string
+
+-- Turns a character to an Int according to 'A' = 10, 'B' = 11, etcetera. Does not change numbers (nor lowercase letters)
+ibanCharToInt :: Char -> [Char]
+ibanCharToInt char | char >= 'A' && char <= 'Z' = show (ord char -55)
+                   | otherwise = [char]
+
+-- Combines moveCharToBack and ibanCharToInt to create a list of numbers in string format, in the order required to verify the initially given IBAN number
+ibanToStrList :: [Char] -> [[Char]]
+ibanToStrList string = [ibanCharToInt char | char <- moveCharToBack string]
+
+-- Takes an IBAN number and returns the integer required to validate it.
+ibanToInt :: [Char] -> Integer
+ibanToInt string = read [myChar | myStr <- ibanToStrList string, myChar <- myStr]::Integer
+
+ibanValidate :: [Char] -> Bool
+ibanValidate string = mod (ibanToInt string) 97 == 1
+
+-- A list of legal IBAN numbers
+testListIban :: [[Char]]
+testListIban = ["AL35202111090000000001234567",
+                "AD1400080001001234567890",
+                "AT483200000012345864",
+                "AZ96AZEJ00000000001234567890",
+                "BH02CITI00001077181611",
+                "BY86AKBB10100000002966000000"]
+
+-- A list of illegal IBAN numbers
+falsifyListIban :: [[Char]]
+falsifyListIban = ["AL35202111090000000001234568",
+                   "AD1400080001001234567891",
+                   "AT483200500012345864",
+                   "AZ96ASEJ00000000001234567890",
+                   "BH12CITI00001077181611",
+                   "BY86AKBP10100000002966000000"]
+
+testIban = all ibanValidate testListIban
+falsifyIban = not (any ibanValidate falsifyListIban)
+
+{-
+ I'm unsure about building an automated tester, as it would seem to me that in order to generate test cases, 
+ it needs to do the same checks as I do in order to validate the numbers.
+ time: 30min
+-}
 
 -----------------------------------------------------------------------------------
+
 main = do
         putStrLn "Random number distribution and standard deviation:"
         printLengthsAndStd 20000
@@ -255,8 +357,19 @@ main = do
 
         putStrLn "Printing the ordering from strongest to weakest properties"
         print mySortedPropertiesStrings
-        putStrLn "Testing the predicate sorter"
+        putStrLn "Testing the property sorter"
         quickCheck sorterTest
 
         putStrLn "Testing permutation checker"
         quickCheck testPermutation
+        -- quickCheck falsifyPermutations
+
+        putStrLn "Testing derangement checker"
+        quickCheck testDerangement
+
+        putStrLn "Testing rot13"
+        quickCheck testRot13
+
+        putStrLn "Testing IBAN verifier"
+        quickCheck testIban
+        quickCheck falsifyIban
