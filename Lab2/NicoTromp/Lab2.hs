@@ -63,7 +63,7 @@ distributionTest = do
   putStrLn "\n--== DISTRIBUTION ==--\n"
   checkRandomness 10000
 
--- Time spend: 1 hour
+-- Time spent: 1 hour
 
 
 -- ASSIGNMENT 2 - TRIANGLES --
@@ -106,7 +106,7 @@ triangle x y z | isIllegal a b c     = NoTriangle
                   a = abc !! 0
                   b = abc !! 1
                   c = abc !! 2
--- Time spend: 2:00 including a large amount of refactoring and bug fixing
+-- Time spent: 2:00 including a large amount of refactoring and bug fixing
 
 -- Shufles the elements of the array by selecting one of the permutations
 -- by using the number n
@@ -212,7 +212,7 @@ triangleTests = do
   putStrLn "Regular triangle test."
   quickCheck regularTest
 
--- Time spend: 4:00
+-- Time spent: 4:00
 
 
 -- ASSIGNMENT 3 - PROPERTY STRENGTH --
@@ -283,7 +283,54 @@ printOrdereProperties = do
   putStrLn "And their corresponding results (given [-10..10] as the domain for the input)."
   printStrings orderedPropertyResults
 
--- Time spend: 2:00
+-- Time spent: 2:00
+
+
+-- ASSIGNMENT 4 - PERMUTATIONS --
+
+isPermutation :: Eq a => [a] -> [a] -> Bool
+isPermutation [] []     = True
+isPermutation [] _      = False
+isPermutation _ []      = False
+isPermutation xs ys = length xs == length ys && isPermutation (tail xs) [ y | y <- ys, y /= head xs ] && xs /= ys
+
+-- equal lengths
+-- [i] = [j], i != j
+-- [i] != [i]
+
+-- Time spent: 0:30
+
+-- ASSIGNMETN 5 - DERANGEMENT (SINTERKLAAS) --
+
+checkDerangement :: Int -> [Int] -> Bool
+checkDerangement _ [] = True
+checkDerangement n (x:xs) = n /= x && checkDerangement (n+1) xs
+
+isDerangement :: [Int] -> Bool
+isDerangement xs = checkDerangement 0 xs && isPermutation xs [0..((length xs)-1)]
+
+-- [i] != i
+-- isPermutation of [0..(n-1)]
+
+-- Time spent: 0:15
+
+
+-- ASSIGNMENT 6 - ROT 13 --
+
+rot13 :: Char -> Char
+rot13 c | c == ' '             = ' '
+        | c >= 'a' && c <= 'z' = chr ((((ord c - ord 'a') + 13) `mod` 26) + ord 'a')
+        | c >= 'A' && c <= 'Z' = chr ((((ord c - ord 'A') + 13) `mod` 26) + ord 'A')
+
+rotate13 :: String -> String
+rotate13 xs = [ rot13 x | x <- xs ]
+
+-- Time spent: 0:20
+
+
+-- ASSIGNMENT 7 - IBAN --
+
+iban :: String -> Bool
 
 -- This function runs all the tests
 main = do
