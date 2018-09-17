@@ -1,18 +1,18 @@
-#LAB2
+#LAB2#
 
-##Recognizing triangles
+##Recognizing triangles##
 
 ```
 *Workshop2> quickCheck triangleTest
 +++ OK, passed 100 tests.
 ```
-##Testing properties strength
+##Testing properties strength##
 
-##Recognizing Permutations
+##Recognizing Permutations##
 
-##Recognizing and generating derangements
+##Recognizing and generating derangements##
 
-##Implementing and testing ROT13 encoding
+##Implementing and testing ROT13 encoding##
 
 > ROT13 specification:
 > 
@@ -23,5 +23,4 @@
 Some code
 
 ```
-##Implementing and testing IBAN validation
-
+##Implementing and testing IBAN validation##
