@@ -318,9 +318,9 @@ isDerangement xs = checkDerangement 0 xs && isPermutation xs [0..((length xs)-1)
 -- ASSIGNMENT 6 - ROT 13 --
 
 rot13 :: Char -> Char
-rot13 c | c == ' '             = ' '
-        | c >= 'a' && c <= 'z' = chr ((((ord c - ord 'a') + 13) `mod` 26) + ord 'a')
+rot13 c | c >= 'a' && c <= 'z' = chr ((((ord c - ord 'a') + 13) `mod` 26) + ord 'a')
         | c >= 'A' && c <= 'Z' = chr ((((ord c - ord 'A') + 13) `mod` 26) + ord 'A')
+        | otherwise            = c
 
 rotate13 :: String -> String
 rotate13 xs = [ rot13 x | x <- xs ]
@@ -330,7 +330,37 @@ rotate13 xs = [ rot13 x | x <- xs ]
 
 -- ASSIGNMENT 7 - IBAN --
 
+isCorrectLength :: String -> Bool
+isCorrectLength xs = length xs > 4
+
+isAlphaNumeric :: String -> Bool
+isAlphaNumeric xs = all isAlphaNum xs
+
+startsWithISOCode :: String -> Bool
+startsWithISOCode xs = all (\x -> isAlpha x && isUpper x) (take 2 xs)
+
+hasCheckDigits :: String -> Bool
+hasCheckDigits xs = all isNumber (drop 2 (take 4 xs))
+
+rearrangeIBAN :: String -> String
+rearrangeIBAN xs = drop 4 xs ++ take 4 xs
+
+translateChars :: String -> String
+translateChars []     = []
+translateChars (x:xs) | isAlpha x = show (ord x - ord 'A' + 10) ++ (translateChars xs)
+                      | otherwise = x:translateChars xs
+
+isValidIBAN :: String -> Bool
+isValidIBAN xs = (read (translateChars (rearrangeIBAN xs)) :: Integer) `mod` 97 == 1
+
 iban :: String -> Bool
+iban xs = isCorrectLength xs && 
+          isAlphaNumeric xs && 
+          startsWithISOCode xs && 
+          hasCheckDigits xs && 
+          isValidIBAN xs
+
+-- Time spend: 1:00
 
 -- This function runs all the tests
 main = do
