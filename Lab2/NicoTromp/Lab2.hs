@@ -32,7 +32,7 @@ data Shape = NoTriangle | Equilateral
 floatToClass :: Float -> Integer
 floatToClass x = toInteger (floor (4.0 * x))
 
--- Check if two values belong to the same 
+-- Check if two values belong to the class 
 isSameClass :: Float -> Float -> Bool
 isSameClass x y = floatToClass x == floatToClass y
 
@@ -229,28 +229,25 @@ stronger xs p q = forall xs (\ x -> p x --> q x)
 weaker :: [a] -> (a -> Bool) -> (a -> Bool) -> Bool
 weaker xs p q = stronger xs q p
 
-strictlyStronger :: [a] -> (a -> Bool) -> (a -> Bool) -> Bool
-strictlyStronger xs p q = stronger xs p q && not (weaker xs p q)
-
-stricktlyWeaker :: [a] -> (a -> Bool) -> (a -> Bool) -> Bool
-stricktlyWeaker xs p q = weaker xs p q && not (stronger xs q p)
-
 equivelant :: [a] -> (a -> Bool) -> (a -> Bool) -> Bool
 equivelant xs p q = stronger xs p q && weaker xs p q
 
+-- Holds a printable and a executable version of a property.
 type PropertyInfo = (String, (Int -> Bool))
 
+inputDomain :: [Int]
+inputDomain = [(-10)..10]
+
+-- Comparator for sorting the properties n descending strength
 comparator :: PropertyInfo -> PropertyInfo -> Ordering
-comparator f g | strictlyStronger xs f' g' = LT
-               | stronger xs f' g'         = LT
-               | equivelant xs f' g'       = EQ
-               | weaker xs f' g'           = GT
-               | stricktlyWeaker xs f' g'  = GT
+comparator f g | stronger inputDomain f' g'         = LT
+               | equivelant inputDomain f' g'       = EQ
+               | weaker inputDomain f' g'           = GT
                where
-                xs = [(-10)..10]
                 f' = snd f
                 g' = snd g
 
+-- Properties to sort
 properties :: [PropertyInfo]
 properties = [("even", even), 
   ("(\\ x -> even x && x > 3)", (\ x -> even x && x > 3)),
@@ -262,9 +259,6 @@ orderedProperties = sortBy comparator properties
 
 orderedPropertyTexts :: [String]
 orderedPropertyTexts = [ fst p | p <- orderedProperties]
-
-inputDomain :: [Int]
-inputDomain = [(-10)..10]
 
 orderedPropertyResults :: [String]
 orderedPropertyResults = [ show ( filter (snd p) inputDomain) | p <- orderedProperties]
@@ -292,7 +286,7 @@ isPermutation :: Eq a => [a] -> [a] -> Bool
 isPermutation [] []     = True
 isPermutation [] _      = False
 isPermutation _ []      = False
-isPermutation xs ys = length xs == length ys && isPermutation (tail xs) [ y | y <- ys, y /= head xs ] && xs /= ys
+isPermutation xs ys = length xs == length ys && isPermutation (tail xs) [ y | y <- ys, y /= head xs ]
 
 -- equal lengths
 -- [i] = [j], i != j
@@ -307,16 +301,24 @@ checkDerangement _ [] = True
 checkDerangement n (x:xs) = n /= x && checkDerangement (n+1) xs
 
 isDerangement :: [Int] -> Bool
-isDerangement xs = checkDerangement 0 xs && isPermutation xs [0..((length xs)-1)]
+isDerangement xs = checkDerangement 0 xs && isPermutation xs ys && xs /= ys
+                 where
+                    ys = [0..((length xs)-1)]
 
 -- [i] != i
 -- isPermutation of [0..(n-1)]
 
 -- Time spent: 0:15
 
+deran :: Int -> [[Int]]
+deran n = [ xs | xs <- permutations [0..(n-1)], isDerangement xs ]
+
 
 -- ASSIGNMENT 6 - ROT 13 --
 
+-- Map uppercase to uppercase and lowercase to lowercase.
+-- First map character to integer (a => 0), add 13 and keep within 26,
+-- then map back to character
 rot13 :: Char -> Char
 rot13 c | c >= 'a' && c <= 'z' = chr ((((ord c - ord 'a') + 13) `mod` 26) + ord 'a')
         | c >= 'A' && c <= 'Z' = chr ((((ord c - ord 'A') + 13) `mod` 26) + ord 'A')
@@ -336,8 +338,11 @@ isCorrectLength xs = length xs > 4
 isAlphaNumeric :: String -> Bool
 isAlphaNumeric xs = all isAlphaNum xs
 
+isKnownISOCode :: String -> Bool
+isKnownISOCode _ = True
+
 startsWithISOCode :: String -> Bool
-startsWithISOCode xs = all (\x -> isAlpha x && isUpper x) (take 2 xs)
+startsWithISOCode xs = all (\x -> isAlpha x && isUpper x) (take 2 xs) && isKnownISOCode (take 2 xs)
 
 hasCheckDigits :: String -> Bool
 hasCheckDigits xs = all isNumber (drop 2 (take 4 xs))
