@@ -219,7 +219,6 @@ testValidIbans = forall validIbans iban
 testTooLongIbans :: Bool
 testTooLongIbans = not (forany tooLongIbans iban)
 
-
 testWrongRemainderIban = not (forany wrongRemainderIban iban)
 validIbans = ["AL35202111090000000001234567",
   "AD1400080001001234567890",
