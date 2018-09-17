@@ -220,6 +220,7 @@ testPermutation = and [
                 isPermutation2 [] ([] :: [Int]), -- I had to add Int to prevent ambiguous type errors.
                 isPermutation2 [1,2,3] [3,2,1],
                 isPermutation2 [[]] ([[]] :: [[Int]]),
+                isPermutation2 [1,1,2] [1,2,2],  -- This one gives True, due to my assumption about unique elements.
                 not (isPermutation2 [1,2,3] [1,2,4]),
                 not (isPermutation2 [1,2] [1,2,3]),
                 isPermutation2 "abc" "cba"
@@ -227,6 +228,7 @@ testPermutation = and [
 
 quickCheckPermutations :: Eq a => [a] -> Bool
 quickCheckPermutations list1 = isPermutation2 list1 (head (permutations list1))
+
 falsifyPermutations :: Eq a => [a] -> a -> Bool
 falsifyPermutations list1 x = not (isPermutation2 list1 (list1 ++ [x]))
 
@@ -235,9 +237,10 @@ falsifyPermutations list1 x = not (isPermutation2 list1 (list1 ++ [x]))
  True when they are of the same length and each element of one list is also in the other
  (assuming neither contains duplicate elements).
  I assume that a list is also a permutation of itself, I am unsure of the definition in this aspect.
- would automated testing even make sense here? If isPermutation works for [1,2,3], could it ever not work for any list?
+ Would automated testing even make sense here? If isPermutation works for [1,2,3], could it ever not work for any list?
  Automated tested is made more difficult by the fact that I assume unique elements, but quickCheck doesnt know that.
- For some mystical reason, falsifyPermutations does not work when I call it in main, but it does work from the command line.
+ For some mystical reason, quickCheckPermutations and falsifyPermutations does not work when 
+ I call it in main, but it does work from the command line.
  time: 30m
 -}
 
@@ -362,6 +365,8 @@ main = do
 
         putStrLn "Testing permutation checker"
         quickCheck testPermutation
+        -- putStrLn "Testing automated permutation checker"
+        -- quickCheck quickCheckPermutations
         -- quickCheck falsifyPermutations
 
         putStrLn "Testing derangement checker"
