@@ -11,6 +11,7 @@ infix 1 -->
 (-->) :: Bool -> Bool -> Bool
 p --> q = (not p) || q
 
+--Assignment 1, time taken 01:00
 probs :: Int -> IO [Float]
 probs 0 = return []
 probs n = do
@@ -18,12 +19,24 @@ probs n = do
              ps <- probs (n-1)
              return (p:ps)
 
+sameCategory :: Float -> Float -> Bool
+sameCategory x y = floor (4*x) == floor (4*y)
+
+buckets :: [Int]
+buckets = [length l | l <- (groupBy sameCategory (probs 10000))]
+
+expectedLength :: Int
+expectedLength = 10000 `div` 4
+
+deviates :: Float -> Bool
+deviates d = any [abs (a-expectedLength) >= d | a <- buckets]
+
+deviates 100
+
+--Assignment 2, time 00:25
 data Shape = NoTriangle | Equilateral
            | Isosceles  | Rectangular | Other deriving (Eq,Show)
 
---Assignment 1, started at
-
---Assignment 2, time 00:25
 triangle :: Integer -> Integer -> Integer -> Shape
 triangle a b c  | (any (\x -> x == True) [side <= 0 | side <- [a, b, c]]) = NoTriangle
                 | (a>b+c) || (b>a+c) || (c>a+b)                           = NoTriangle
