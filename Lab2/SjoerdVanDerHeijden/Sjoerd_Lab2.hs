@@ -315,7 +315,7 @@ ibanToInt string = read [myChar | myStr <- ibanToStrList string, myChar <- myStr
 ibanValidate :: [Char] -> Bool
 ibanValidate string = mod (ibanToInt string) 97 == 1
 
--- A list of legal IBAN numbers
+-- A list of examples of legal IBAN numbers
 testListIban :: [[Char]]
 testListIban = ["AL35202111090000000001234567",
                 "AD1400080001001234567890",
@@ -324,7 +324,7 @@ testListIban = ["AL35202111090000000001234567",
                 "BH02CITI00001077181611",
                 "BY86AKBB10100000002966000000"]
 
--- A list of illegal IBAN numbers
+-- A list of examples of illegal IBAN numbers
 falsifyListIban :: [[Char]]
 falsifyListIban = ["AL35202111090000000001234568",
                    "AD1400080001001234567891",
