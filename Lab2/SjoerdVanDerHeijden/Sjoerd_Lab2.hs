@@ -13,6 +13,9 @@ p --> q = (not p) || q
 
 forall = flip all
 
+rearrange :: Int -> [a] -> [a]
+rearrange n xs = xss !! (n `mod` (length xss))
+               where xss = permutations xs
 -----------------------------------------------------------------------------------
 -- Exercise Curry
 
@@ -112,9 +115,6 @@ testOther (Positive x) (Positive y) = triangle (a+1) (b+2) (a+b+2) == Other
                                         where 
                                          a = minimum[x,y]
                                          b = maximum[x,y]
-                                    -- | otherwise = triangle (a+1) (b+2) (a+b+2) == Other
-                                    -- | a == b = triangle (b+1) (b+3) (b+4) == Other
-                                    -- | otherwise = triangle a b (head [c| c <- [maximum([a,b])+1..a+b-1], triangle a b c /= Rectangular, a+b > c]) == Other
 
 {-
  Credits to Nico for the idea of sorting the input for triangle.
@@ -141,8 +141,8 @@ property4 x = even x
 
 -- I add strings to my properties as to be able to print the ordered list of properties later.
 myProperties :: [(String, (Int -> Bool))]
-myProperties = [("property1", property1), ("property2", property2), ("property3", property3)
-                , ("property4", property4)]
+myProperties = [("even x && x > 3", property1), ("even x || x > 3", property2), ("(even x && x > 3) || even x", property3)
+                , ("even x", property4)]
 
 
 stronger, weaker :: [a] -> (a -> Bool) -> (a -> Bool) -> Bool
@@ -208,29 +208,30 @@ interactMySortedProperties a = interactProperties mySortedProperties a
 -- Exercise Recognizing Permutations
 
  -- The first thing I thought of, but slow for long lists.
-isPermutation :: Eq a => [a] -> [a] -> Bool
-isPermutation list1 list2 = elem list1 (permutations list2)
+-- isPermutation :: Eq a => [a] -> [a] -> Bool
+-- isPermutation list1 list2 = elem list1 (permutations list2)
 
 -- A faster implementation of isPermutation, but only works for lists with unique elements.
-isPermutation2 :: Eq a => [a] -> [a] -> Bool
-isPermutation2 list1 list2 = length list1 == length list2 && and [elem x list2 | x <- list1]
+isPermutation :: Eq a => [a] -> [a] -> Bool
+isPermutation list1 list2 = length list1 == length list2 && and [elem x list2 | x <- list1]
 
 testPermutation :: Bool
 testPermutation = and [
-                isPermutation2 [] ([] :: [Int]), -- I had to add Int to prevent ambiguous type errors.
-                isPermutation2 [1,2,3] [3,2,1],
-                isPermutation2 [[]] ([[]] :: [[Int]]),
-                isPermutation2 [1,1,2] [1,2,2],  -- This one gives True, due to my assumption about unique elements.
-                not (isPermutation2 [1,2,3] [1,2,4]),
-                not (isPermutation2 [1,2] [1,2,3]),
-                isPermutation2 "abc" "cba"
+                isPermutation [] ([] :: [Int]), -- I had to add Int to prevent ambiguous type errors.
+                isPermutation [1,2,3] [3,2,1],
+                isPermutation [[]] ([[]] :: [[Int]]),
+                isPermutation [1,1,2] [1,2,2],  -- This one gives True, due to my assumption about unique elements.
+                not (isPermutation [1,2,3] [1,2,4]),
+                not (isPermutation [1,2] [1,2,3]),
+                isPermutation "abc" "cba"
                 ]
 
-quickCheckPermutations :: Eq a => [a] -> Bool
-quickCheckPermutations list1 = isPermutation2 list1 (head (permutations list1))
+-- quickCheckPermutations :: Eq a => [a] -> Bool
+quickCheckPermutations :: [Int] -> (Positive Int) -> Bool
+quickCheckPermutations list1 (Positive i) = isPermutation list1 (rearrange i list1)
 
-falsifyPermutations :: Eq a => [a] -> a -> Bool
-falsifyPermutations list1 x = not (isPermutation2 list1 (list1 ++ [x]))
+falsifyPermutations :: [Int] -> Int -> Bool
+falsifyPermutations list1 x = not (isPermutation list1 (list1 ++ [x]))
 
 {-
  Testable properties for isPermutation: takes any type of Eq. Takes two lists and returns
@@ -248,7 +249,7 @@ falsifyPermutations list1 x = not (isPermutation2 list1 (list1 ++ [x]))
 -- Exercise Recognizing Derangement
 
 isDerangement :: Eq a => [a] -> [a] -> Bool
-isDerangement list1 list2 = isPermutation2 list1 list2 && and [ list1 !! i /= list2 !! i | i <- [0..length(list1)-1]]
+isDerangement list1 list2 = isPermutation list1 list2 && and [ list1 !! i /= list2 !! i | i <- [0..length(list1)-1]]
 
 testDerangement :: Bool
 testDerangement = and [
@@ -276,10 +277,10 @@ quickCheckDerangement list1 = isDerangement list1 (drop 1 list1 ++ [head list1])
  it in the alphabet (e.g., a -> n, n -> a). 
 -}
 rot13Char :: Char -> Char
-rot13Char char | char >= 'A' && char <= 'M' = chr (ord char +13)::Char
-               | char >= 'N' && char <= 'Z' = chr (ord char -13)::Char
-               | char >= 'a' && char <= 'm' = chr (ord char +13)::Char
-               | char >= 'n' && char <= 'z' = chr (ord char -13)::Char
+rot13Char char | char >= 'A' && char <= 'M' = chr (ord char +13)
+               | char >= 'N' && char <= 'Z' = chr (ord char -13)
+               | char >= 'a' && char <= 'm' = chr (ord char +13)
+               | char >= 'n' && char <= 'z' = chr (ord char -13)
                | otherwise = char
 
 rot13String :: [Char] -> [Char]
@@ -365,9 +366,9 @@ main = do
 
         putStrLn "Testing permutation checker"
         quickCheck testPermutation
-        -- putStrLn "Testing automated permutation checker"
-        -- quickCheck quickCheckPermutations
-        -- quickCheck falsifyPermutations
+        putStrLn "Testing automated permutation checker"
+        quickCheck quickCheckPermutations
+        quickCheck falsifyPermutations
 
         putStrLn "Testing derangement checker"
         quickCheck testDerangement
