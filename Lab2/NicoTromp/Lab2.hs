@@ -286,17 +286,41 @@ printOrdereProperties = do
 
 -- ASSIGNMENT 4 - PERMUTATIONS --
 
+elementsNotAtSameLocation :: Eq a => [a] -> [a] -> Bool
+elementsNotAtSameLocation [] []         = True
+elementsNotAtSameLocation (x:xs) (y:ys) = x /= y && elementsNotAtSameLocation xs ys
+
+haveSameElements :: Eq a => [a] -> [a] -> Bool
+haveSameElements [] []     = True
+haveSameElements [] _      = False
+haveSameElements (x:xs) ys = haveSameElements xs (delete x ys)
+
 isPermutation :: Eq a => [a] -> [a] -> Bool
-isPermutation [] []     = True
-isPermutation [] _      = False
-isPermutation _ []      = False
-isPermutation xs ys = length xs == length ys && isPermutation (tail xs) [ y | y <- ys, y /= head xs ]
+isPermutation xs ys = length xs == length ys && elementsNotAtSameLocation xs ys && haveSameElements xs ys
 
 -- equal lengths
--- [i] = [j], i != j
 -- [i] != [i]
+-- [i] = [j], i != j
 
--- Time spent: 0:30
+-- Time spent: 0:45
+
+isPermutationTests = do
+    putStrLn "\n--== PERMUTATIONS ==--\n"
+    putStrLn "In the following tests the expected outcome is printed between parentheses.\n"
+    putStrLn "Lengths must be equal."
+    putStr "\"Haskell\" \"QuickCheck\" have different lengths, isPermutation? (false) : "
+    putStrLn (show (isPermutation "Haskell" "QuickCheck"))
+    putStrLn "Can't be equal."
+    putStr "\"QuickCheck\" \"QuickCheck\" are equal, isPurmutation? (false) : "
+    putStrLn (show (isPermutation "QuickCheck" "QuickCheck"))
+    putStrLn "Elements must match."
+    putStr "\"QuickCheck\" \"uickCheckQ\" are rotated, isPurmutation? (true) : "
+    putStrLn (show (isPermutation "QuickCheck" "uickCheckQ"))
+    putStrLn "Elements must match."
+    putStr "\"QuickCheck\" \"Zygomorphy\" don't share any character, isPurmutation? (false) : "
+    putStrLn (show (isPermutation "QuickCheck" "Zygomorphy"))
+
+-- Time spent: 1:00
 
 -- ASSIGNMETN 5 - DERANGEMENT (SINTERKLAAS) --
 
@@ -376,3 +400,4 @@ main = do
   distributionTest
   triangleTests
   printOrdereProperties
+  isPermutationTests
