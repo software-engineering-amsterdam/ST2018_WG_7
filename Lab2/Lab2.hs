@@ -1,4 +1,4 @@
-module Group7_Lab2 where
+module Lab2 where
 
 import Data.List
 import Data.Char
@@ -149,6 +149,7 @@ generateTriangle Other        = do  Positive n <- arbitrary
 triangleTest :: Triangle -> Bool
 triangleTest (Triangle shape (x, y, z)) = shape == triangle x y z
 {- Time spent: 30 minutes on triangle and 4 hours on test
+ Our tests generate random triangles of a given type, then check whether our triangle function identifies them as such.
  Since all triangles are tested for, it is not necessary to implement dedicated falsification tests;
  each test is a falsification test for the others.
 -}
@@ -272,6 +273,7 @@ falsifyPermutations list1 x = not (isPermutation list1 (list1 ++ [x]))
  I assume that a list is also a permutation of itself, I am unsure of the definition in this aspect.
  Would automated testing even make sense here? If isPermutation works for [1,2,3], could it ever not work for any list?
  Automated tested is made more difficult by the fact that I assume unique elements, but quickCheck doesnt know that.
+ To circumvent many issues, we hacked a test into existence, at the cost of test coverage.
  Time: 1h
 -}
 
@@ -307,7 +309,8 @@ quickCheckDerangement list = length uniqueList > 1 --> isDerangement uniqueList 
 {-
  The same constraints hold as for isPermutation, but added is the requirement that none of the original
  elements may be on the same spot as they were before.
- Automated tested is made more difficult by the fact that we assume unique elements, but quickCheck doesnt know that.
+ Automated tested is still made more difficult by the fact that we assume unique elements, but here we decided to explicitly dump duplicates beforehand.
+ Now we run the risk of getting many lists that are too short, resulting in fewer tests being actually ran, but that's a lot better than the test coverage of 0 we had before.
  time: 15min
 -}
 
@@ -339,8 +342,8 @@ rot13Char c | c >= 'a' && c <= 'z' = chr ((((ord c - ord 'a') + 13) `mod` 26) + 
 -}
 -- rot13Char :: Char -> Char
 -- rot13Char c | isLower c = chr ((((ord c - ord 'a') + 13) `mod` 26) + ord 'a')
---              | isUpper c = chr ((((ord c - ord 'A') + 13) `mod` 26) + ord 'A')
---              | otherwise = c
+--             | isUpper c = chr ((((ord c - ord 'A') + 13) `mod` 26) + ord 'A')
+--             | otherwise = c
 
 rot13String :: String -> String
 rot13String xs = [ rot13Char x | x <- xs ]
@@ -467,6 +470,13 @@ tooLongIbans = map (++ "1") validIbans
 wrongRemainderIban = map (\x -> (init x) ++ [(int2let (let2int (last x) + 2))]) validIbans
 
 {-
+ We test our validation function with a list of valid IBANs, one for each country.
+ We run falsification tests on the same numbers, but altered as to invalidate them.
+ Both the tests and the falsification tests return answers that indicate the correctness of our code.
+ To generate automated tests, we'd need to generate valid IBAN numbers. The most straightforward way
+ would be to use a different implementation of our own code, which kind of undermines the purpose of
+ testing; a mistake in our validation code would be indistinguishable from a mistake in the generation code.
+ We could match the results of our own validator against online validators, but then still the issue of generating IBANs remain.
  Time: 1.5h
 -}
 -----------------------------------------------------------------------------------
