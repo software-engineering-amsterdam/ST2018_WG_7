@@ -70,7 +70,7 @@ strongerOrdering xs p q | (stronger xs p q) && (stronger xs q p) = EQ
 orderedproptuples = sortBy (\x y -> strongerOrdering [-10..10] (fst x) (fst y)) [(prop1, "prop1"), (prop2, "prop2"), (prop3, "prop3"), (prop4, "prop4")]
 orderedpropnames = [snd x | x <- orderedproptuples]
 
---Assignment 4, started 14:20-15:05
+--Assignment 4, time taken 00:45
 isPermutation :: Eq a => [a] -> [a] -> Bool
 isPermutation a b | length a /= length b = False
                   | otherwise            = all (==True) [elem x b | x <- a]
@@ -84,3 +84,54 @@ test4 = isPermutation [1, 2, 3] [3, 2, 1]
 test7 = isPermutation [[[]]] [[[1, 2, 3]]]
 test8 = isPermutation [[1, 2, 3]] [[1, 2, 3]]
 test9 = isPermutation [[1, 2, 3]] [[3, 2, 1]]
+
+--Assignment 6, time taken 00:30
+
+--Specification of ROT13
+--ROT13 is a specific caesar cipher, meaning that each character is substituted
+--by another character with one chosen offset in the alphabet.
+--With ROT13, we use the offset 13, which makes it it's own inverse,
+--because (x+13)+13 = x+26, and (x+26) mod 26 = x mod 26
+
+--First we split the input into segments of alphabetical characters and others.
+--We map each character to it's position in the alphabet.
+--We transform each position by adding 13.
+--We then map each position back to the 26 group so we stay within the alphabet.
+--Finally, we convert each position to a character again.
+--We join the input to it's non alphabetical characters again.
+
+rot13 :: [Char] -> [Char]
+rot13 phrase = [rot13ifapplicable char | char <- phrase]
+
+rot13ifapplicable :: Char -> Char
+rot13ifapplicable char | char >= 'a' && char <= 'z' = chr (ord 'a' + rot13char (ord char - ord 'a'))
+                       | char >= 'A' && char <= 'Z' = chr (ord 'A' + rot13char (ord char - ord 'A'))
+                       | otherwise                  = char
+
+rot13char :: Int -> Int
+rot13char char = (char + 13) `mod` 26
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+--
