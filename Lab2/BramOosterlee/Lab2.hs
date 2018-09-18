@@ -103,10 +103,34 @@ test9 = isPermutation [[1, 2, 3]] [[3, 2, 1]]
 rot13 :: [Char] -> [Char]
 rot13 phrase = [rot13ifapplicable char | char <- phrase]
 
+lowercasecheck :: Char -> Bool
+lowercasecheck char = char >= 'a' && char <= 'z'
+
+uppercasecheck :: Char -> Bool
+uppercasecheck char = char >= 'A' && char <= 'Z'
+
+lowercasetoindex :: Char -> Int
+lowercasetoindex char = ord char - ord 'a'
+
+uppercasetoindex :: Char -> Int
+uppercasetoindex char = ord char - ord 'A'
+
+indextolowercase :: Int -> Char
+indextolowercase index = chr (ord 'a' + index)
+
+indextouppercase :: Int -> Char
+indextouppercase index = chr (ord 'A' + index)
+
+lowercaserot13 :: Char -> Char
+lowercaserot13 char = indextolowercase (rot13char (lowercasetoindex char))
+
+uppercaserot13 :: Char -> Char
+uppercaserot13 char = indextouppercase (rot13char (uppercasetoindex char))
+
 rot13ifapplicable :: Char -> Char
-rot13ifapplicable char | char >= 'a' && char <= 'z' = chr (ord 'a' + rot13char (ord char - ord 'a'))
-                       | char >= 'A' && char <= 'Z' = chr (ord 'A' + rot13char (ord char - ord 'A'))
-                       | otherwise                  = char
+rot13ifapplicable char | lowercasecheck char = lowercaserot13 char
+                       | uppercasecheck char = uppercaserot13 char
+                       | otherwise           = char
 
 rot13char :: Int -> Int
 rot13char char = (char + 13) `mod` 26
