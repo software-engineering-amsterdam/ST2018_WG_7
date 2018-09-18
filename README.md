@@ -8,5 +8,5 @@ The members of ST2018_WG7
 
 * Bram Oosterlee
 * Nico Tromp
-* Rocco Matthijn
+* Rocco Mathijn
 * Sjoerd van der Heijden
