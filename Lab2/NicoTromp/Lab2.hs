@@ -276,6 +276,10 @@ printOrdereProperties = do
   printStrings orderedPropertyTexts
   putStrLn "And their corresponding results (given [-10..10] as the domain for the input)."
   printStrings orderedPropertyResults
+  putStrLn "As can seen above there are two properties that yield the same result (given the input domain)."
+  putStrLn "This means that tese two properties have a equivelant strength. As a result the order of their"
+  putStrLn "declaration and the exact implementation of the sorting algorithm determines which one is placed"
+  putStrLn "before the other and not their strengths."
 
 -- Time spent: 2:00
 
