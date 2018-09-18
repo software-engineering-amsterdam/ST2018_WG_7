@@ -1,26 +1,71 @@
 # LAB2
 
-## Recognizing triangles
+**How to run?** Run the `main` function inside module `Workshop2` too run all tests.
 
+
+## Distribution
 ```
-*Workshop2> quickCheck triangleTest
+--== EXERCISE 1: DISTRIBUTION ==--
+Number of values in each quartile: [2464,2518,2489,2529]
+The maximum deviation from the mean: 36
+That is as percentage: 1
+```
+
+## Recognizing triangles
+```
+--== EXERCISE 2: TRIANGLES ==--
 +++ OK, passed 100 tests.
 ```
+
 ## Testing properties strength
+```
+--== EXERCISE 3: PROPERTY STRENGTH ==--
+["even x && x > 3","(even x && x > 3) || even x","even x","even x || x > 3"]
+Testing the property sorter
++++ OK, passed 100 tests.
+```
 
 ## Recognizing Permutations
+```
+--== EXERCISE 4: PERMUTATIONS ==--
+Manual permutation test:
+In the following tests the expected outcome is printed between parentheses.
+Lengths must be equal.
+"Haskell" "QuickCheck" have different lengths, isPermutation? (false) : False
+Can be equal.
+"QuickCheck" "QuickCheck" are equal, isPermutation? (true) : True
+Elements must match.
+"QuickCheck" "uickCheckQ" are rotated, isPermutation? (true) : True
+Elements must match.
+"QuickCheck" "Zygomorphy" don't share any character, isPermutation? (false) : False
+Automated permutation test:
++++ OK, passed 100 tests.
+Automated falsification permutation test:
++++ OK, passed 100 tests.
+```
 
 ## Recognizing and generating derangements
+```
+--== EXERCISE 5: DERANGEMENT ==--
+Manual derangement test:
++++ OK, passed 1 test.
+Automated derangement test:
++++ OK, passed 100 tests.
+```
 
 ## Implementing and testing ROT13 encoding
-
-> ROT13 specification:
-> 
-> ROT13 replaces each letter by its partner 13 characters further along the alphabet. For example, HELLO becomes URYYB (or, conversely, URYYB becomes HELLO again).
-> ROT13 ("rotate by 13 places", sometimes hyphenated ROT-13) is a simple letter substitution cipher that replaces a letter with the 13th letter after it, in the alphabet.
-
 ```
-Some code
-
+--== EXERCISE 6: ROT13 ==--
++++ OK, passed 100 tests.
 ```
+
 ## Implementing and testing IBAN validation
+```
+--== EXERCISE 7: IBAN ==--
+Valid IBAN test:
++++ OK, passed 1 test.
+Falsification IBAN test: too long IBANs
++++ OK, passed 1 test.
+Falsification IBAN test: wrong remainder IBANs
++++ OK, passed 1 test.
+```
