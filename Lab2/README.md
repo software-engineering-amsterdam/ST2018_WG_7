@@ -1,6 +1,6 @@
 # LAB2
 
-**How to run?** Run the `main` function inside module `Workshop2` too run all tests.
+**How to run?** Run the `main` function inside module `Group7_Lab2` too run all tests.
 
 
 ## Distribution
