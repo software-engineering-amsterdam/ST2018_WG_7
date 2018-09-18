@@ -311,13 +311,13 @@ isPermutationTests = do
     putStr "\"Haskell\" \"QuickCheck\" have different lengths, isPermutation? (false) : "
     putStrLn (show (isPermutation "Haskell" "QuickCheck"))
     putStrLn "Can't be equal."
-    putStr "\"QuickCheck\" \"QuickCheck\" are equal, isPurmutation? (false) : "
+    putStr "\"QuickCheck\" \"QuickCheck\" are equal, isPermutation? (false) : "
     putStrLn (show (isPermutation "QuickCheck" "QuickCheck"))
     putStrLn "Elements must match."
-    putStr "\"QuickCheck\" \"uickCheckQ\" are rotated, isPurmutation? (true) : "
+    putStr "\"QuickCheck\" \"uickCheckQ\" are rotated, isPermutation? (true) : "
     putStrLn (show (isPermutation "QuickCheck" "uickCheckQ"))
     putStrLn "Elements must match."
-    putStr "\"QuickCheck\" \"Zygomorphy\" don't share any character, isPurmutation? (false) : "
+    putStr "\"QuickCheck\" \"Zygomorphy\" don't share any character, isPermutation? (false) : "
     putStrLn (show (isPermutation "QuickCheck" "Zygomorphy"))
 
 -- Time spent: 1:00
