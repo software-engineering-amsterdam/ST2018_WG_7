@@ -338,6 +338,19 @@ isDerangement xs = checkDerangement 0 xs && isPermutation xs ys && xs /= ys
 
 -- Time spent: 0:15
 
+isDerangementTests = do
+    putStrLn "\n--== DERANGEMENT ==--\n"
+    putStrLn "In the following tests the expected outcome is printed between parentheses.\n"
+    putStrLn "Elements are not allowed at index of own value."
+    putStr "\"[0..4], isDerangement? (false) : "
+    putStrLn (show (isDerangement [0..4]))
+    putStrLn "Every element must be at different index."
+    putStr "[1,0,4,3,2], isDerangement? (false) : "
+    putStrLn (show (isDerangement [1,0,4,3,2]))
+    putStrLn "Reverse of a list with even numberes elements is a derangement."
+    putStr "[5..0] is a dearangement, isDerangement? (true) : "
+    putStrLn (show (isDerangement (reverse [0..5])))
+
 deran :: Int -> [[Int]]
 deran n = [ xs | xs <- permutations [0..(n-1)], isDerangement xs ]
 
@@ -401,3 +414,4 @@ main = do
   triangleTests
   printOrdereProperties
   isPermutationTests
+  isDerangementTests
