@@ -317,6 +317,9 @@ isPermutationTests = do
     putStr "\"QuickCheck\" \"uickCheckQ\" are rotated, isPermutation? (true) : "
     putStrLn (show (isPermutation "QuickCheck" "uickCheckQ"))
     putStrLn "Elements must match."
+    putStr "\"QuickCheck\" \"QuickChekc\" is permutation (last two characters), isPermutation? (true) : "
+    putStrLn (show (isPermutation "QuickCheck" "QuickChekc"))
+    putStrLn "Elements must match."
     putStr "\"QuickCheck\" \"Zygomorphy\" don't share any character, isPermutation? (false) : "
     putStrLn (show (isPermutation "QuickCheck" "Zygomorphy"))
 
