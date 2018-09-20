@@ -59,11 +59,11 @@ andAsOrFunction = parse' "-+(-1 -2)"
 -- ASSIGNMENT 3 - CNF Converter --
 
 negateProp :: (Name, Bool) -> Form
-negateProp (x, True)  = Neg (Prop x)
-negateProp (x, False) = Prop x
+negateProp (n, True)  = Neg (Prop n)
+negateProp (n, False) = Prop n
 
-convert :: Form -> Form
-convert f = Cnj [ Dsj [ negateProp v | v <- vs ] | vs <- allVals f, not (evl vs f)]
+createCNF :: Form -> Form
+createCNF f = Cnj [ Dsj [ negateProp v | v <- vs ] | vs <- allVals f, not (evl vs f)]
 
 removeSingleJunctions :: Form -> Form
 removeSingleJunctions (Dsj fs) | length fs == 1 = removeSingleJunctions (head fs)
@@ -73,15 +73,58 @@ removeSingleJunctions f                         = f
 cnf :: Form -> Form
 cnf f | tautology f     = Dsj [Prop n, Neg (Prop n)] 
       | contradiction f = Cnj [Prop n, Neg (Prop n)]
-      | otherwise       = removeSingleJunctions (convert (arrowfree f))
-      where n = head (propNames f) -- Just use the first name for tautologies.
+      | otherwise       = removeSingleJunctions (createCNF (arrowfree f))
+      -- Just use the first name for tautologies and contradiction.
+      where n = head (propNames f)
 
--- Tests
+-- Post condition checks!
 
--- onlyNegateAtoms :: Form -> Bool
--- onlyNegateAtoms (Neg (Prop _) = True
+isLiteral :: Form -> Bool
+isLiteral (Prop _)       = True
+isLiteral (Neg (Prop _)) = True
+isLiteral _              = False
 
--- Port condition checks
+isCNFClause :: Form -> Bool
+isCNFClause f | isLiteral f = True
+isCNFClause (Dsj fs)        = all isCNFClause fs
+isCNFClause _               = False
+
+isCNFConjunction :: Form -> Bool
+isCNFConjunction f | isCNFClause f = True
+isCNFConjunction (Cnj fs)       = True
+isCNFConjunction _              = False
+
+testCNFEquivelance :: Form -> Bool
+testCNFEquivelance f = equiv f (cnf f)
+
+testCNFConversion :: Form -> Bool
+testCNFConversion f = (not (isCNFConjunction f)) --> (isCNFConjunction (cnf f))
+
+--------------------------------------------------
+
+instance Arbitrary Form where
+    arbitrary = sized arbitrarySizedForm
+
+arbitrarySizedForm    :: Int -> Gen Form
+arbitrarySizedForm n  =  do formIndex <- choose (0, 8)
+                            size <- choose (0, n `div` 2)
+                            arbitraryForm <- arbitrarySizedForm (n `div` 4)
+                            listOfArbitraryForms <- vectorOf size (arbitrarySizedForm (n `div` 4))
+                            let form = [Prop 1,
+                                        Prop 2,
+                                        Prop 3,
+                                        Prop 4,
+                                        Neg arbitraryForm,
+                                        Cnj (arbitraryForm : listOfArbitraryForms),
+                                        Dsj (arbitraryForm : listOfArbitraryForms),
+                                        Impl arbitraryForm arbitraryForm,
+                                        Equiv arbitraryForm arbitraryForm
+                                        ] !! formIndex
+                            return form
+
+-------------------------------------------------
+
+-- Development tests.
 
 testEquivelance :: Form -> Form -> IO ()
 testEquivelance f g = do
@@ -127,29 +170,6 @@ wsExample3 = parse' "((1 ==> 2)<=>(-2 ==> -1))"
 
 cnfWsExample3 :: Form
 cnfWsExample3 = parse' "+(1 -1)"
-
-instance Arbitrary Form where
-    arbitrary = sized arbitrarySizedForm
-
-arbitrarySizedForm    :: Int -> Gen Form
-arbitrarySizedForm n  =  do formIndex <- choose (0, 8)
-                            size <- choose (0, n `div` 2)
-                            arbitraryForm <- arbitrarySizedForm (n `div` 4)
-                            listOfArbitraryForms <- vectorOf size (arbitrarySizedForm (n `div` 4))
-                            let form = [Prop 1,
-                                        Prop 2,
-                                        Prop 3,
-                                        Prop 4,
-                                        Neg arbitraryForm,
-                                        Cnj (arbitraryForm : listOfArbitraryForms),
-                                        Dsj (arbitraryForm : listOfArbitraryForms),
-                                        Impl arbitraryForm arbitraryForm,
-                                        Equiv arbitraryForm arbitraryForm
-                                        ] !! formIndex
-                            return form
-
-testCNFFun :: Form -> Bool
-testCNFFun f = equiv f (cnf f)
 
 main = do 
     testEquivelance simpleImplies (cnf simpleImplies)
