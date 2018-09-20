@@ -127,11 +127,17 @@ equiv form1 form2 = equivInternal form1 form2 (getCombinedVals form1 form2)
 -- These cases are already accounted for with the elements contradictions(p)
 -- and contradictions(q).
 
+-- It should be noted that we also run into other contradictions with two literals,
+-- such as (p and -q) and (q and -p). This can be rewritten to
+-- contradictions(p) and contradictions(q).
+-- We will also encounter (p or (q and -q)) and (-p or (q and -q)). This can be
+-- rewritten to contradictions(p) or contradictions(q).
+
 -- With more literals, we will also encounter combinations between or's and and's
 -- and contradictions of subsets of the literals. We don't need to generate these
--- cases, because when rewritten to DNF, they will end up looking as such:
--- contradictions(p) or contradictions(q) or contradictions(r) or ...
--- Which is accounted for even after applying the 'and trick'.
+-- cases, because when rewritten to CNF, we can apply the 'and trick' to reduce
+-- the proposition to the contradiction of a single literal, and
+-- -rest of the formula-.
 
 -- Our set of minimal contradictions can thus be reduced to the contradictions
 -- for the the individual literals, and any combination of them with or connectors.
