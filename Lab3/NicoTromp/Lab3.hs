@@ -14,7 +14,7 @@ combinedValues :: [Form] -> [Valuation]
 combinedValues fs = genVals (nub (concatMap propNames fs))
 
 contradiction :: Form -> Bool
-contradiction f = not (any (\ v -> evl v f) (allVals f))
+contradiction = not . satisfiable
 
 tautology :: Form -> Bool
 tautology f = all (\ v -> evl v f) (allVals f)
