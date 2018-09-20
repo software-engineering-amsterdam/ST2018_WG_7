@@ -58,26 +58,7 @@ andAsOrFunction = parse' "-+(-1 -2)"
 
 -- ASSIGNMENT 3 - CNF Converter --
 
-negateProp :: (Name, Bool) -> Form
-negateProp (n, True)  = Neg (Prop n)
-negateProp (n, False) = Prop n
-
-createCNF :: Form -> Form
-createCNF f = Cnj [ Dsj [ negateProp v | v <- vs ] | vs <- allVals f, not (evl vs f)]
-
-removeSingleJunctions :: Form -> Form
-removeSingleJunctions (Dsj fs) | length fs == 1 = removeSingleJunctions (head fs)
-removeSingleJunctions (Cnj fs) | length fs == 1 = removeSingleJunctions (head fs)
-removeSingleJunctions f                         = f
-
-cnf :: Form -> Form
-cnf f | tautology f     = Dsj [Prop n, Neg (Prop n)] 
-      | contradiction f = Cnj [Prop n, Neg (Prop n)]
-      | otherwise       = removeSingleJunctions (createCNF (arrowfree f))
-      -- Just use the first name for tautologies and contradiction.
-      where n = head (propNames f)
-
--- Post condition checks!
+-- Definitions for CNF conversion and tests.
 
 isLiteral :: Form -> Bool
 isLiteral (Prop _)       = True
@@ -93,6 +74,24 @@ isCNFConjunction :: Form -> Bool
 isCNFConjunction f | isCNFClause f = True
 isCNFConjunction (Cnj fs)       = True
 isCNFConjunction _              = False
+
+-- Actual CNF convertion.
+
+negateProp :: (Name, Bool) -> Form
+negateProp (n, True)  = Neg (Prop n)
+negateProp (n, False) = Prop n
+
+createCNF :: Form -> Form
+createCNF f | isLiteral f   = f
+createCNF f | isCNFClause f = f
+createCNF f                 = Cnj [ Dsj [ negateProp v | v <- vs ] | vs <- allVals f, not (evl vs f)]
+
+cnf :: Form -> Form
+cnf f | tautology f     = Dsj [Prop n, Neg (Prop n)] 
+      | contradiction f = Cnj [Prop n, Neg (Prop n)]
+      | otherwise       = createCNF (nnf (arrowfree f))
+      -- Just use the first name for tautologies and contradiction.
+      where n = head (propNames f)
 
 testCNFEquivelance :: Form -> Bool
 testCNFEquivelance f = equiv f (cnf f)
