@@ -63,12 +63,17 @@ negateProp (x, True)  = Neg (Prop x)
 negateProp (x, False) = Prop x
 
 convert :: Form -> Form
-convert f = Cnj [ Dsj [ negateProp p | p <- v ] | v <- allVals f, not (evl v f)]
+convert f = Cnj [ Dsj [ negateProp v | v <- vs ] | vs <- allVals f, not (evl vs f)]
+
+optimize :: Form -> Form
+optimize (Dsj fs) | length fs == 1 = optimize (head fs)
+optimize (Cnj fs) | length fs == 1 = optimize (head fs)
+optimize f                         = f
 
 cnf :: Form -> Form
 cnf f | tautology f = Dsj [Prop n, Neg (Prop n)] 
-      | otherwise   = convert (arrowfree f)
-      where n = head (propNames f)
+      | otherwise   = optimize (convert (arrowfree f))
+      where n = head (propNames f) -- Just use the first name for tautologies.
 
 -- Tests
 
@@ -90,6 +95,18 @@ simpleImplies = parse' "(1 ==> 2)"
 simpleEquiv :: Form
 simpleEquiv = parse' "(1 <=> 1)"
 
+prop :: Form
+prop = parse' "1"
+
+negProp :: Form
+negProp = parse' "-1"
+
+disj :: Form
+disj = parse' "+(1 2)"
+
+disjNeg :: Form
+disjNeg = parse' "+(-1 -2)"
+
 wsExample1 :: Form
 wsExample1 = parse' "---1"
 
@@ -109,8 +126,14 @@ cnfWsExample3 :: Form
 cnfWsExample3 = parse' "+(1 -1)"
 
 main = do 
-    -- testEquilelance simpleImplies (cnf simpleImplies)
-    -- testEquilelance simpleEquiv (cnf simpleEquiv)
+    testEquilelance simpleImplies (cnf simpleImplies)
+    testEquilelance simpleEquiv (cnf simpleEquiv)
+    testEquilelance prop (cnf prop)
+    testEquilelance negProp (cnf negProp)
+    testEquilelance disj (cnf disj)
+    testEquilelance disjNeg (cnf disjNeg)
+
+    putStrLn "\n-------------------------------------\n"
 
     testEquilelance wsExample1 (cnf wsExample1)
     showCNFs (cnf wsExample1) cnfWsExample1
