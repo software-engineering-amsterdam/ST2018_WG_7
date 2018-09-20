@@ -30,7 +30,7 @@ parseTest f = show f == (show . head . parse . show) f
 
 -- == Exercise 4 == --
 {-
-  Random generation of forms.
+  Random generation of forms
 -}
 instance Arbitrary Form where
     arbitrary = sized arbitrarySizedForm
