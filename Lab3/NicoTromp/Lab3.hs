@@ -8,7 +8,7 @@ import Lecture3
 -- ASSIGNMENT 1 - PROPOSITIONAL LOGIC --
 
 contradiction :: Form -> Bool
-contradiction f = not (tautology f)
+contradiction f = not (any (\ v -> evl v f) (allVals f))
 
 tautology :: Form -> Bool
 tautology f = all (\ v -> evl v f) (allVals f)
