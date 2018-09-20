@@ -5,7 +5,13 @@ import System.Random
 import Test.QuickCheck
 import Lecture3
 
+parse' :: String -> Form
+parse' = head . parse
+
 -- ASSIGNMENT 1 - PROPOSITIONAL LOGIC --
+
+combinedValues :: [Form] -> [Valuation]
+combinedValues fs = genVals (nub (concatMap propNames fs))
 
 contradiction :: Form -> Bool
 contradiction f = not (any (\ v -> evl v f) (allVals f))
@@ -14,12 +20,12 @@ tautology :: Form -> Bool
 tautology f = all (\ v -> evl v f) (allVals f)
 
 entails :: Form -> Form -> Bool
-entails f g = all (\ v -> (evl v f) --> (evl v g)) (genVals ((propNames f ++ propNames g)))
+entails f g = all (\ v -> (evl v f) --> (evl v g)) (combinedValues [f, g])
 
 equiv :: Form -> Form -> Bool
-equiv f g = all (\ v -> evl v f == evl v g) (genVals ((propNames f ++ propNames g)))
+equiv f g = all (\ v -> evl v f == evl v g) (combinedValues [f, g])
 
--- Time spent: 0:30
+-- Time spent: 0:40
 
 np :: Form
 np = parse' "-1"
