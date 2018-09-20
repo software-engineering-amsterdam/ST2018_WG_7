@@ -58,13 +58,17 @@ andAsOrFunction = parse' "-+(-1 -2)"
 
 -- ASSIGNMENT 3 - CNF Converter --
 
-bla :: (Name,Bool) -> Form
-bla (x, True)  = Neg (Prop x)
-bla (x, False) = Prop x
+negateProp :: (Name, Bool) -> Form
+negateProp (x, True)  = Neg (Prop x)
+negateProp (x, False) = Prop x
+
+convert :: Form -> Form
+convert f = Cnj [ Dsj [ negateProp p | p <- v ] | v <- allVals f, not (evl v f)]
 
 cnf :: Form -> Form
-cnf f = Cnj [ Dsj [ bla p | p <- v ] | v <- allVals f, not (evl v f)]
-
+cnf f | tautology f = Dsj [Prop n, Neg (Prop n)] 
+      | otherwise   = convert (arrowfree f)
+      where n = head (propNames f)
 
 -- Tests
 
