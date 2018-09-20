@@ -10,8 +10,8 @@ parse' = head . parse
 
 -- ASSIGNMENT 1 - PROPOSITIONAL LOGIC --
 
-combinedValues :: [Form] -> [Valuation]
-combinedValues fs = genVals (nub (concatMap propNames fs))
+combineValues :: [Form] -> [Valuation]
+combineValues fs = genVals (nub (concatMap propNames fs))
 
 contradiction :: Form -> Bool
 contradiction = not . satisfiable
@@ -20,10 +20,10 @@ tautology :: Form -> Bool
 tautology f = all (\ v -> evl v f) (allVals f)
 
 entails :: Form -> Form -> Bool
-entails f g = all (\ v -> (evl v f) --> (evl v g)) (combinedValues [f, g])
+entails f g = all (\ v -> (evl v f) --> (evl v g)) (combineValues [f, g])
 
 equiv :: Form -> Form -> Bool
-equiv f g = all (\ v -> evl v f == evl v g) (combinedValues [f, g])
+equiv f g = all (\ v -> evl v f == evl v g) (combineValues [f, g])
 
 -- Time spent: 0:40
 
