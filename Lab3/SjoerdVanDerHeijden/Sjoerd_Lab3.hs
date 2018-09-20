@@ -48,4 +48,32 @@ main = do
 -----------------------------------------------------------------------------------------
 -- ==EXERCISE 3: REWRITE TO CNF== --
 
+tautology = Dsj [f,-f]
+contradiction = Cnj [f,-f]
 
+cnfFirstCleanup :: Form -> Form
+cnfFirstCleanup f = nnf (arrowfree f)
+
+cnfCleanup :: Form -> Form
+-- equivalence cleanup
+cnfCleanup (Cnj [f,f]) = f
+cnfCleanup (Dsj [f,f]) = f
+-- Tautology cleanup
+cnfCleanup (Dsj [tautology, g]) = tautology
+cnfCleanup (Cnj [tautology, g]) = g
+-- Contradiction cleanup
+cnfCleanup (Cnj [contradiction, g]) = contradiction
+cnfCleanup (Dsj [contradiction, g]) = g
+
+
+
+-- "(1 ==> 2) <=> ((-2) ==> (-1))"
+
+logicConverter :: Form -> Form
+logicConverter (Cnj [(Dsj fs), gs]) = Dsj (map ( Cnj.( (flip(:)) [gs] ) ) fs)
+logicConverter (Dsj [(Cnj fs), gs]) = Cnj (map ( Dsj.( (flip(:)) [gs] ) ) fs)
+logicConverter (Cnj fs) = Neg ( Dsj (map (nnf.Neg) fs ))
+logicConverter (Dsj fs) = Neg ( Cnj (map (nnf.Neg) fs ))
+
+-- is there a Neg without a Prop
+-- isCnf f = 
