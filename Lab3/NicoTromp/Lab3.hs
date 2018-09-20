@@ -71,14 +71,17 @@ removeSingleJunctions (Cnj fs) | length fs == 1 = removeSingleJunctions (head fs
 removeSingleJunctions f                         = f
 
 cnf :: Form -> Form
-cnf f | tautology f = Dsj [Prop n, Neg (Prop n)] 
-      | otherwise   = removeSingleJunctions (convert (arrowfree f))
+cnf f | tautology f     = Dsj [Prop n, Neg (Prop n)] 
+      | contradiction f = Cnj [Prop n, Neg (Prop n)]
+      | otherwise       = removeSingleJunctions (convert (arrowfree f))
       where n = head (propNames f) -- Just use the first name for tautologies.
 
 -- Tests
 
 -- onlyNegateAtoms :: Form -> Bool
 -- onlyNegateAtoms (Neg (Prop _) = True
+
+-- Port condition checks
 
 testEquivelance :: Form -> Form -> IO ()
 testEquivelance f g = do
