@@ -48,13 +48,24 @@ main = do
 -----------------------------------------------------------------------------------------
 -- ==EXERCISE 3: REWRITE TO CNF== --
 
-cnfConverter :: Form -> Form
-cnfConverter f = nnf (arrowfree f)
+tautology = Dsj [f,-f]
+contradiction = Cnj [f,-f]
 
-cleanup (Cnj [f,f]) = f
-cleanup (Dsj [f,f]) = f
-cleanup (Dsj [Dsj [f,-f],g]) = Dsj [f,-f]
-cleanup (Cnj [Cnj [f,-f],g]) = Cnj [f,-f]
+cnfFirstCleanup :: Form -> Form
+cnfFirstCleanup f = nnf (arrowfree f)
+
+cnfCleanup :: Form -> Form
+-- equivalence cleanup
+cnfCleanup (Cnj [f,f]) = f
+cnfCleanup (Dsj [f,f]) = f
+-- Tautology cleanup
+cnfCleanup (Dsj [tautology, g]) = tautology
+cnfCleanup (Cnj [tautology, g]) = g
+-- Contradiction cleanup
+cnfCleanup (Cnj [contradiction, g]) = contradiction
+cnfCleanup (Dsj [contradiction, g]) = g
+
+
 
 -- "(1 ==> 2) <=> ((-2) ==> (-1))"
 
