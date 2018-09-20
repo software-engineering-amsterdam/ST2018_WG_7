@@ -26,15 +26,15 @@ instance Arbitrary Form where
 arbitrarySizedForm    :: Int -> Gen Form
 arbitrarySizedForm n  =  do formIndex <- choose (0, 8)
                             size <- choose (0, n `div` 2)
-                            arbitraryForm <- arbitrary
-                            listOfArbitraryForms <- (vectorOf size (arbitrarySizedForm (n `div` 4)))
+                            arbitraryForm <- arbitrarySizedForm (n `div` 4)
+                            listOfArbitraryForms <- vectorOf size (arbitrarySizedForm (n `div` 4))
                             let form = [Prop 1,
                                         Prop 2,
                                         Prop 3,
                                         Prop 4,
                                         Neg arbitraryForm,
-                                        Cnj listOfArbitraryForms,
-                                        Dsj listOfArbitraryForms,
+                                        Cnj (arbitraryForm : listOfArbitraryForms),
+                                        Dsj (arbitraryForm : listOfArbitraryForms),
                                         Impl arbitraryForm arbitraryForm,
                                         Equiv arbitraryForm arbitraryForm
                                         ] !! formIndex
