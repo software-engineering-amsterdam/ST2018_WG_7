@@ -54,3 +54,65 @@ andAsOrFunction = parse' "-+(-1 -2)"
 -- entails allwaysTrue andFunction
 
 -- Time spent: 0:15
+
+
+-- ASSIGNMENT 3 - CNF Converter --
+
+bla :: Valuation -> Form
+bla (Valuation x True)  = Neg (Prop x)
+bla (Valuation x False) = Prop x
+
+cnf :: Form -> Form
+cnf f = Cnj [ Dsj [ bla p | p <- v ] | v <- allVals f, not (evl v f)]
+
+
+-- Tests
+
+-- onlyNegateAtoms :: Form -> Bool
+-- onlyNegateAtoms (Neg (Prop _) = True
+
+testEquilelance :: Form -> Form -> IO ()
+testEquilelance f g = do
+    putStr ((show f) ++ " <=> " ++ (show g) ++ ": ")
+    putStrLn (show (equiv f g))
+
+showCNFs :: Form -> Form -> IO ()
+showCNFs f g = do
+    putStrLn ((show f) ++ " ==? " ++ (show g) ++ "\n")
+
+simpleImplies :: Form
+simpleImplies = parse' "(1 ==> 2)"
+
+simpleEquiv :: Form
+simpleEquiv = parse' "(1 <=> 1)"
+
+wsExample1 :: Form
+wsExample1 = parse' "---1"
+
+cnfWsExample1 :: Form
+cnfWsExample1 = parse' "-1"
+
+wsExample2 :: Form
+wsExample2 = parse' "-+(1 -2)"
+
+cnfWsExample2 :: Form
+cnfWsExample2 = parse' "*(-1 2)"
+
+wsExample3 :: Form
+wsExample3 = parse' "((1 ==> 2)<=>(-2 ==> -1))"
+
+cnfWsExample3 :: Form
+cnfWsExample3 = parse' "+(1 -1)"
+
+main = do 
+    -- testEquilelance simpleImplies (cnf simpleImplies)
+    -- testEquilelance simpleEquiv (cnf simpleEquiv)
+
+    testEquilelance wsExample1 (cnf wsExample1)
+    showCNFs (cnf wsExample1) cnfWsExample1
+
+    testEquilelance wsExample2 (cnf wsExample2)
+    showCNFs (cnf wsExample2) cnfWsExample2
+
+    testEquilelance wsExample3 (cnf wsExample3)
+    showCNFs (cnf wsExample3) cnfWsExample3
