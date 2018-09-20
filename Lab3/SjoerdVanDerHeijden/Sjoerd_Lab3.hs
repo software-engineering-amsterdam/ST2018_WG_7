@@ -48,4 +48,21 @@ main = do
 -----------------------------------------------------------------------------------------
 -- ==EXERCISE 3: REWRITE TO CNF== --
 
+cnfConverter :: Form -> Form
+cnfConverter f = nnf (arrowfree f)
 
+cleanup (Cnj [f,f]) = f
+cleanup (Dsj [f,f]) = f
+cleanup (Dsj [Dsj [f,-f],g]) = Dsj [f,-f]
+cleanup (Cnj [Cnj [f,-f],g]) = Cnj [f,-f]
+
+-- "(1 ==> 2) <=> ((-2) ==> (-1))"
+
+logicConverter :: Form -> Form
+logicConverter (Cnj [(Dsj fs), gs]) = Dsj (map ( Cnj.( (flip(:)) [gs] ) ) fs)
+logicConverter (Dsj [(Cnj fs), gs]) = Cnj (map ( Dsj.( (flip(:)) [gs] ) ) fs)
+logicConverter (Cnj fs) = Neg ( Dsj (map (nnf.Neg) fs ))
+logicConverter (Dsj fs) = Neg ( Cnj (map (nnf.Neg) fs ))
+
+-- is there a Neg without a Prop
+-- isCnf f = 
