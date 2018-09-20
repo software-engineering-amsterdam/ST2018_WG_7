@@ -65,14 +65,14 @@ negateProp (x, False) = Prop x
 convert :: Form -> Form
 convert f = Cnj [ Dsj [ negateProp v | v <- vs ] | vs <- allVals f, not (evl vs f)]
 
-optimize :: Form -> Form
-optimize (Dsj fs) | length fs == 1 = optimize (head fs)
-optimize (Cnj fs) | length fs == 1 = optimize (head fs)
-optimize f                         = f
+removeSingleJunctions :: Form -> Form
+removeSingleJunctions (Dsj fs) | length fs == 1 = removeSingleJunctions (head fs)
+removeSingleJunctions (Cnj fs) | length fs == 1 = removeSingleJunctions (head fs)
+removeSingleJunctions f                         = f
 
 cnf :: Form -> Form
 cnf f | tautology f = Dsj [Prop n, Neg (Prop n)] 
-      | otherwise   = optimize (convert (arrowfree f))
+      | otherwise   = removeSingleJunctions (convert (arrowfree f))
       where n = head (propNames f) -- Just use the first name for tautologies.
 
 -- Tests
