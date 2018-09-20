@@ -58,9 +58,9 @@ andAsOrFunction = parse' "-+(-1 -2)"
 
 -- ASSIGNMENT 3 - CNF Converter --
 
-bla :: Valuation -> Form
-bla (Valuation x True)  = Neg (Prop x)
-bla (Valuation x False) = Prop x
+bla :: (Name,Bool) -> Form
+bla (x, True)  = Neg (Prop x)
+bla (x, False) = Prop x
 
 cnf :: Form -> Form
 cnf f = Cnj [ Dsj [ bla p | p <- v ] | v <- allVals f, not (evl v f)]
