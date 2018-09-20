@@ -30,4 +30,11 @@ andFunction = head (parse "*(1 2)")
 andAsOrFunction :: Form
 andAsOrFunction = head (parse "-+(-1 -2)")
 
+-- Tests --
+
+-- tautology allwaysTrue
+-- equiv andFunction andAsOrFunction
+-- entails andFunction allwaysTrue 
+-- entails allwaysTrue andFunction
+
 -- Time spent: 0:15
