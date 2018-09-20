@@ -72,8 +72,8 @@ isCNFClause _               = False
 
 isCNFConjunction :: Form -> Bool
 isCNFConjunction f | isCNFClause f = True
-isCNFConjunction (Cnj fs)       = True
-isCNFConjunction _              = False
+isCNFConjunction (Cnj fs)          = True
+isCNFConjunction _                 = False
 
 -- Actual CNF convertion.
 
@@ -90,7 +90,7 @@ cnf :: Form -> Form
 cnf f | tautology f     = Dsj [Prop n, Neg (Prop n)] 
       | contradiction f = Cnj [Prop n, Neg (Prop n)]
       | otherwise       = createCNF (nnf (arrowfree f))
-      -- Just use the first name for tautologies and contradiction.
+      -- Just use the first name for tautologies and contradictions.
       where n = head (propNames f)
 
 testCNFConversion :: Form -> Bool
