@@ -93,11 +93,10 @@ cnf f | tautology f     = Dsj [Prop n, Neg (Prop n)]
       -- Just use the first name for tautologies and contradiction.
       where n = head (propNames f)
 
-testCNFEquivelance :: Form -> Bool
-testCNFEquivelance f = equiv f (cnf f)
-
 testCNFConversion :: Form -> Bool
-testCNFConversion f = (not (isCNFConjunction f)) --> (isCNFConjunction (cnf f))
+testCNFConversion f = (not (isCNFConjunction f)) --> isCNFConjunction f' && equiv f f'
+                    where
+                        f' = cnf f
 
 --------------------------------------------------
 
