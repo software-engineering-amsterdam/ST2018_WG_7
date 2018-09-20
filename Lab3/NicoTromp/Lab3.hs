@@ -14,24 +14,30 @@ tautology :: Form -> Bool
 tautology f = all (\ v -> evl v f) (allVals f)
 
 entails :: Form -> Form -> Bool
-entails f g = all (\ v -> (evl v f) --> (evl v g)) (allVals f)
+entails f g = all (\ v -> (evl v f) --> (evl v g)) (genVals ((propNames f ++ propNames g)))
 
 equiv :: Form -> Form -> Bool
-equiv f g = all (\ v -> evl v f == evl v g) (allVals f)
+equiv f g = all (\ v -> evl v f == evl v g) (genVals ((propNames f ++ propNames g)))
 
--- Time spent: 0:20
+-- Time spent: 0:30
+
+np :: Form
+np = parse' "-1"
+
+nnnp :: Form
+nnnp = parse' "---1"
 
 allwaysTrue :: Form
-allwaysTrue = head (parse "+(1 -1)")
+allwaysTrue = parse' "+(1 -1)"
 
 allwaysFalse :: Form
-allwaysFalse = head (parse "*(1 -1)")
+allwaysFalse = parse' "*(1 -1)"
 
 andFunction :: Form
-andFunction = head (parse "*(1 2)")
+andFunction = parse' "*(1 2)"
 
 andAsOrFunction :: Form
-andAsOrFunction = head (parse "-+(-1 -2)")
+andAsOrFunction = parse' "-+(-1 -2)"
 
 -- Tests --
 
