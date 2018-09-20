@@ -21,9 +21,12 @@ equiv :: Form -> Form -> Bool
 equiv f1 f2 = entails f1 f2 && entails f1 f2
 
 -- == Exercise 2 == --
+{-
+  Tests the parser by checking if the printable output of a form equals the
+  printable output of the result of parsing the printable output of a form
+-}
 parseTest :: Form -> Bool
 parseTest f = show f == (show . head . parse . show) f
-
 
 -- == Exercise 4 == --
 {-
