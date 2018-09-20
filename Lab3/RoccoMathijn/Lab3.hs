@@ -5,30 +5,53 @@ import System.Random
 import Test.QuickCheck
 import Lecture3
 
+-- == Exercise 1 == --
+{-
+  Time spend: 1 hour
+-}
+
+{-
+  Checks whether a form is a contradiction or not
+-}
 contradiction   :: Form -> Bool
 contradiction f = not $ satisfiable f
 
+{-
+  Checks whether a form is a tautology or not
+-}
 tautology   :: Form -> Bool
 tautology f =  all (\ v -> evl v f) (allVals f)
 
----- | logical entailment
+{-
+  Checks whether form1 entails form2 or not
+-}
 entails :: Form -> Form -> Bool
 entails f1 f2 = not $ any (\v -> evl v f1 && (not $ (evl v f2))) valuations
                 where valuations = genVals $ propNames f1 ++ propNames f2
 
---logical equivalence
+{-
+  Checks whether form1 is equivalent to form2 or not
+-}
 equiv :: Form -> Form -> Bool
 equiv f1 f2 = entails f1 f2 && entails f1 f2
 
 -- == Exercise 2 == --
 {-
-  Tests the parser by checking if the printable output of a form equals the
-  printable output of the result of parsing the printable output of a form
+  Time spend: ~20 minutes
+-}
+
+{-
+  Tests the parser by checking if the printable output the form equals the
+  printable output of the result of parsing the printable output the form
 -}
 parseTest :: Form -> Bool
 parseTest f = show f == (show . head . parse . show) f
 
 -- == Exercise 4 == --
+{-
+  Time spend: ~3 hours
+-}
+
 {-
   Random generation of forms
 -}
@@ -53,6 +76,10 @@ arbitrarySizedForm n  =  do formIndex <- choose (0, 8)
                             return form
 
 -- == Exercise Runner == --
+{-
+  Runs all the tests of the assignments above
+-}
 main = do
           putStrLn "--==Exercise 2==--"
+          putStrLn "Testing the parsing function on 100 arbitrary forms"
           quickCheck parseTest
