@@ -26,6 +26,9 @@ parseTest f = show f == (show . head . parse . show) f
 
 
 -- == Exercise 4 == --
+{-
+  Random generation of forms.
+-}
 instance Arbitrary Form where
     arbitrary = sized arbitrarySizedForm
 
@@ -46,6 +49,7 @@ arbitrarySizedForm n  =  do formIndex <- choose (0, 8)
                                         ] !! formIndex
                             return form
 
+-- == Exercise Runner == --
 main = do
           putStrLn "--==Exercise 2==--"
           quickCheck parseTest
