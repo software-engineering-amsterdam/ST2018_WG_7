@@ -146,8 +146,8 @@ smallestContradiction literal = Cnj [Prop literal, Neg (Prop literal)]
 genMinimalContradictionsInternal :: [Int] -> [Form]
 genMinimalContradictionsInternal literals | (length literals) == 1 = [smallestContradiction (head literals)]
                                           | otherwise              = [Dsj (concat [genMinimalContradictionsInternal [literal] | literal <- literals])] ++
-                                                                     (concat [(genMinimalContradictionsInternal subset) | subset <- subsequences literals,
-                                                                              length subset == (length literals) - 1])
+                                                                     (nub (concat [genMinimalContradictionsInternal subset | subset <- subsequences literals,
+                                                                              length subset == (length literals) - 1]))
 
 genMinimalTautologies :: Int -> [Form]
 genMinimalTautologies literalCount = [nnf (Neg a) | a <- genMinimalContradictions literalCount]
