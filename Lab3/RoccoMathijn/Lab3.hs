@@ -20,6 +20,15 @@ entails f1 f2 = not $ any (\v -> evl v f1 && (not $ (evl v f2))) valuations
 equiv :: Form -> Form -> Bool
 equiv f1 f2 = entails f1 f2 && entails f1 f2
 
+-- == Exercise 2 == --
+parseTest :: Form -> Bool
+parseTest f = show f == (show . head . parse . show) f
+
+
+-- == Exercise 4 == --
+{-
+  Random generation of forms.
+-}
 instance Arbitrary Form where
     arbitrary = sized arbitrarySizedForm
 
@@ -39,3 +48,8 @@ arbitrarySizedForm n  =  do formIndex <- choose (0, 8)
                                         Equiv arbitraryForm arbitraryForm
                                         ] !! formIndex
                             return form
+
+-- == Exercise Runner == --
+main = do
+          putStrLn "--==Exercise 2==--"
+          quickCheck parseTest
