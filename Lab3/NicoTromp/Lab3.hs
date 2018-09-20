@@ -80,8 +80,8 @@ cnf f | tautology f = Dsj [Prop n, Neg (Prop n)]
 -- onlyNegateAtoms :: Form -> Bool
 -- onlyNegateAtoms (Neg (Prop _) = True
 
-testEquilelance :: Form -> Form -> IO ()
-testEquilelance f g = do
+testEquivelance :: Form -> Form -> IO ()
+testEquivelance f g = do
     putStr ((show f) ++ " <=> " ++ (show g) ++ ": ")
     putStrLn (show (equiv f g))
 
@@ -126,20 +126,20 @@ cnfWsExample3 :: Form
 cnfWsExample3 = parse' "+(1 -1)"
 
 main = do 
-    testEquilelance simpleImplies (cnf simpleImplies)
-    testEquilelance simpleEquiv (cnf simpleEquiv)
-    testEquilelance prop (cnf prop)
-    testEquilelance negProp (cnf negProp)
-    testEquilelance disj (cnf disj)
-    testEquilelance disjNeg (cnf disjNeg)
+    testEquivelance simpleImplies (cnf simpleImplies)
+    testEquivelance simpleEquiv (cnf simpleEquiv)
+    testEquivelance prop (cnf prop)
+    testEquivelance negProp (cnf negProp)
+    testEquivelance disj (cnf disj)
+    testEquivelance disjNeg (cnf disjNeg)
 
     putStrLn "\n-------------------------------------\n"
 
-    testEquilelance wsExample1 (cnf wsExample1)
+    testEquivelance wsExample1 (cnf wsExample1)
     showCNFs (cnf wsExample1) cnfWsExample1
 
-    testEquilelance wsExample2 (cnf wsExample2)
+    testEquivelance wsExample2 (cnf wsExample2)
     showCNFs (cnf wsExample2) cnfWsExample2
 
-    testEquilelance wsExample3 (cnf wsExample3)
+    testEquivelance wsExample3 (cnf wsExample3)
     showCNFs (cnf wsExample3) cnfWsExample3
