@@ -107,8 +107,8 @@ cnf f | tautology f     = Dsj [Prop n, Neg (Prop n)]
       where n = head (propNames f)
 
 -- Testing is done by ensuring that the generated form does is not in CNF. Once such a form
--- is generated it is transformed into CNF. Then his transformed is checked to make sure it is in CNF
--- and it must be logicaly equivelant to the original. 
+-- is generated it is transformed into CNF. Then his transformed form is checked to make sure it is
+-- now in CNF and it must be logicaly equivelant to the original. 
 testCNFConversion :: Form -> Bool
 testCNFConversion f = (not (isCNFConjunction f)) --> isCNFConjunction f' && equiv f f'
                     where
