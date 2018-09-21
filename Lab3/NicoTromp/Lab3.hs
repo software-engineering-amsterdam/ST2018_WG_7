@@ -83,32 +83,32 @@ negateProp :: (Name, Bool) -> Form
 negateProp (n, True)  = Neg (Prop n)
 negateProp (n, False) = Prop n
 
--- Creates for any non tautology or contradiction form into its corresponding CNF.
+-- Creates for any non tautology or contradiction form its corresponding CNF.
 -- We make use of the hint that is described in the last paragraph of workshop 3.
 -- 'Hint: the negation of a row where the truth table gives false can be expressed as a disjunction. 
--- Take the conjunction of all these disjunctions.' The basis for this is that 'not(p and q)' is
--- equivelent to '(not p) or (not q)'. If the actual value for a property is 'false' it must be replaced
--- by 'not false' hence the usage of 'negateProp'.
-createCNF :: Form -> Form
-createCNF f | isLiteral f   = f
-createCNF f | isCNFClause f = f
-createCNF f                 = Cnj [ Dsj [ negateProp v | v <- vs ] | vs <- allVals f, not (evl vs f)]
+-- Take the conjunction of all these disjunctions.' When constructing the disjunction we make use of the 
+-- fact that 'not(p and q)' is equivelent to '(not p) or (not q)'. If the actual value for a property is
+-- 'false' it must be replaced by 'not false', this is all handled by the 'negateProp' function.
+convertToCNF :: Form -> Form
+convertToCNF f | isLiteral f   = f
+convertToCNF f | isCNFClause f = f
+convertToCNF f                 = Cnj [ Dsj [ negateProp v | v <- vs ] | vs <- allVals f, not (evl vs f)]
 
 -- Converts any propositional form into its CNF.
 -- Specal cases are tautology and contradiction. These can be converted into a standard CNF form. 
 -- In order to ensure that these special cases use property names that are present in the form, one
 -- of them it selected to create the corresponding CNF.
--- All other cases transformed into CNF by the createCNF function.
+-- All other cases are converted into CNF by the 'convertToCNF' function.
 cnf :: Form -> Form
 cnf f | tautology f     = Dsj [Prop n, Neg (Prop n)] 
       | contradiction f = Cnj [Prop n, Neg (Prop n)]
-      | otherwise       = createCNF (nnf (arrowfree f))
+      | otherwise       = convertToCNF (nnf (arrowfree f))
       -- Just use the first name for tautologies and contradictions.
       where n = head (propNames f)
 
--- Testing is done by ensuring that the generated form does is not in CNF. Once such a form
+-- Testing is done by ensuring that the generated form is not in CNF. Once such a form
 -- is generated it is transformed into CNF. Then his transformed form is checked to make sure it is
--- now in CNF and it must be logicaly equivelant to the original. 
+-- now in CNF and it is logicaly equivelant to the original. 
 testCNFConversion :: Form -> Bool
 testCNFConversion f = (not (isCNFConjunction f)) --> isCNFConjunction f' && equiv f f'
                     where
@@ -184,6 +184,11 @@ wsExample3 = parse' "((1 ==> 2)<=>(-2 ==> -1))"
 
 cnfWsExample3 :: Form
 cnfWsExample3 = parse' "+(1 -1)"
+
+bla :: [Form]
+bla = [simpleImplies, simpleEquiv, disj, wsExample1, wsExample2, wsExample3]
+
+blabla = map isCNFConjunction bla
 
 main = do 
     testEquivelance simpleImplies (cnf simpleImplies)
