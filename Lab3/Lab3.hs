@@ -5,8 +5,8 @@ import System.Random
 import Test.QuickCheck
 import Lecture3
 
--- ASSIGNMENT 1 - PROPOSITIONAL LOGIC --
 
+-- ASSIGNMENT 1 - PROPOSITIONAL LOGIC --
 
 combinedValues :: [Form] -> [Valuation]
 combinedValues fs = genVals (nub (concatMap propNames fs))
@@ -18,16 +18,26 @@ tautology :: Form -> Bool
 tautology f = all (\ v -> evl v f) (allVals f)
 
 entails :: Form -> Form -> Bool
-entails f g = all (\ v -> (evl v f) (-->) (evl v g)) (combinedValues [f, g])
+entails f g = all (\ v -> (evl v f) --> (evl v g)) (combinedValues [f, g])
 
 equiv :: Form -> Form -> Bool
 equiv f g = all (\ v -> evl v f == evl v g) (combinedValues [f, g])
+
+testAssignment1 = do
+    putStrLn "--== Assignment 1 - Propositional Logic ==--"  
+
+-- Time spent: 0:40
+
+
+-- ASSIGNENT 2 -  --
+
+testAssignment2 = do
+    putStrLn "\n--== Assignment 2 - Propositional Testing ==--" 
 
 
 -- ASSIGNMENT 3 - CNF Converter --
 
 -- Definitions for CNF conversion and tests.
-
 isLiteral :: Form -> Bool
 isLiteral (Prop _)       = True
 isLiteral (Neg (Prop _)) = True
@@ -74,15 +84,22 @@ cnf f | tautology f     = Dsj [Prop n, Neg (Prop n)]
       -- Just use the first name for tautologies and contradictions.
       where n = head (propNames f)
 
--- Testing is done by ensuring that the generated form is not in CNF. Once such a form
--- is generated it is transformed into CNF. Then his transformed form is checked to make sure it is
--- now in CNF and it is logicaly equivelant to the original. 
+-- Testing is done by ensuring that the generated form is not in CNF. Non-CNF forms are transformed
+-- into CNF. Then CNF-form is checked to make sure it actually in CNF and is logicaly equivelant to
+-- the original. This test relies on the random form generator from assignment 4.
 testCNFConversion :: Form -> Bool
 testCNFConversion f = (not (isCNFConjunction f)) --> isCNFConjunction f' && equiv f f'
                     where
                         f' = cnf f
 
--- ASSIGNMENT 4 - Form generato --
+testAssignment3 = do
+    putStrLn "\n--== Assignment 3 - CNF Converter ==--" 
+    quickCheck testCNFConversion
+
+-- Time spent: 4:30
+
+
+-- ASSIGNMENT 4 - Form generator --
 
 instance Arbitrary Form where
     arbitrary = sized arbitrarySizedForm
@@ -103,3 +120,13 @@ arbitrarySizedForm n  =  do formIndex <- choose (0, 8)
                                         Equiv arbitraryForm arbitraryForm
                                         ] !! formIndex
                             return form
+
+testAssignment4 = do
+    putStrLn "\n--== Assignment 4 - Form generation Testing ==--" 
+
+
+main = do
+    testAssignment1
+    testAssignment2
+    testAssignment3
+    testAssignment4
