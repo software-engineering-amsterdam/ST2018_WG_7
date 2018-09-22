@@ -1,6 +1,7 @@
 module Sjoerd_Lab3 where
 
 import Data.List
+import Data.Typeable
 import System.Random
 import Test.QuickCheck
 import Lecture3
@@ -53,9 +54,6 @@ main = do
 -------------------------------------------------------------------------------
 -- ==EXERCISE 3: REWRITE TO CNF== --
 
-cnfFirstCleanup :: Form -> Form
-cnfFirstCleanup f = nnf (arrowfree f)
-
 -- cnfCleanup :: Form -> Form
 -- -- equivalence cleanup
 -- cnfCleanup (Cnj (f:g:[])) | f == g = f
@@ -74,21 +72,12 @@ cnfFirstCleanup f = nnf (arrowfree f)
 -- logicConverter (Cnj fs) = Neg ( Dsj (map (nnf.Neg) fs ))
 -- logicConverter (Dsj fs) = Neg ( Cnj (map (nnf.Neg) fs ))
 
--- is there a Neg without a Prop
--- isCnf f = 
-
--- "(1 ==> 2) <=> ((-2) ==> (-1))"
--- getVals :: Valuation -> [Form]
--- getVals v = [if snd val then  (Neg (Prop(fst val))) else Prop (fst val) | val <- v]
-
--- cnfGenerator :: Form -> Form
--- cnfGenerator f = head [Cnj[Dsj (getVals v)] | v <- allVals f, not (evl v f) ]
 
 -- Gets the Valuations belonging to the rows of the truth table for f that result in False.
 getTTFalseRows :: Form -> [Valuation]
 getTTFalseRows f = [v |  v <- allVals f, not (evl v f) ]
 
--- Transforms properties from a row of the truth table into the format needed by the cnf format.
+-- Transforms properties from a row of the truth table into the format needed by the cnf.
 getProps :: Valuation -> [Form]
 getProps v = [if snd val then (Neg (Prop(fst val))) else Prop (fst val) | val <- v]
 
@@ -108,9 +97,42 @@ getCnjProps v | length props > 1 = Cnj props
 
 -- Rewrites a Form into a CNF form.
 rewriteToCnf :: Form -> Form
-rewriteToCnf f = getCnjProps (getTTFalseRows f)
+rewriteToCnf f | tautology f = Dsj [Prop 1, Neg (Prop 1) ]
+               | contradiction f = Cnj [Prop 1, Neg (Prop 1) ]
+               | cnfChecker (nnf (arrowFree f)) = (nnf (arrowFree f))
+               | otherwise = getCnjProps (getTTFalseRows f)
+
+-- Used to check whether there's a Cnj nested within a Dsj, which would violate CNF. Is there a better way to write this?
+cnjInDsjChecker :: Form -> Bool
+cnjInDsjChecker (Cnj f) = True
+cnjInDsjChecker f = False
+
+-- Checks whether a form is in CNF
+cnfChecker :: Form -> Bool
+cnfChecker (Neg (Prop f)) = True
+cnfChecker (Prop f) = True
+cnfChecker (Neg f) = False
+cnfChecker (Impl f g) = False
+cnfChecker (Equiv f g) = False
+cnfChecker (Dsj []) = False
+cnfChecker (Cnj []) = False
+cnfChecker (Dsj fs) = and [ not (cnjInDsjChecker f) && cnfChecker f | f <- fs ]
+cnfChecker (Cnj fs) = and [ cnfChecker f | f <- fs ]
+
 
 -- "+(+(*(1 -2) *(-1 2)) *(*(-1 -2) -3))"
--------------------------------------------------------------------------------
--- ==EXERCISE 4: REWRITE TO CNF== --
+-- "(1 ==> 2) <=> ((-2) ==> (-1))"
 
+-------------------------------------------------------------------------------
+-- ==EXERCISE 4: RANDOM PROPERTY GENERATOR== --
+
+-- instance Arbitrary a => Arbitrary (Form a) where
+--   arbitrary =
+--     sized arbitrarySizedForm
+
+-- arbitrarySizedForm :: Arbitrary a => Int -> Gen (Form)
+-- arbitrarySizedForm m = do
+--   t <- arbitrary
+--   n <- choose (0, m `div` 2)
+--   ts <- vectorOf n (arbitrarySizedForm (m `div` 4))
+--   return (Form t ts)
