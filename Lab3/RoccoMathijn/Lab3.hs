@@ -4,6 +4,7 @@ import Data.List
 import System.Random
 import Test.QuickCheck
 import Lecture3
+import Control.Exception
 
 -- == Exercise 1 == --
 {-
@@ -47,6 +48,22 @@ equiv f1 f2 = entails f1 f2 && entails f1 f2
 parseTest :: Form -> Bool
 parseTest f = show f == (show . head . parse . show) f
 
+parseEmptyString = do 
+                    putStrLn "'parse' should return '[]'' when parsing an empty string"
+                    if (parse "" == []) then putStrLn "+++ OK" else putStrLn "--- Failed"
+
+parseBogus = do 
+              putStrLn "'parse' should throw an error when parsing bogus"
+              catch (putStrLn (show $ parse "Bogus")) errorHandler
+              where 
+                errorHandler :: SomeException -> IO ()
+                errorHandler = (\err -> putStrLn "+++ OK, 'parse' threw an error as expected")
+        
+-- == Exercise 3 == --
+{-
+  Time spend:
+-}
+
 -- == Exercise 4 == --
 {-
   Time spend: ~3 hours
@@ -83,3 +100,5 @@ main = do
           putStrLn "--==Exercise 2==--"
           putStrLn "Testing the parsing function on 100 arbitrary forms"
           quickCheck parseTest
+          parseEmptyString
+          parseBogus
