@@ -4,7 +4,7 @@ import Data.List
 import System.Random
 import Test.QuickCheck
 import Lecture3
-
+import Control.Exception
 
 -- ASSIGNMENT 1 - PROPOSITIONAL LOGIC --
 
@@ -30,10 +30,29 @@ testAssignment1 = do
 
 
 -- ASSIGNENT 2 -  --
+{-
+  Tests the parser by checking if the printable output the form equals the
+  printable output of the result of parsing the printable output the form
+-}
+parseTest :: Form -> Bool
+parseTest f = show f == (show . head . parse . show) f
+
+parseEmptyString = do 
+                    putStrLn "'parse' should return '[]'' when parsing an empty string"
+                    if (parse "" == []) then putStrLn "+++ OK" else putStrLn "--- Failed"
+
+parseBogus = do 
+              putStrLn "'parse' should throw an error when parsing bogus"
+              catch (putStrLn (show $ parse "Bogus")) errorHandler
+              where 
+                errorHandler :: SomeException -> IO ()
+                errorHandler = (\err -> putStrLn "+++ OK, 'parse' threw an error as expected")
 
 testAssignment2 = do
     putStrLn "\n--== Assignment 2 - Propositional Testing ==--" 
-
+    quickCheck parseTest
+    parseEmptyString
+    parseBogus
 
 -- ASSIGNMENT 3 - CNF Converter --
 
