@@ -31,6 +31,10 @@ testAssignment1 = do
 
 -- ASSIGNENT 2 -  --
 {-
+Time spend: ~2 hours
+-}
+
+{-
   Tests the parser by checking if the printable output the form equals the
   printable output of the result of parsing the printable output the form
 -}
@@ -144,6 +148,9 @@ testAssignment4 = do
     putStrLn "\n--== Assignment 4 - Form generation Testing ==--" 
 
 -- ASSIGNMENT 5 - Bonus --
+{-
+Time spend: ~1 hour
+-}
 type Clause  = [Int]
 type Clauses = [Clause]
 

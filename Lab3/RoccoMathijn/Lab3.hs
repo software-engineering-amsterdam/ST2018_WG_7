@@ -38,7 +38,7 @@ equiv f1 f2 = entails f1 f2 && entails f1 f2
 
 -- == Exercise 2 == --
 {-
-  Time spend: ~1 hour
+  Time spend: ~2 hours
 -}
 
 {-
@@ -93,6 +93,9 @@ arbitrarySizedForm n  =  do formIndex <- choose (0, 8)
                             return form
 
 -- == Exercise 5 == --
+{-
+Time spend: ~1 hour
+-}
 type Clause  = [Int]
 type Clauses = [Clause]
 
