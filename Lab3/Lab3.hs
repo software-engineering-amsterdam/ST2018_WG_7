@@ -147,7 +147,7 @@ arbitrarySizedForm n  =  do formIndex <- choose (0, 8)
 testAssignment4 = do
     putStrLn "\n--== Assignment 4 - Form generation Testing ==--" 
 
--- ASSIGNMENT 5 - Bonus --
+-- ASSIGNMENT 5 - SAT Solving --
 {-
 Time spend: ~1 hour
 -}
@@ -166,9 +166,15 @@ example2 = cnf2cls (Dsj [Prop 4, Cnj [Prop 5, Neg (Prop 6)]])
 testExample1 = show example1 == "[[5,-6]]"
 testExample2 = show example2 == "[[4],[5,-6]]"
 
+testAssignment5 = do
+    putStrLn "\n--== Assignment 5 - SAT solving ==--" 
+    putStrLn $ "Test example 1: " ++ (show testExample1)
+    putStrLn $ "Test example 2: " ++ (show testExample2)
+
 -- TEST RUNNER --
 main = do
     testAssignment1
     testAssignment2
     testAssignment3
     testAssignment4
+    testAssignment5
