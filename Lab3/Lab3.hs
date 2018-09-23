@@ -143,7 +143,23 @@ arbitrarySizedForm n  =  do formIndex <- choose (0, 8)
 testAssignment4 = do
     putStrLn "\n--== Assignment 4 - Form generation Testing ==--" 
 
+-- ASSIGNMENT 5 - Bonus --
+type Clause  = [Int]
+type Clauses = [Clause]
 
+cnf2cls                 :: Form -> Clauses
+cnf2cls (Prop x)        = [[x]]
+cnf2cls (Neg (Prop x))  = [[-x]]
+cnf2cls (Cnj formList)  = [concat (concatMap cnf2cls formList)]
+cnf2cls (Dsj formList)  = concatMap cnf2cls formList
+
+example1 = cnf2cls (Cnj [Prop 5, Neg (Prop 6)])
+example2 = cnf2cls (Dsj [Prop 4, Cnj [Prop 5, Neg (Prop 6)]])
+
+testExample1 = show example1 == "[[5,-6]]"
+testExample2 = show example2 == "[[4],[5,-6]]"
+
+-- TEST RUNNER --
 main = do
     testAssignment1
     testAssignment2
