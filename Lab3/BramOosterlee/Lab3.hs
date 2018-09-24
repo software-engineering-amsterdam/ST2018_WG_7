@@ -5,7 +5,7 @@ import System.Random
 import Test.QuickCheck
 import Lecture3
 
---Assignment 1 time taken 07:20
+--Assignment 1 time taken 08:45
 
 evals :: Form -> [Bool]
 evals form = [evl val form | val <- (allVals form)]
@@ -217,47 +217,40 @@ cnf f | tautology f     = Dsj [Prop n, Neg (Prop n)]
 --Next, we write the genEntailment method which generates this list, flip one
 --false entry to true, and then converts it to a cnf.
 
-valuationEvaluationPairList :: Form -> [(Valuation, Bool)]
-valuationEvaluationPairList form = [(x, (evl x form)) | x <- allVals form]
+valuationEvaluationPairs :: Form -> [(Valuation, Bool)]
+valuationEvaluationPairs form = [(x, (evl x form)) | x <- allVals form]
 
-entailValuationEvaluationPairList :: [(Valuation, Bool)] -> [(Valuation, Bool)]
-entailValuationEvaluationPairList (x:xs) | not (snd x)  = [((fst x), True)] ++ xs
-                                         | (snd x)      = [x] ++ (entailValuationEvaluationPairList xs)
+genEntailmentPairs :: [(Valuation, Bool)] -> [(Valuation, Bool)]
+genEntailmentPairs (x:xs) | not (snd x)  = [((fst x), True)] ++ xs
+                                         | (snd x)      = [x] ++ (genEntailmentPairs xs)
 
-convertValuationEvaluationPairToCNF :: [(Valuation, Bool)] -> Form
-convertValuationEvaluationPairToCNF list = Cnj [ Dsj [ negateProp v | v <- (fst vs) ] | vs <- list, not (snd vs)]
+
+convertSinglePairToForm :: (Valuation, Bool) -> Form
+convertSinglePairToForm x | ((snd (head (fst x))) == (snd x)) = (Prop (fst (head (fst x))))
+                         | otherwise                         = Neg (Prop (fst (head (fst x))))
+
+convertPairToCNFNormal :: (Valuation, Bool) -> Form
+convertPairToCNFNormal vs | not (snd vs) = Dsj [ negateProp v | v <- (fst vs) ]
+                         | otherwise    = Dsj []
+
+convertPairToCNF :: (Valuation, Bool) -> Form
+convertPairToCNF x | length (fst x) == 1 = convertSinglePairToForm x
+                  | (snd x)             = nnf (Neg (convertPairToCNFNormal (fst x, not (snd x))))
+                  | not (snd x)         = convertPairToCNFNormal x
+
+convertPairsToCNF :: [(Valuation, Bool)] -> Form
+convertPairsToCNF list = Cnj [ convertPairToCNF x | x <- list ]
 
 --Finally, wrap the method into a method similar to cnf so we can check for tautology
 --and contradiction.
 
+--This code would generate any possible entailment of the form of we picked a random
+--element to flip. From there, we could recursively generate any form which it entails.
 genEntailment :: Form -> Form
-genEntailment form = convertValuationEvaluationPairToCNF (entailValuationEvaluationPairList (valuationEvaluationPairList (cnf (form)))) -- do magic where we flip one false val to true
+genEntailment form = convertPairsToCNF (genEntailmentPairs (valuationEvaluationPairs (cnf form)))
 
--- == Exercise 4 == --
-{-
-  Time spend: ~3 hours
--}
+--We generate equivalences by picking a valuation evaluation pair from the form,
+--converting it to a cnf, and joining it to our form.
 
-{-
-  Random generation of forms
--}
-instance Arbitrary Form where
-    arbitrary = sized arbitrarySizedForm
-
-arbitrarySizedForm    :: Int -> Gen Form
-arbitrarySizedForm n  =  do formIndex <- choose (0, 8)
-                            size <- choose (0, n `div` 2)
-                            arbitraryForm <- arbitrarySizedForm (n `div` 4)
-                            arbitraryForm2 <- arbitrarySizedForm (n `div` 4)
-                            listOfArbitraryForms <- vectorOf size (arbitrarySizedForm (n `div` 4))
-                            let form = [Prop 1,
-                                        Prop 2,
-                                        Prop 3,
-                                        Prop 4,
-                                        Neg arbitraryForm,
-                                        Cnj (arbitraryForm : listOfArbitraryForms),
-                                        Dsj (arbitraryForm : listOfArbitraryForms),
-                                        Impl arbitraryForm arbitraryForm2,
-                                        Equiv arbitraryForm arbitraryForm2
-                                        ] !! formIndex
-                            return form
+genEquivalence :: Form -> Form
+genEquivalence form = Cnj [form, cnf (convertPairToCNF (head (valuationEvaluationPairs (cnf form))))]
