@@ -261,9 +261,3 @@ arbitrarySizedForm n  =  do formIndex <- choose (0, 8)
                                         Equiv arbitraryForm arbitraryForm2
                                         ] !! formIndex
                             return form
-
-genEntailmentPairInternal :: Form -> (Form, Form)
-genEntailmentPairInternal form = (form, genEntailment form)
-
-genEntailmentPair :: Int -> (Form, Form)
-genEntailmentPair size = genEntailmentPairInternal (generate (arbitrarySizedForm size))
