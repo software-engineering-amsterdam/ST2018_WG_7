@@ -5,7 +5,7 @@ import System.Random
 import Test.QuickCheck
 import Lecture3
 
---Assignment 1 time taken 00:25 + started at 09:40
+--Assignment 1 time taken 07:20
 
 evals :: Form -> [Bool]
 evals form = [evl val form | val <- (allVals form)]
@@ -157,3 +157,113 @@ genMinimalContradictionsInternal literals | (length literals) == 1 = [smallestCo
 
 genMinimalTautologies :: Int -> [Form]
 genMinimalTautologies literalCount = [nnf (Neg a) | a <- genMinimalContradictions literalCount]
+
+-- ASSIGNMENT 3 - CNF Converter --
+
+-- Definitions for CNF conversion and tests.
+isLiteral :: Form -> Bool
+isLiteral (Prop _)       = True
+isLiteral (Neg (Prop _)) = True
+isLiteral _              = False
+
+isCNFClause :: Form -> Bool
+isCNFClause f | isLiteral f = True
+isCNFClause (Dsj fs)        = all isCNFClause fs
+isCNFClause _               = False
+
+isCNFConjunction :: Form -> Bool
+isCNFConjunction f | isCNFClause f = True
+isCNFConjunction (Cnj fs)          = all isCNFClause fs
+isCNFConjunction _                 = False
+
+-- Actual CNF convertion.
+
+-- Constructs a Form containing only the property, negated if needed, depending on the actual
+-- value.
+negateProp :: (Name, Bool) -> Form
+negateProp (n, True)  = Neg (Prop n)
+negateProp (n, False) = Prop n
+
+-- Creates for any non tautology or contradiction form its corresponding CNF.
+-- We make use of the hint that is described in the last paragraph of workshop 3.
+-- 'Hint: the negation of a row where the truth table gives false can be expressed as a disjunction.
+-- Take the conjunction of all these disjunctions.' When constructing the disjunction we make use of the
+-- fact that 'not(p and q)' is equivelent to '(not p) or (not q)'. If the actual value for a property is
+-- 'false' it must be replaced by 'not false', this is all handled by the 'negateProp' function.
+convertToCNF :: Form -> Form
+convertToCNF f | isLiteral f   = f
+convertToCNF f | isCNFClause f = f
+convertToCNF f                 = Cnj [ Dsj [ negateProp v | v <- vs ] | vs <- allVals f, not (evl vs f)]
+
+-- Converts any propositional form into its CNF.
+-- Specal cases are tautology and contradiction. These can be converted into a standard CNF form.
+-- In order to ensure that these special cases use property names that are present in the form, one
+-- of them it selected to create the corresponding CNF.
+-- All other cases are converted into CNF by the 'convertToCNF' function.
+cnf :: Form -> Form
+cnf f | tautology f     = Dsj [Prop n, Neg (Prop n)]
+      | contradiction f = Cnj [Prop n, Neg (Prop n)]
+      | otherwise       = convertToCNF (nnf (arrowfree f))
+      -- Just use the first name for tautologies and contradictions.
+      where n = head (propNames f)
+
+
+--We can generate an entailment B for A where A entails B by
+--taking the truth table of A, letting one more valuation evaluate to true,
+--and building the cnf which belongs to this new truth table.
+
+--Get a list of valuation and eval value pairs for a form.
+--Let the convertValsToCNF method build a CNF from valuation and eval value pairs.
+--Next, we write the genEntailment method which generates this list, flip one
+--false entry to true, and then converts it to a cnf.
+
+valuationEvaluationPairList :: Form -> [(Valuation, Bool)]
+valuationEvaluationPairList form = [(x, (evl x form)) | x <- allVals form]
+
+entailValuationEvaluationPairList :: [(Valuation, Bool)] -> [(Valuation, Bool)]
+entailValuationEvaluationPairList (x:xs) | not (snd x)  = [((fst x), True)] ++ xs
+                                         | (snd x)      = [x] ++ (entailValuationEvaluationPairList xs)
+
+convertValuationEvaluationPairToCNF :: [(Valuation, Bool)] -> Form
+convertValuationEvaluationPairToCNF list = Cnj [ Dsj [ negateProp v | v <- (fst vs) ] | vs <- list, not (snd vs)]
+
+--Finally, wrap the method into a method similar to cnf so we can check for tautology
+--and contradiction.
+
+genEntailment :: Form -> Form
+genEntailment form = convertValuationEvaluationPairToCNF (entailValuationEvaluationPairList (valuationEvaluationPairList (cnf (form)))) -- do magic where we flip one false val to true
+
+-- == Exercise 4 == --
+{-
+  Time spend: ~3 hours
+-}
+
+{-
+  Random generation of forms
+-}
+instance Arbitrary Form where
+    arbitrary = sized arbitrarySizedForm
+
+arbitrarySizedForm    :: Int -> Gen Form
+arbitrarySizedForm n  =  do formIndex <- choose (0, 8)
+                            size <- choose (0, n `div` 2)
+                            arbitraryForm <- arbitrarySizedForm (n `div` 4)
+                            arbitraryForm2 <- arbitrarySizedForm (n `div` 4)
+                            listOfArbitraryForms <- vectorOf size (arbitrarySizedForm (n `div` 4))
+                            let form = [Prop 1,
+                                        Prop 2,
+                                        Prop 3,
+                                        Prop 4,
+                                        Neg arbitraryForm,
+                                        Cnj (arbitraryForm : listOfArbitraryForms),
+                                        Dsj (arbitraryForm : listOfArbitraryForms),
+                                        Impl arbitraryForm arbitraryForm2,
+                                        Equiv arbitraryForm arbitraryForm2
+                                        ] !! formIndex
+                            return form
+
+genEntailmentPairInternal :: Form -> (Form, Form)
+genEntailmentPairInternal form = (form, genEntailment form)
+
+genEntailmentPair :: Int -> (Form, Form)
+genEntailmentPair size = genEntailmentPairInternal (generate (arbitrarySizedForm size))
