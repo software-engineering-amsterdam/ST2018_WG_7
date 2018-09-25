@@ -5,7 +5,7 @@ import System.Random
 import Test.QuickCheck
 import Lecture3
 
---Assignment 1 time taken 08:45
+--Assignment 1 time taken 09:15
 
 evals :: Form -> [Bool]
 evals form = [evl val form | val <- (allVals form)]
@@ -254,3 +254,36 @@ genEntailment form = convertPairsToCNF (genEntailmentPairs (valuationEvaluationP
 
 genEquivalence :: Form -> Form
 genEquivalence form = Cnj [form, cnf (convertPairToCNF (head (valuationEvaluationPairs (cnf form))))]
+
+instance Arbitrary Form where
+    arbitrary = sized arbitrarySizedForm
+
+arbitrarySizedForm    :: Int -> Gen Form
+arbitrarySizedForm n  =  do formIndex <- choose (0, 8)
+                            size <- choose (0, n `div` 2)
+                            arbitraryForm <- arbitrarySizedForm (n `div` 4)
+                            arbitraryForm2 <- arbitrarySizedForm (n `div` 4)
+                            listOfArbitraryForms <- vectorOf size (arbitrarySizedForm (n `div` 4))
+                            let form = [Prop 1,
+                                        Prop 2,
+                                        Prop 3,
+                                        Prop 4,
+                                        Neg arbitraryForm,
+                                        Cnj (arbitraryForm : listOfArbitraryForms),
+                                        Dsj (arbitraryForm : listOfArbitraryForms),
+                                        Impl arbitraryForm arbitraryForm2,
+                                        Equiv arbitraryForm arbitraryForm2
+                                        ] !! formIndex
+                            return form
+
+testTautology :: Bool
+testTautology = tautology (genMinimalTautologies 4)
+
+testContradiction :: Bool
+testContradiction = contradiction (genMinimalContradictions 4)
+
+testEntailment :: Form -> Bool
+testEntailment form = entails form (genEntailment form)
+
+testEquivalence :: Form -> Bool
+testEquivalence form = equiv form (genEquivalence form)
