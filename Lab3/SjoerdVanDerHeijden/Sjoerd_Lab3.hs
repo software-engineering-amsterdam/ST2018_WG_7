@@ -134,7 +134,7 @@ cnfChecker (Cnj fs) = and [ cnfChecker f | f <- fs ]
 -- "+(+(*(1 -2) *(-1 2)) *(*(-1 -2) -3))"
 -- "(1 ==> 2) <=> ((-2) ==> (-1))"
 {-
- Time: rewriteToCnf: ~4hours, most of the time was necessary to think of the strategy to solve it.
+ Time: rewriteToCnf: ~2hours, most of the time was necessary to think of the strategy to solve it.
        cnfChecker: 30min
        cnfCleanup: 15min
  -}
@@ -171,7 +171,7 @@ arbitrarySizedForm m = do
                         return (forms !! n)
 
 {-
- Time: Too long, struggling with the syntax of Haskell (why would arrows have so many different workings).
+ Time: Too long, struggling with the syntax of Haskell (why would arrows have so many different workings?).
  In the end I asked Rocco for help, and ended up with pretty much a copy of what he has.
 
 -}
@@ -183,16 +183,19 @@ type Clause  = [Int]
 type Clauses = [Clause]
 
 rewriteCnfToClause :: Form -> Clauses
+rewriteCnjToClause (Prop f) =  [[f]]
+rewriteCnjToClause (Neg (Prop f)) = [[-f]]
+rewriteCnfToClause (Dsj fs) =  [[ rewriteDsjToClause f | f <- fs]]
 rewriteCnfToClause (Cnj fs) =  [ rewriteCnjToClause f | f <- fs]
 
 rewriteCnjToClause :: Form -> Clause
 rewriteCnjToClause (Prop f) =  [f]
-rewriteCnjToClause (Neg (Prop f)) = [-f] -- map ( (-1) * ) (propNames f)
+rewriteCnjToClause (Neg (Prop f)) = [-f]
 rewriteCnjToClause (Dsj fs) =  [ rewriteDsjToClause f | f <- fs]
 
 rewriteDsjToClause :: Form -> Int
 rewriteDsjToClause (Prop f) = f
-rewriteDsjToClause (Neg ( Prop f)) = -f -- map ( (-1) * ) (propNames f)
+rewriteDsjToClause (Neg ( Prop f)) = -f
 
 
 rewriteFormToClause :: Form -> Clauses
