@@ -54,6 +54,7 @@ main = do
 -------------------------------------------------------------------------------
 -- ==EXERCISE 3: REWRITE TO CNF== --
 
+-- Takes a Form of CNF, then cleans up excess brackets and Dsjs and Cnjs
 cnfCleanup :: Form -> Form
 cnfCleanup (Neg f) = (Neg (cnfCleanup f))
 cnfCleanup (Prop f) = (Prop f)
@@ -66,13 +67,13 @@ cnjCleanup :: Form -> [Form]
 cnjCleanup (Prop f) = [(Prop f)]
 cnjCleanup (Neg f) = [(Neg f)]
 cnjCleanup (Cnj fs) = (concat [cnjCleanup f | f <- fs])
-cnjCleanup (Dsj fs) = [(Dsj fs)]
+cnjCleanup (Dsj fs) = [Dsj (nub (concat [dsjCleanup f | f <- fs]))]
 
 dsjCleanup :: Form -> [Form]
 dsjCleanup (Prop f) = [(Prop f)]
 dsjCleanup (Neg f) = [(Neg f)]
-dsjCleanup (Cnj fs) = [(Cnj fs)]
-dsjCleanup (Dsj fs) = (concat [cnjCleanup (f::Form) | f <- fs])
+dsjCleanup (Cnj fs) = [Cnj (nub (concat [cnjCleanup f | f <- fs]))] -- I added this even though this should never occur.
+dsjCleanup (Dsj fs) = (concat [dsjCleanup (f) | f <- fs])
 
 -- -- Tautology cleanup
 -- cnfCleanup (Dsj [Dsj [f, Neg f], g]) = Dsj [f,-f]
@@ -80,12 +81,6 @@ dsjCleanup (Dsj fs) = (concat [cnjCleanup (f::Form) | f <- fs])
 -- -- Contradiction cleanup
 -- cnfCleanup (Cnj [Cnj [f, Neg f], g]) = Cnj [f,-f]
 -- cnfCleanup (Dsj [Cnj [f, Neg f], g]) = g
-
--- logicConverter :: Form -> Form
--- logicConverter (Cnj [(Dsj fs), gs]) = Dsj (map ( Cnj.( (flip(:)) [gs] ) ) fs)
--- logicConverter (Dsj [(Cnj fs), gs]) = Cnj (map ( Dsj.( (flip(:)) [gs] ) ) fs)
--- logicConverter (Cnj fs) = Neg ( Dsj (map (nnf.Neg) fs ))
--- logicConverter (Dsj fs) = Neg ( Cnj (map (nnf.Neg) fs ))
 
 
 -- Gets the Valuations belonging to the rows of the truth table for f that result in False.
@@ -117,6 +112,7 @@ rewriteToCnf f | tautology f = Dsj [Prop 1, Neg (Prop 1) ]
                | cnfChecker (nnf (arrowfree f)) = (nnf (arrowfree f))
                | otherwise = getCnjProps (getTTFalseRows f)
 
+
 -- Used to check whether there's a Cnj nested within a Dsj, which would violate CNF. Is there a better way to write this?
 cnjInDsjChecker :: Form -> Bool
 cnjInDsjChecker (Cnj f) = True
@@ -137,7 +133,11 @@ cnfChecker (Cnj fs) = and [ cnfChecker f | f <- fs ]
 
 -- "+(+(*(1 -2) *(-1 2)) *(*(-1 -2) -3))"
 -- "(1 ==> 2) <=> ((-2) ==> (-1))"
-
+{-
+ Time: rewriteToCnf: ~4hours, most of the time was necessary to think of the strategy to solve it.
+       cnfChecker: 30min
+       cnfCleanup: 15min
+ -}
 -------------------------------------------------------------------------------
 -- ==EXERCISE 4: RANDOM PROPERTY GENERATOR== --
 
@@ -170,7 +170,32 @@ arbitrarySizedForm m = do
                                      ]
                         return (forms !! n)
 
+{-
+ Time: Too long, struggling with the syntax of Haskell (why would arrows have so many different workings).
+ In the end I asked Rocco for help, and ended up with pretty much a copy of what he has.
+
+-}
 
 -------------------------------------------------------------------------------
 -- ==EXERCISE 5: RANDOM PROPERTY GENERATOR== --
 
+type Clause  = [Int]
+type Clauses = [Clause]
+
+rewriteCnfToClause :: Form -> Clauses
+rewriteCnfToClause (Cnj fs) =  [ rewriteCnjToClause f | f <- fs]
+
+rewriteCnjToClause :: Form -> Clause
+rewriteCnjToClause (Prop f) =  [f]
+rewriteCnjToClause (Neg (Prop f)) = [-f] -- map ( (-1) * ) (propNames f)
+rewriteCnjToClause (Dsj fs) =  [ rewriteDsjToClause f | f <- fs]
+
+rewriteDsjToClause :: Form -> Int
+rewriteDsjToClause (Prop f) = f
+rewriteDsjToClause (Neg ( Prop f)) = -f -- map ( (-1) * ) (propNames f)
+
+
+rewriteFormToClause :: Form -> Clauses
+rewriteFormToClause f = rewriteCnfToClause (cnfCleanup (rewriteToCnf f))
+
+-- Time: 20min
