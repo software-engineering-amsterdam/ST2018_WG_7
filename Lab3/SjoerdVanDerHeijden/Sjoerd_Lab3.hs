@@ -99,7 +99,7 @@ getCnjProps v | length props > 1 = Cnj props
 rewriteToCnf :: Form -> Form
 rewriteToCnf f | tautology f = Dsj [Prop 1, Neg (Prop 1) ]
                | contradiction f = Cnj [Prop 1, Neg (Prop 1) ]
-               | cnfChecker (nnf (arrowFree f)) = (nnf (arrowFree f))
+               | cnfChecker (nnf (arrowfree f)) = (nnf (arrowfree f))
                | otherwise = getCnjProps (getTTFalseRows f)
 
 -- Used to check whether there's a Cnj nested within a Dsj, which would violate CNF. Is there a better way to write this?
@@ -126,13 +126,33 @@ cnfChecker (Cnj fs) = and [ cnfChecker f | f <- fs ]
 -------------------------------------------------------------------------------
 -- ==EXERCISE 4: RANDOM PROPERTY GENERATOR== --
 
--- instance Arbitrary a => Arbitrary (Form a) where
---   arbitrary =
---     sized arbitrarySizedForm
+instance Arbitrary Form where
+  arbitrary = sized arbitrarySizedForm
 
--- arbitrarySizedForm :: Arbitrary a => Int -> Gen (Form)
--- arbitrarySizedForm m = do
---   t <- arbitrary
---   n <- choose (0, m `div` 2)
---   ts <- vectorOf n (arbitrarySizedForm (m `div` 4))
---   return (Form t ts)
+arbitrarySizedForm :: Int -> Gen Form
+arbitrarySizedForm m = do 
+                        n <- choose (0,8)
+                        arbitraryForm1 <- arbitrarySizedForm (m `div` 4)
+                        arbitraryForm2 <- arbitrarySizedForm (m `div` 4)
+                        formList <- vectorOf (m `div` 4) (arbitrarySizedForm (m `div` 4))
+                        let forms = [Prop 1,
+                                     Prop 2,
+                                     Prop 3,
+                                     Prop 4,
+                                     -- Impl (generate (arbitrarySizedForm (m `div` 4))) (generate (arbitrarySizedForm (m `div` 4))) ,
+                                     -- Equiv (generate (arbitrarySizedForm (m `div` 4))) (generate (arbitrarySizedForm (m `div` 4))) ,
+                                     -- Neg (generate (arbitrarySizedForm (m `div` 4))),
+                                     -- Cnj [(generate (arbitrarySizedForm (m `div` 4))) | i <- [0,m `div` 4]],
+                                     -- Dsj [(generate (arbitrarySizedForm (m `div` 4))) | i <- [0,m `div` 4]]
+
+                                     Impl  arbitraryForm1 arbitraryForm2 ,
+                                     Equiv arbitraryForm1 arbitraryForm2 ,
+                                     Neg arbitraryForm1,
+                                     Cnj (arbitraryForm1:formList),
+                                     Dsj (arbitraryForm1:formList)
+                                     ]
+                        return (forms !! n)
+
+
+-------------------------------------------------------------------------------
+-- ==EXERCISE 5: RANDOM PROPERTY GENERATOR== --
