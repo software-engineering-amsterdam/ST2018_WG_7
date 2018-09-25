@@ -118,6 +118,8 @@ negateProp (n, True)  = Neg (Prop n)
 negateProp (n, False) = Prop n
 
 -- Creates for any non tautology or contradiction form its corresponding CNF.
+-- Special cases are forms with a single literal or a disjunction-clause form, if this is the
+-- case the original form (literal or disjunction clause) is returned.
 -- We make use of the hint that is described in the last paragraph of workshop 3.
 -- 'Hint: the negation of a row where the truth table gives false can be expressed as a disjunction. 
 -- Take the conjunction of all these disjunctions.' When constructing the disjunction we make use of the 
