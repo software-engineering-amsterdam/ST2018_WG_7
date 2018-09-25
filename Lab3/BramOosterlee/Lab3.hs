@@ -277,10 +277,10 @@ arbitrarySizedForm n  =  do formIndex <- choose (0, 8)
                             return form
 
 testTautology :: Bool
-testTautology = tautology (genMinimalTautologies 4)
+testTautology = all (==True) [tautology form | form <- (genMinimalTautologies 4)]
 
 testContradiction :: Bool
-testContradiction = contradiction (genMinimalContradictions 4)
+testContradiction = all (==True) [contradiction form | form <- (genMinimalContradictions 4)]
 
 testEntailment :: Form -> Bool
 testEntailment form = entails form (genEntailment form)
