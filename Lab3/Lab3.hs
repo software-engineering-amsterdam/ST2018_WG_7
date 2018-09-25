@@ -150,7 +150,7 @@ testAssignment1 = do
 -- Time spent: 0:40
 
 --------------------------------------------------
--- ASSIGNMENT 2 -  --
+-- ASSIGNMENT 2 - Parser Tester --
 {-
 Time spend: ~2 hours
 -}
@@ -243,7 +243,7 @@ testAssignment3 = do
 
 -- Time spent: 4:30
 
-
+--------------------------------------------------
 -- ASSIGNMENT 4 - Form generator --
 
 -- Helper code for checking whether there's a Cnj nested within a Dsj, which would violate CNF.
@@ -263,6 +263,7 @@ cnfChecker (Cnj []) = False
 cnfChecker (Dsj fs) = and [ not (cnjInDsjChecker f) && cnfChecker f | f <- fs ]
 cnfChecker (Cnj fs) = and [ cnfChecker f | f <- fs ]
 
+
 -- Arbitrary form generator for use with quickCheck
 instance Arbitrary Form where
     arbitrary = sized arbitrarySizedForm
@@ -277,7 +278,7 @@ arbitrarySizedForm 0 = do
                                      ]
                         return (forms !! n)
 arbitrarySizedForm n  =  do formIndex <- choose (0, 8)
-                            size <- choose (0, n `div` 2)
+                            size <- choose (1, n `div` 2 +1)
                             arbitraryForm <- arbitrarySizedForm (n `div` 4)
                             arbitraryForm2 <- arbitrarySizedForm (n `div` 4)
                             listOfArbitraryForms <- vectorOf size (arbitrarySizedForm (n `div` 4))
@@ -293,14 +294,15 @@ arbitrarySizedForm n  =  do formIndex <- choose (0, 8)
                                         ] !! formIndex
                             return form
 
-rewriteToCnfTester :: Form -> Bool
-rewriteToCnfTester f = equiv f cnfF && cnfChecker cnfF
+cnfTester :: Form -> Bool
+cnfTester f = equiv f cnfF && cnfChecker cnfF
                         where cnfF = cnf f
 
 testAssignment4 = do
     putStrLn "\n--== Assignment 4 - Form generation Testing ==--" 
-    quickCheck rewriteToCnfTester
+    quickCheck cnfTester
 
+--------------------------------------------------
 -- ASSIGNMENT 5 - SAT Solving --
 {-
 Time spend: ~1 hour
@@ -325,6 +327,11 @@ testAssignment5 = do
     putStrLn $ "Test example 1: " ++ (show testExample1)
     putStrLn $ "Test example 2: " ++ (show testExample2)
 
+{-
+ We don't know how to do automated testing for this, especially not within our current timeframe.
+-}
+
+--------------------------------------------------
 -- TEST RUNNER --
 main = do
     testAssignment1
@@ -332,3 +339,4 @@ main = do
     testAssignment3
     testAssignment4
     testAssignment5
+    
