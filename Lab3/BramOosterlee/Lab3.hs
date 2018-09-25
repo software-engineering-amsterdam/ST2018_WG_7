@@ -5,7 +5,7 @@ import System.Random
 import Test.QuickCheck
 import Lecture3
 
---Assignment 1 time taken 09:15
+--Assignment 1 time taken 11:45
 
 combinedValues :: [Form] -> [Valuation]
 combinedValues fs = genVals (nub (concatMap propNames fs))
@@ -219,16 +219,12 @@ convertSinglePairToForm x | ((snd (head (fst x))) == (snd x)) = (Prop (fst (head
                          | otherwise                         = Neg (Prop (fst (head (fst x))))
 
 convertPairToCNFNormal :: (Valuation, Bool) -> Form
-convertPairToCNFNormal vs | not (snd vs) = Dsj [ negateProp v | v <- (fst vs) ]
-                         | otherwise    = Dsj []
-
-convertPairToCNF :: (Valuation, Bool) -> Form
-convertPairToCNF x | length (fst x) == 1 = convertSinglePairToForm x
-                  | (snd x)             = nnf (Neg (convertPairToCNFNormal (fst x, not (snd x))))
-                  | not (snd x)         = convertPairToCNFNormal x
+convertPairToCNFNormal vs = Dsj [ negateProp v | v <- (fst vs) ]
 
 convertPairsToCNF :: [(Valuation, Bool)] -> Form
-convertPairsToCNF list = Cnj [ convertPairToCNF x | x <- list ]
+convertPairsToCNF list | all (==True) [snd v | v <- list] = Dsj [Prop n, Neg (Prop n)]
+                       | otherwise = Cnj [ convertPairToCNFNormal x | x <- list, not (snd x)]
+  where n = fst (head (fst (head list)))
 
 --Finally, wrap the method into a method similar to cnf so we can check for tautology
 --and contradiction.
@@ -242,7 +238,7 @@ genEntailment form = convertPairsToCNF (genEntailmentPairs (valuationEvaluationP
 --converting it to a cnf, and joining it to our form.
 
 genEquivalence :: Form -> Form
-genEquivalence form = Cnj [form, cnf (convertPairToCNF (head (valuationEvaluationPairs (cnf form))))]
+genEquivalence form = Cnj [form, cnf (convertPairsToCNF [(head (valuationEvaluationPairs (cnf form)))])]
 
 instance Arbitrary Form where
     arbitrary = sized arbitrarySizedForm
@@ -273,11 +269,11 @@ arbitrarySizedForm n  =  do formIndex <- choose (0, 8)
                                         ] !! formIndex
                             return form
 
-testTautology :: Bool
-testTautology = all (==True) [tautology form | form <- (genMinimalTautologies 4)]
+testTautology :: Int -> Bool
+testTautology x = all (==True) [tautology form | form <- (genMinimalTautologies (x `mod` 5))]
 
-testContradiction :: Bool
-testContradiction = all (==True) [contradiction form | form <- (genMinimalContradictions 4)]
+testContradiction :: Int -> Bool
+testContradiction x = all (==True) [contradiction form | form <- (genMinimalContradictions (x `mod` 5))]
 
 testEntailment :: Form -> Bool
 testEntailment form = entails form (genEntailment form)
