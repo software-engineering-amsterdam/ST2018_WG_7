@@ -7,37 +7,25 @@ import Lecture3
 
 --Assignment 1 time taken 09:15
 
-evals :: Form -> [Bool]
-evals form = [evl val form | val <- (allVals form)]
+combinedValues :: [Form] -> [Valuation]
+combinedValues fs = genVals (nub (concatMap propNames fs))
 
+-- A contradiction is not stisfiable
 contradiction :: Form -> Bool
-contradiction form = all (==False) (evals form)
+contradiction = not . satisfiable
 
+-- For a tautology all evaluations must be true
 tautology :: Form -> Bool
-tautology form = all (==True) (evals form)
+tautology f = all (\ v -> evl v f) (allVals f)
 
-trueVals :: Form -> [Valuation] -> [Valuation]
-trueVals form vals = [val | val <- vals, (evl val form1) == True]
-
-contains :: [Valuation] -> [Valuation] -> Bool
-contains a b = all (==True) [elem val a | val <- b]
-
- -- | logical entailment
-getCombinedVals :: Form -> Form -> [Valuation]
-getCombinedVals form1 form2 = (genVals (nub ((propNames form1) ++ (propNames form2))))
-
-entailsInternal :: Form -> Form -> [Valuation] -> Bool
-entailsInternal form1 form2 combinedVals = contains (trueVals form1 combinedVals) (trueVals form2 combinedVals)
-
+-- If for a certain combination of inputs the function f returns true this must also
+-- be the case for function g.
 entails :: Form -> Form -> Bool
-entails form1 form2 = entailsInternal form1 form2 (getCombinedVals form1 form2)
+entails f g = all (\ v -> (evl v f) --> (evl v g)) (combinedValues [f, g])
 
- -- | logical equivalence
-equivInternal :: Form -> Form -> [Valuation] -> Bool
-equivInternal form1 form2 combinedVals = (entailsInternal form1 form2 combinedVals) && (entailsInternal form2 form1 combinedVals)
-
+-- For every compination of input values both functions f and g must return the same value.
 equiv :: Form -> Form -> Bool
-equiv form1 form2 = equivInternal form1 form2 (getCombinedVals form1 form2)
+equiv f g = all (\ v -> evl v f == evl v g) (combinedValues [f, g])
 
 -- *Lab3> tautology form1
 -- True
@@ -260,8 +248,16 @@ instance Arbitrary Form where
     arbitrary = sized arbitrarySizedForm
 
 arbitrarySizedForm    :: Int -> Gen Form
+arbitrarySizedForm 0 = do
+                        n <- choose (0,3)
+                        let forms = [Prop 1,
+                                     Prop 2,
+                                     Prop 3,
+                                     Prop 4
+                                     ]
+                        return (forms !! n)
 arbitrarySizedForm n  =  do formIndex <- choose (0, 8)
-                            size <- choose (0, n `div` 2)
+                            size <- choose (1, n `div` 2 + 1)
                             arbitraryForm <- arbitrarySizedForm (n `div` 4)
                             arbitraryForm2 <- arbitrarySizedForm (n `div` 4)
                             listOfArbitraryForms <- vectorOf size (arbitrarySizedForm (n `div` 4))
