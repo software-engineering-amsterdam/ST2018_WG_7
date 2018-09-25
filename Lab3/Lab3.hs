@@ -124,7 +124,8 @@ genMinimalContradictionsInternal literals | (length literals) == 1 = [smallestCo
 genMinimalTautologies :: Int -> [Form]
 genMinimalTautologies literalCount = [nnf (Neg a) | a <- genMinimalContradictions literalCount]
 
--- Tests
+-- Tests:
+-- Testing shows that for these hardcoded cases the functions function properly.
 
 allwaysTrue :: Form
 allwaysTrue = head (parse "+(1 -1)")
