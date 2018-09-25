@@ -54,11 +54,26 @@ main = do
 -------------------------------------------------------------------------------
 -- ==EXERCISE 3: REWRITE TO CNF== --
 
--- cnfCleanup :: Form -> Form
--- -- equivalence cleanup
--- cnfCleanup (Cnj (f:g:[])) | f == g = f
---                         | otherwise = Cnj [f,g]
--- cnfCleanup (Dsj [f,f]) = f
+cnfCleanup :: Form -> Form
+cnfCleanup (Neg f) = (Neg (cnfCleanup f))
+cnfCleanup (Prop f) = (Prop f)
+cnfCleanup (Dsj [f]) = f
+cnfCleanup (Cnj [f]) = f
+cnfCleanup (Cnj fs) = Cnj (nub (concat [cnjCleanup f | f <- fs]))
+cnfCleanup (Dsj fs) = Dsj (nub (concat [dsjCleanup f | f <- fs]))
+
+cnjCleanup :: Form -> [Form]
+cnjCleanup (Prop f) = [(Prop f)]
+cnjCleanup (Neg f) = [(Neg f)]
+cnjCleanup (Cnj fs) = (concat [cnjCleanup f | f <- fs])
+cnjCleanup (Dsj fs) = [(Dsj fs)]
+
+dsjCleanup :: Form -> [Form]
+dsjCleanup (Prop f) = [(Prop f)]
+dsjCleanup (Neg f) = [(Neg f)]
+dsjCleanup (Cnj fs) = [(Cnj fs)]
+dsjCleanup (Dsj fs) = (concat [cnjCleanup (f::Form) | f <- fs])
+
 -- -- Tautology cleanup
 -- cnfCleanup (Dsj [Dsj [f, Neg f], g]) = Dsj [f,-f]
 -- cnfCleanup (Cnj [Dsj [f, Neg f], g]) = g
@@ -130,29 +145,32 @@ instance Arbitrary Form where
   arbitrary = sized arbitrarySizedForm
 
 arbitrarySizedForm :: Int -> Gen Form
+arbitrarySizedForm 0 = do 
+                        n <- choose (0,3)
+                        let forms = [Prop 1,
+                                     Prop 2,
+                                     Prop 3,
+                                     Prop 4
+                                     ]
+                        return (forms !! n)
 arbitrarySizedForm m = do 
                         n <- choose (0,8)
-                        arbitraryForm1 <- arbitrarySizedForm (m `div` 4)
+                        arbitraryForm1 <- arbitrarySizedForm (m `div` 2)
                         arbitraryForm2 <- arbitrarySizedForm (m `div` 4)
-                        formList <- vectorOf (m `div` 4) (arbitrarySizedForm (m `div` 4))
+                        formList <- vectorOf (m `div` 2) (arbitrarySizedForm (m `div` 4))
                         let forms = [Prop 1,
                                      Prop 2,
                                      Prop 3,
                                      Prop 4,
-                                     -- Impl (generate (arbitrarySizedForm (m `div` 4))) (generate (arbitrarySizedForm (m `div` 4))) ,
-                                     -- Equiv (generate (arbitrarySizedForm (m `div` 4))) (generate (arbitrarySizedForm (m `div` 4))) ,
-                                     -- Neg (generate (arbitrarySizedForm (m `div` 4))),
-                                     -- Cnj [(generate (arbitrarySizedForm (m `div` 4))) | i <- [0,m `div` 4]],
-                                     -- Dsj [(generate (arbitrarySizedForm (m `div` 4))) | i <- [0,m `div` 4]]
-
-                                     Impl  arbitraryForm1 arbitraryForm2 ,
-                                     Equiv arbitraryForm1 arbitraryForm2 ,
+                                     if arbitraryForm1 == arbitraryForm2 then arbitraryForm1 else Impl arbitraryForm1 arbitraryForm2 ,
+                                     if arbitraryForm1 == arbitraryForm2 then arbitraryForm1 else Equiv arbitraryForm1 arbitraryForm2 ,
                                      Neg arbitraryForm1,
-                                     Cnj (arbitraryForm1:formList),
-                                     Dsj (arbitraryForm1:formList)
+                                     if length formList == 0 then arbitraryForm1 else Cnj (nub(arbitraryForm1:formList)),
+                                     if length formList == 0 then arbitraryForm1 else Dsj (nub(arbitraryForm1:formList))
                                      ]
                         return (forms !! n)
 
 
 -------------------------------------------------------------------------------
 -- ==EXERCISE 5: RANDOM PROPERTY GENERATOR== --
+
