@@ -221,8 +221,9 @@ valuationEvaluationPairs :: Form -> [(Valuation, Bool)]
 valuationEvaluationPairs form = [(x, (evl x form)) | x <- allVals form]
 
 genEntailmentPairs :: [(Valuation, Bool)] -> [(Valuation, Bool)]
+genEntailmentPairs [] = []
 genEntailmentPairs (x:xs) | not (snd x)  = [((fst x), True)] ++ xs
-                                         | (snd x)      = [x] ++ (genEntailmentPairs xs)
+                          | otherwise    = [x] ++ (genEntailmentPairs xs)
 
 
 convertSinglePairToForm :: (Valuation, Bool) -> Form
