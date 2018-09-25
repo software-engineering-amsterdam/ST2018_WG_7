@@ -10,18 +10,26 @@ parse' = head . parse
 
 -- ASSIGNMENT 1 - PROPOSITIONAL LOGIC --
 
+-- Generates all the permutations of values given a list of forms.
+-- First a list is build with unique names, then all permutations
+-- are genereted.
 combinedValues :: [Form] -> [Valuation]
 combinedValues fs = genVals (nub (concatMap propNames fs))
 
+-- A contradiction is not stisfiable
 contradiction :: Form -> Bool
 contradiction = not . satisfiable
 
+-- For a tautology all evaluations must be true
 tautology :: Form -> Bool
 tautology f = all (\ v -> evl v f) (allVals f)
 
+-- If for a certain combination of inputs the function f returns true this must also
+-- be the case for function g. 
 entails :: Form -> Form -> Bool
 entails f g = all (\ v -> (evl v f) --> (evl v g)) (combinedValues [f, g])
 
+-- For every compination of input values both functions f and g must return the same value.
 equiv :: Form -> Form -> Bool
 equiv f g = all (\ v -> evl v f == evl v g) (combinedValues [f, g])
 
