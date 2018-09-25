@@ -7,7 +7,7 @@ import Lecture3
 import Control.Exception
 
 --------------------------------------------------
--- ASSIGNMENT 1 - PROPOSITIONAL LOGIC --
+-- ASSIGNMENT 1 - PROPOSITIONAL LOGIC -- 12:15
 
 -- Generates all the permutations of values given a list of forms.
 -- First a list is build with unique names, then all permutations
@@ -205,6 +205,15 @@ testAssignment1 = do
     putStrLn ("Tautology is always true: " ++ (show (tautology alwaysTrue)))
     putStrLn ("Conjuntion is equivalent to its disjunction form: " ++ (show (equiv andFunction andAsOrFunction)))
     putStrLn ("The and-function entails always true: " ++ (show (entails andFunction alwaysTrue )))
+
+    putStrLn ("When tested ad infintum, all possible contradictions are contradictions")
+    quickCheck testContradiction
+    putStrLn ("When tested ad infintum, all possible tautologies are tautologies")
+    quickCheck testTautology
+    putStrLn ("When tested ad infintum, entails works properly")
+    quickCheck testEntailment
+    putStrLn ("When tested ad infintum, equiv works properly")
+    quickCheck testEquivalence
 
 -- Time spent: 0:40
 

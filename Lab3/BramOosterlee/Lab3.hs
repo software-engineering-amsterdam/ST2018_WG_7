@@ -5,7 +5,7 @@ import System.Random
 import Test.QuickCheck
 import Lecture3
 
---Assignment 1 time taken 11:45
+--Assignment 1 time taken 12:15
 
 combinedValues :: [Form] -> [Valuation]
 combinedValues fs = genVals (nub (concatMap propNames fs))
