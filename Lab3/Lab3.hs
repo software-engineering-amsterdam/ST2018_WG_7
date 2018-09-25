@@ -125,6 +125,7 @@ genMinimalTautologies :: Int -> [Form]
 genMinimalTautologies literalCount = [nnf (Neg a) | a <- genMinimalContradictions literalCount]
 
 
+
 testAssignment1 = do
     putStrLn "--== Assignment 1 - Propositional Logic ==--"  
 
@@ -227,6 +228,24 @@ testAssignment3 = do
 
 -- ASSIGNMENT 4 - Form generator --
 
+-- Helper code for checking whether there's a Cnj nested within a Dsj, which would violate CNF.
+cnjInDsjChecker :: Form -> Bool
+cnjInDsjChecker (Cnj f) = True
+cnjInDsjChecker f = False
+
+-- Checks whether a form is in CNF
+cnfChecker :: Form -> Bool
+cnfChecker (Neg (Prop f)) = True
+cnfChecker (Prop f) = True
+cnfChecker (Neg f) = False
+cnfChecker (Impl f g) = False
+cnfChecker (Equiv f g) = False
+cnfChecker (Dsj []) = False
+cnfChecker (Cnj []) = False
+cnfChecker (Dsj fs) = and [ not (cnjInDsjChecker f) && cnfChecker f | f <- fs ]
+cnfChecker (Cnj fs) = and [ cnfChecker f | f <- fs ]
+
+-- Arbitrary form generator for use with quickCheck
 instance Arbitrary Form where
     arbitrary = sized arbitrarySizedForm
 
@@ -258,7 +277,7 @@ arbitrarySizedForm n  =  do formIndex <- choose (0, 8)
 
 rewriteToCnfTester :: Form -> Bool
 rewriteToCnfTester f = equiv f cnfF && cnfChecker cnfF
-                        where cnfF = rewriteToCnf f
+                        where cnfF = cnf f
 
 testAssignment4 = do
     putStrLn "\n--== Assignment 4 - Form generation Testing ==--" 
