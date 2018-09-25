@@ -33,8 +33,26 @@ entails f g = all (\ v -> (evl v f) --> (evl v g)) (combinedValues [f, g])
 equiv :: Form -> Form -> Bool
 equiv f g = all (\ v -> evl v f == evl v g) (combinedValues [f, g])
 
+-- Tests
+
+allwaysTrue :: Form
+allwaysTrue = head (parse "+(1 -1)")
+
+allwaysFalse :: Form
+allwaysFalse = head (parse "*(1 -1)")
+
+andFunction :: Form
+andFunction = head (parse "*(1 2)")
+
+andAsOrFunction :: Form
+andAsOrFunction = head (parse "-+(-1 -2)")
+
 testAssignment1 = do
     putStrLn "--== Assignment 1 - Propositional Logic ==--"  
+    putStrLn ("Contradiction is allways false: " ++ (show (contradiction allwaysFalse)))
+    putStrLn ("Tautology is allways true: " ++ (show (tautology allwaysTrue)))
+    putStrLn ("Conjuntion is equivelent to its disjunction form: " ++ (show (equiv andFunction andAsOrFunction)))
+    putStrLn ("The and-function entails allways true: " ++ (show (entails andFunction allwaysTrue )))
 
 -- Time spent: 0:40
 
