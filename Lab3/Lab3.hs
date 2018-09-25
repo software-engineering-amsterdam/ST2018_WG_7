@@ -137,6 +137,7 @@ andFunction = head (parse "*(1 2)")
 
 andAsOrFunction :: Form
 andAsOrFunction = head (parse "-+(-1 -2)")
+
 testAssignment1 = do
     putStrLn "--== Assignment 1 - Propositional Logic ==--"  
     putStrLn ("Contradiction is allways false: " ++ (show (contradiction allwaysFalse)))
