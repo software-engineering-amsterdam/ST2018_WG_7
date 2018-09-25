@@ -6,6 +6,7 @@ import Test.QuickCheck
 import Lecture3
 import Control.Exception
 
+--------------------------------------------------
 -- ASSIGNMENT 1 - PROPOSITIONAL LOGIC --
 
 -- Generates all the permutations of values given a list of forms.
@@ -31,13 +32,106 @@ entails f g = all (\ v -> (evl v f) --> (evl v g)) (combinedValues [f, g])
 equiv :: Form -> Form -> Bool
 equiv f g = all (\ v -> evl v f == evl v g) (combinedValues [f, g])
 
+-- One way to check this using QuickCheck would be to generate forms
+-- automatically. You could do this by starting with atoms and adding operators
+-- with operands randomly on the left and right until we decide to stop generating.
+
+-- We could use this method as well to easily generate logically entailing
+-- propositions, because we could always add an operator and operand to a
+-- proposition which logically entails the original proposition. This could be done
+-- by adding "or P" to a proposition, which will either be logically equivalent,
+-- or be logically entailed by the original proposition.
+
+-- Using this method however, we are not proving that our definition is correct.
+-- We are only showing that for the generated formulas, our definition was correct.
+
+-- If we can show that we can generate any possible formula with our generator,
+-- Then we will prove it as long as we keep testing ad infinitum.
+
+-- When it comes to contradictions, One way of generating them would be to
+-- ensure that we're always sampling from all the possible minimal contradictions
+-- with the given number of literals. If this sub formula is connected with an
+-- "and" operator to the rest of the formula, we can disregard the rest of the
+-- formula when checking for contradiction. The smallest contradiction is for
+-- one literal: p and -p
+
+-- Any contradiction can be rewritten to contain a minimal contradiction
+-- which is sampled from the minimal contradictions for the number of literals.
+-- We might even say that any formula is either rewriteable to a minimal contradiction,
+-- or have a minized contradiction connected to the rest of the formula with an and operator.
+
+-- Thus we can generate contradictions by picking a number of literals,
+-- generating the list of minimal contradictions, picking one, and adding whatever
+-- else we want in the formula with an "and" operator.
+
+-- Similarly, we could do this for tautologies. The minimal tautology set is the
+-- minimal set of negations of the minimal contradiction set. The smallest
+-- tautology is thus obtained as such: -(p and -p) = -p or p = p or -p.
+
+-- Any tautology is a negation of a contradiction. This means that the previous
+-- statements about a minimal contradiction connected with an and operator
+-- to the rest of the formula becomes a minimal tautology connected with an or
+-- operator connected to the negation of the rest of the formula.
+
+-- When building the minimal contradiction set we can use a trick:
+-- literals | contradictions
+-- p        | p and -p
+-- p, q     | p and -p
+--            q and -q
+--            (p and -p) and (q and -q)
+--            (p and -p) or (q and -q)
+-- p, q     | contradictions(p)
+--            contradictions(q)
+--            contradictions(p) and contradictions(q)
+--            contradictions(p) or contradictions(q)
+
+-- If we can rewrite any contradiction to a minimal contradiction connected
+-- with an and to the rest of the formula, the element
+-- "contradictions(p) and contradictions(q)" can be rewritten to
+-- contradictions(p) and -rest of the formula-
+-- or, contradictions(q) and -rest of the formula-.
+-- These cases are already accounted for with the elements contradictions(p)
+-- and contradictions(q).
+
+-- It should be noted that we also run into other contradictions with two literals,
+-- such as (p and -q) and (q and -p). This can be rewritten to
+-- contradictions(p) and contradictions(q).
+-- We will also encounter (p or (q and -q)) and (-p or (q and -q)). This can be
+-- rewritten to contradictions(p) or contradictions(q).
+
+-- With more literals, we will also encounter combinations between or's and and's
+-- and contradictions of subsets of the literals. We don't need to generate these
+-- cases, because when rewritten to CNF, we can apply the 'and trick' to reduce
+-- the proposition to the contradiction of a single literal, and
+-- -rest of the formula-.
+
+-- Our set of minimal contradictions can thus be reduced to the contradictions
+-- for the the individual literals, and any combination of them with or connectors.
+-- We then define genMinimalContradictions:
+
+genMinimalContradictions :: Int -> [Form]
+genMinimalContradictions literalCount = genMinimalContradictionsInternal [1..literalCount]
+
+smallestContradiction :: Int -> Form
+smallestContradiction literal = Cnj [Prop literal, Neg (Prop literal)]
+
+genMinimalContradictionsInternal :: [Int] -> [Form]
+genMinimalContradictionsInternal literals | (length literals) == 1 = [smallestContradiction (head literals)]
+                                          | otherwise              = [Dsj (concat [genMinimalContradictionsInternal [literal] | literal <- literals])] ++
+                                                                     (nub (concat [genMinimalContradictionsInternal subset | subset <- subsequences literals,
+                                                                              length subset == (length literals) - 1]))
+
+genMinimalTautologies :: Int -> [Form]
+genMinimalTautologies literalCount = [nnf (Neg a) | a <- genMinimalContradictions literalCount]
+
+
 testAssignment1 = do
     putStrLn "--== Assignment 1 - Propositional Logic ==--"  
 
 -- Time spent: 0:40
 
-
--- ASSIGNENT 2 -  --
+--------------------------------------------------
+-- ASSIGNMENT 2 -  --
 {-
 Time spend: ~2 hours
 -}
@@ -66,6 +160,7 @@ testAssignment2 = do
     parseEmptyString
     parseBogus
 
+--------------------------------------------------
 -- ASSIGNMENT 3 - CNF Converter --
 
 -- Definitions for CNF conversion and tests.
@@ -136,6 +231,14 @@ instance Arbitrary Form where
     arbitrary = sized arbitrarySizedForm
 
 arbitrarySizedForm    :: Int -> Gen Form
+arbitrarySizedForm 0 = do 
+                        n <- choose (0,3)
+                        let forms = [Prop 1,
+                                     Prop 2,
+                                     Prop 3,
+                                     Prop 4
+                                     ]
+                        return (forms !! n)
 arbitrarySizedForm n  =  do formIndex <- choose (0, 8)
                             size <- choose (0, n `div` 2)
                             arbitraryForm <- arbitrarySizedForm (n `div` 4)
@@ -153,8 +256,13 @@ arbitrarySizedForm n  =  do formIndex <- choose (0, 8)
                                         ] !! formIndex
                             return form
 
+rewriteToCnfTester :: Form -> Bool
+rewriteToCnfTester f = equiv f cnfF && cnfChecker cnfF
+                        where cnfF = rewriteToCnf f
+
 testAssignment4 = do
     putStrLn "\n--== Assignment 4 - Form generation Testing ==--" 
+    quickCheck rewriteToCnfTester
 
 -- ASSIGNMENT 5 - SAT Solving --
 {-
