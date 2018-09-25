@@ -186,11 +186,11 @@ testEquivalence form = equiv form (genEquivalence form)
 -- Tests:
 -- Testing shows that for these hardcoded cases the functions function properly.
 
-allwaysTrue :: Form
-allwaysTrue = head (parse "+(1 -1)")
+alwaysTrue :: Form
+alwaysTrue = head (parse "+(1 -1)")
 
-allwaysFalse :: Form
-allwaysFalse = head (parse "*(1 -1)")
+alwaysFalse :: Form
+alwaysFalse = head (parse "*(1 -1)")
 
 andFunction :: Form
 andFunction = head (parse "*(1 2)")
@@ -200,11 +200,11 @@ andAsOrFunction = head (parse "-+(-1 -2)")
 
 
 testAssignment1 = do
-    putStrLn "--== Assignment 1 - Propositional Logic ==--"  
-    putStrLn ("Contradiction is allways false: " ++ (show (contradiction allwaysFalse)))
-    putStrLn ("Tautology is allways true: " ++ (show (tautology allwaysTrue)))
-    putStrLn ("Conjuntion is equivelent to its disjunction form: " ++ (show (equiv andFunction andAsOrFunction)))
-    putStrLn ("The and-function entails allways true: " ++ (show (entails andFunction allwaysTrue )))
+    putStrLn "--== Assignment 1 - Propositional Logic ==--"
+    putStrLn ("Contradiction is always false: " ++ (show (contradiction alwaysFalse)))
+    putStrLn ("Tautology is always true: " ++ (show (tautology alwaysTrue)))
+    putStrLn ("Conjuntion is equivalent to its disjunction form: " ++ (show (equiv andFunction andAsOrFunction)))
+    putStrLn ("The and-function entails always true: " ++ (show (entails andFunction alwaysTrue )))
 
 -- Time spent: 0:40
 
