@@ -4,7 +4,7 @@ import Data.List
 import System.Random
 import Test.QuickCheck
 import Lecture3
-
+import Control.Exception
 
 -- ASSIGNMENT 1 - PROPOSITIONAL LOGIC --
 
@@ -30,10 +30,33 @@ testAssignment1 = do
 
 
 -- ASSIGNENT 2 -  --
+{-
+Time spend: ~2 hours
+-}
+
+{-
+  Tests the parser by checking if the printable output the form equals the
+  printable output of the result of parsing the printable output the form
+-}
+parseTest :: Form -> Bool
+parseTest f = show f == (show . head . parse . show) f
+
+parseEmptyString = do 
+                    putStrLn "'parse' should return '[]'' when parsing an empty string"
+                    if (parse "" == []) then putStrLn "+++ OK" else putStrLn "--- Failed"
+
+parseBogus = do 
+              putStrLn "'parse' should throw an error when parsing bogus"
+              catch (putStrLn (show $ parse "Bogus")) errorHandler
+              where 
+                errorHandler :: SomeException -> IO ()
+                errorHandler = (\err -> putStrLn "+++ OK, 'parse' threw an error as expected")
 
 testAssignment2 = do
     putStrLn "\n--== Assignment 2 - Propositional Testing ==--" 
-
+    quickCheck parseTest
+    parseEmptyString
+    parseBogus
 
 -- ASSIGNMENT 3 - CNF Converter --
 
@@ -108,6 +131,7 @@ arbitrarySizedForm    :: Int -> Gen Form
 arbitrarySizedForm n  =  do formIndex <- choose (0, 8)
                             size <- choose (0, n `div` 2)
                             arbitraryForm <- arbitrarySizedForm (n `div` 4)
+                            arbitraryForm2 <- arbitrarySizedForm (n `div` 4)
                             listOfArbitraryForms <- vectorOf size (arbitrarySizedForm (n `div` 4))
                             let form = [Prop 1,
                                         Prop 2,
@@ -116,17 +140,42 @@ arbitrarySizedForm n  =  do formIndex <- choose (0, 8)
                                         Neg arbitraryForm,
                                         Cnj (arbitraryForm : listOfArbitraryForms),
                                         Dsj (arbitraryForm : listOfArbitraryForms),
-                                        Impl arbitraryForm arbitraryForm,
-                                        Equiv arbitraryForm arbitraryForm
+                                        Impl arbitraryForm arbitraryForm2,
+                                        Equiv arbitraryForm arbitraryForm2
                                         ] !! formIndex
                             return form
 
 testAssignment4 = do
     putStrLn "\n--== Assignment 4 - Form generation Testing ==--" 
 
+-- ASSIGNMENT 5 - SAT Solving --
+{-
+Time spend: ~1 hour
+-}
+type Clause  = [Int]
+type Clauses = [Clause]
 
+cnf2cls                 :: Form -> Clauses
+cnf2cls (Prop x)        = [[x]]
+cnf2cls (Neg (Prop x))  = [[-x]]
+cnf2cls (Cnj formList)  = [concat (concatMap cnf2cls formList)]
+cnf2cls (Dsj formList)  = concatMap cnf2cls formList
+
+example1 = cnf2cls (Cnj [Prop 5, Neg (Prop 6)])
+example2 = cnf2cls (Dsj [Prop 4, Cnj [Prop 5, Neg (Prop 6)]])
+
+testExample1 = show example1 == "[[5,-6]]"
+testExample2 = show example2 == "[[4],[5,-6]]"
+
+testAssignment5 = do
+    putStrLn "\n--== Assignment 5 - SAT solving ==--" 
+    putStrLn $ "Test example 1: " ++ (show testExample1)
+    putStrLn $ "Test example 2: " ++ (show testExample2)
+
+-- TEST RUNNER --
 main = do
     testAssignment1
     testAssignment2
     testAssignment3
     testAssignment4
+    testAssignment5
