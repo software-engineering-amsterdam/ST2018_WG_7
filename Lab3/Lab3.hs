@@ -4,9 +4,14 @@ import Data.List
 import System.Random
 import Test.QuickCheck
 import Lecture3
+import Control.Exception
 
---Assignment 1 time taken 12:15
+--------------------------------------------------
+-- ASSIGNMENT 1 - PROPOSITIONAL LOGIC -- 12:15
 
+-- Generates all the permutations of values given a list of forms.
+-- First a list is build with unique names, then all permutations
+-- are genereted.
 combinedValues :: [Form] -> [Valuation]
 combinedValues fs = genVals (nub (concatMap propNames fs))
 
@@ -19,40 +24,13 @@ tautology :: Form -> Bool
 tautology f = all (\ v -> evl v f) (allVals f)
 
 -- If for a certain combination of inputs the function f returns true this must also
--- be the case for function g.
+-- be the case for function g. 
 entails :: Form -> Form -> Bool
 entails f g = all (\ v -> (evl v f) --> (evl v g)) (combinedValues [f, g])
 
 -- For every compination of input values both functions f and g must return the same value.
 equiv :: Form -> Form -> Bool
 equiv f g = all (\ v -> evl v f == evl v g) (combinedValues [f, g])
-
--- *Lab3> tautology form1
--- True
--- *Lab3> tautology form2
--- False
--- *Lab3> contradiction form2
--- False
--- *Lab3> contradiction form3
--- False
--- *Lab3> contradiction form1
--- False
--- *Lab3> satisfiable form2
--- True
--- *Lab3> satisfiable form3
--- True
--- *Lab3> equiv form2 form3
--- True
--- *Lab3> entails form2 form3
--- True
--- *Lab3> entails form3 form2
--- True
--- *Lab3> entails form1 form2
--- True
--- *Lab3> entails form2 form1
--- True
--- *Lab3> equiv form1 form2
--- True
 
 -- One way to check this using QuickCheck would be to generate forms
 -- automatically. You could do this by starting with atoms and adding operators
@@ -146,56 +124,6 @@ genMinimalContradictionsInternal literals | (length literals) == 1 = [smallestCo
 genMinimalTautologies :: Int -> [Form]
 genMinimalTautologies literalCount = [nnf (Neg a) | a <- genMinimalContradictions literalCount]
 
--- ASSIGNMENT 3 - CNF Converter --
-
--- Definitions for CNF conversion and tests.
-isLiteral :: Form -> Bool
-isLiteral (Prop _)       = True
-isLiteral (Neg (Prop _)) = True
-isLiteral _              = False
-
-isCNFClause :: Form -> Bool
-isCNFClause f | isLiteral f = True
-isCNFClause (Dsj fs)        = all isCNFClause fs
-isCNFClause _               = False
-
-isCNFConjunction :: Form -> Bool
-isCNFConjunction f | isCNFClause f = True
-isCNFConjunction (Cnj fs)          = all isCNFClause fs
-isCNFConjunction _                 = False
-
--- Actual CNF convertion.
-
--- Constructs a Form containing only the property, negated if needed, depending on the actual
--- value.
-negateProp :: (Name, Bool) -> Form
-negateProp (n, True)  = Neg (Prop n)
-negateProp (n, False) = Prop n
-
--- Creates for any non tautology or contradiction form its corresponding CNF.
--- We make use of the hint that is described in the last paragraph of workshop 3.
--- 'Hint: the negation of a row where the truth table gives false can be expressed as a disjunction.
--- Take the conjunction of all these disjunctions.' When constructing the disjunction we make use of the
--- fact that 'not(p and q)' is equivelent to '(not p) or (not q)'. If the actual value for a property is
--- 'false' it must be replaced by 'not false', this is all handled by the 'negateProp' function.
-convertToCNF :: Form -> Form
-convertToCNF f | isLiteral f   = f
-convertToCNF f | isCNFClause f = f
-convertToCNF f                 = Cnj [ Dsj [ negateProp v | v <- vs ] | vs <- allVals f, not (evl vs f)]
-
--- Converts any propositional form into its CNF.
--- Specal cases are tautology and contradiction. These can be converted into a standard CNF form.
--- In order to ensure that these special cases use property names that are present in the form, one
--- of them it selected to create the corresponding CNF.
--- All other cases are converted into CNF by the 'convertToCNF' function.
-cnf :: Form -> Form
-cnf f | tautology f     = Dsj [Prop n, Neg (Prop n)]
-      | contradiction f = Cnj [Prop n, Neg (Prop n)]
-      | otherwise       = convertToCNF (nnf (arrowfree f))
-      -- Just use the first name for tautologies and contradictions.
-      where n = head (propNames f)
-
-
 --We can generate an entailment B for A where A entails B by
 --taking the truth table of A, letting one more valuation evaluate to true,
 --and building the cnf which belongs to this new truth table.
@@ -240,11 +168,178 @@ genEntailment form = convertPairsToCNF (genEntailmentPairs (valuationEvaluationP
 genEquivalence :: Form -> Form
 genEquivalence form = Cnj [form, cnf (convertPairsToCNF [(head (valuationEvaluationPairs (cnf form)))])]
 
+
+--These next 4 tests can all be ran using quickCheck.
+testTautology :: Int -> Bool
+testTautology x = all (==True) [tautology form | form <- (genMinimalTautologies (x `mod` 5))]
+
+testContradiction :: Int -> Bool
+testContradiction x = all (==True) [contradiction form | form <- (genMinimalContradictions (x `mod` 5))]
+
+testEntailment :: Form -> Bool
+testEntailment form = entails form (genEntailment form)
+
+testEquivalence :: Form -> Bool
+testEquivalence form = equiv form (genEquivalence form)
+
+--Additional
+-- Tests:
+-- Testing shows that for these hardcoded cases the functions function properly.
+
+alwaysTrue :: Form
+alwaysTrue = head (parse "+(1 -1)")
+
+alwaysFalse :: Form
+alwaysFalse = head (parse "*(1 -1)")
+
+andFunction :: Form
+andFunction = head (parse "*(1 2)")
+
+andAsOrFunction :: Form
+andAsOrFunction = head (parse "-+(-1 -2)")
+
+
+testAssignment1 = do
+    putStrLn "--== Assignment 1 - Propositional Logic ==--"
+    putStrLn ("Contradiction is always false: " ++ (show (contradiction alwaysFalse)))
+    putStrLn ("Tautology is always true: " ++ (show (tautology alwaysTrue)))
+    putStrLn ("Conjuntion is equivalent to its disjunction form: " ++ (show (equiv andFunction andAsOrFunction)))
+    putStrLn ("The and-function entails always true: " ++ (show (entails andFunction alwaysTrue )))
+
+    putStrLn ("When tested ad infintum, all possible contradictions are contradictions")
+    quickCheck testContradiction
+    putStrLn ("When tested ad infintum, all possible tautologies are tautologies")
+    quickCheck testTautology
+    putStrLn ("When tested ad infintum, entails works properly")
+    quickCheck testEntailment
+    putStrLn ("When tested ad infintum, equiv works properly")
+    quickCheck testEquivalence
+
+-- Time spent: 0:40
+
+--------------------------------------------------
+-- ASSIGNMENT 2 - Parser Tester --
+{-
+Time spend: ~2 hours
+-}
+
+{-
+  Tests the parser by checking if the printable output the form equals the
+  printable output of the result of parsing the printable output the form
+-}
+parseTest :: Form -> Bool
+parseTest f = show f == (show . head . parse . show) f
+
+parseEmptyString = do 
+                    putStrLn "'parse' should return '[]'' when parsing an empty string"
+                    if (parse "" == []) then putStrLn "+++ OK" else putStrLn "--- Failed"
+
+parseBogus = do 
+              putStrLn "'parse' should throw an error when parsing bogus"
+              catch (putStrLn (show $ parse "Bogus")) errorHandler
+              where 
+                errorHandler :: SomeException -> IO ()
+                errorHandler = (\err -> putStrLn "+++ OK, 'parse' threw an error as expected")
+
+testAssignment2 = do
+    putStrLn "\n--== Assignment 2 - Propositional Testing ==--" 
+    quickCheck parseTest
+    parseEmptyString
+    parseBogus
+
+--------------------------------------------------
+-- ASSIGNMENT 3 - CNF Converter --
+
+-- Definitions for CNF conversion and tests.
+isLiteral :: Form -> Bool
+isLiteral (Prop _)       = True
+isLiteral (Neg (Prop _)) = True
+isLiteral _              = False
+
+isCNFClause :: Form -> Bool
+isCNFClause f | isLiteral f = True
+isCNFClause (Dsj fs)        = all isCNFClause fs
+isCNFClause _               = False
+
+isCNFConjunction :: Form -> Bool
+isCNFConjunction f | isCNFClause f = True
+isCNFConjunction (Cnj fs)          = all isCNFClause fs
+isCNFConjunction _                 = False
+
+-- Actual CNF convertion.
+
+-- Constructs a Form containing only the property, negated if needed, depending on the actual
+-- value.
+negateProp :: (Name, Bool) -> Form
+negateProp (n, True)  = Neg (Prop n)
+negateProp (n, False) = Prop n
+
+-- Creates for any non tautology or contradiction form its corresponding CNF.
+-- Special cases are forms with a single literal or a disjunction-clause form, if this is the
+-- case the original form (literal or disjunction clause) is returned.
+-- We make use of the hint that is described in the last paragraph of workshop 3.
+-- 'Hint: the negation of a row where the truth table gives false can be expressed as a disjunction. 
+-- Take the conjunction of all these disjunctions.' When constructing the disjunction we make use of the 
+-- fact that 'not(p and q)' is equivelent to '(not p) or (not q)'. If the actual value for a property is
+-- 'false' it must be replaced by 'not false', this is all handled by the 'negateProp' function.
+convertToCNF :: Form -> Form
+convertToCNF f | isLiteral f   = f
+convertToCNF f | isCNFClause f = f
+convertToCNF f                 = Cnj [ Dsj [ negateProp v | v <- vs ] | vs <- allVals f, not (evl vs f)]
+
+-- Converts any propositional form into its CNF.
+-- Specal cases are tautology and contradiction. These can be converted into a standard CNF form. 
+-- In order to ensure that these special cases use property names that are present in the form, one
+-- of them it selected to create the corresponding CNF.
+-- All other cases are converted into CNF by the 'convertToCNF' function.
+cnf :: Form -> Form
+cnf f | tautology f     = Dsj [Prop n, Neg (Prop n)] 
+      | contradiction f = Cnj [Prop n, Neg (Prop n)]
+      | otherwise       = convertToCNF (nnf (arrowfree f))
+      -- Just use the first name for tautologies and contradictions.
+      where n = head (propNames f)
+
+-- Testing is done by ensuring that the generated form is not in CNF. Non-CNF forms are transformed
+-- into CNF. Then CNF-form is checked to make sure it actually in CNF and is logicaly equivelant to
+-- the original. This test relies on the random form generator from assignment 4.
+testCNFConversion :: Form -> Bool
+testCNFConversion f = (not (isCNFConjunction f)) --> isCNFConjunction f' && equiv f f'
+                    where
+                        f' = cnf f
+
+testAssignment3 = do
+    putStrLn "\n--== Assignment 3 - CNF Converter ==--" 
+    quickCheck testCNFConversion
+
+-- Time spent: 4:30
+
+--------------------------------------------------
+-- ASSIGNMENT 4 - Form generator --
+
+-- Helper code for checking whether there's a Cnj nested within a Dsj, which would violate CNF.
+cnjInDsjChecker :: Form -> Bool
+cnjInDsjChecker (Cnj f) = True
+cnjInDsjChecker f = False
+
+-- Checks whether a form is in CNF
+cnfChecker :: Form -> Bool
+cnfChecker (Neg (Prop f)) = True
+cnfChecker (Prop f) = True
+cnfChecker (Neg f) = False
+cnfChecker (Impl f g) = False
+cnfChecker (Equiv f g) = False
+cnfChecker (Dsj []) = False
+cnfChecker (Cnj []) = False
+cnfChecker (Dsj fs) = and [ not (cnjInDsjChecker f) && cnfChecker f | f <- fs ]
+cnfChecker (Cnj fs) = and [ cnfChecker f | f <- fs ]
+
+
+-- Arbitrary form generator for use with quickCheck
 instance Arbitrary Form where
     arbitrary = sized arbitrarySizedForm
 
 arbitrarySizedForm    :: Int -> Gen Form
-arbitrarySizedForm 0 = do
+arbitrarySizedForm 0 = do 
                         n <- choose (0,3)
                         let forms = [Prop 1,
                                      Prop 2,
@@ -253,7 +348,7 @@ arbitrarySizedForm 0 = do
                                      ]
                         return (forms !! n)
 arbitrarySizedForm n  =  do formIndex <- choose (0, 8)
-                            size <- choose (1, n `div` 2 + 1)
+                            size <- choose (1, n `div` 2 +1)
                             arbitraryForm <- arbitrarySizedForm (n `div` 4)
                             arbitraryForm2 <- arbitrarySizedForm (n `div` 4)
                             listOfArbitraryForms <- vectorOf size (arbitrarySizedForm (n `div` 4))
@@ -269,14 +364,49 @@ arbitrarySizedForm n  =  do formIndex <- choose (0, 8)
                                         ] !! formIndex
                             return form
 
-testTautology :: Int -> Bool
-testTautology x = all (==True) [tautology form | form <- (genMinimalTautologies (x `mod` 5))]
+cnfTester :: Form -> Bool
+cnfTester f = equiv f cnfF && cnfChecker cnfF
+                        where cnfF = cnf f
 
-testContradiction :: Int -> Bool
-testContradiction x = all (==True) [contradiction form | form <- (genMinimalContradictions (x `mod` 5))]
+testAssignment4 = do
+    putStrLn "\n--== Assignment 4 - Form generation Testing ==--" 
+    quickCheck cnfTester
 
-testEntailment :: Form -> Bool
-testEntailment form = entails form (genEntailment form)
+--------------------------------------------------
+-- ASSIGNMENT 5 - SAT Solving --
+{-
+Time spend: ~1 hour
+-}
+type Clause  = [Int]
+type Clauses = [Clause]
 
-testEquivalence :: Form -> Bool
-testEquivalence form = equiv form (genEquivalence form)
+cnf2cls                 :: Form -> Clauses
+cnf2cls (Prop x)        = [[x]]
+cnf2cls (Neg (Prop x))  = [[-x]]
+cnf2cls (Cnj formList)  = [concat (concatMap cnf2cls formList)]
+cnf2cls (Dsj formList)  = concatMap cnf2cls formList
+
+example1 = cnf2cls (Cnj [Prop 5, Neg (Prop 6)])
+example2 = cnf2cls (Dsj [Prop 4, Cnj [Prop 5, Neg (Prop 6)]])
+
+testExample1 = show example1 == "[[5,-6]]"
+testExample2 = show example2 == "[[4],[5,-6]]"
+
+testAssignment5 = do
+    putStrLn "\n--== Assignment 5 - SAT solving ==--" 
+    putStrLn $ "Test example 1: " ++ (show testExample1)
+    putStrLn $ "Test example 2: " ++ (show testExample2)
+
+{-
+ We don't know how to do automated testing for this, especially not within our current timeframe.
+-}
+
+--------------------------------------------------
+-- TEST RUNNER --
+main = do
+    testAssignment1
+    testAssignment2
+    testAssignment3
+    testAssignment4
+    testAssignment5
+    
