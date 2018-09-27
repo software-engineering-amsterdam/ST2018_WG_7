@@ -162,8 +162,6 @@ testExercise8 = do
                   quickCheck (expectFailure . exercise8Property)
 
 -- -- == Exercise 9 == --
--- join sep xs = foldr (\a b-> a ++ if b=="" then b else sep ++ b) "" xs
-
 instance Show Statement where
   show (Ass var expr)       = (var ++ " = " ++ (show expr))
   show (Cond cond st1 st2)  = "if (" ++ (show cond) ++ ") {\n\t" ++ (replace "\n" "\n\t" (show st1)) ++ "\n} else {\n\t" ++ (replace "\n" "\n\t" (show st2)) ++ "\n}"
