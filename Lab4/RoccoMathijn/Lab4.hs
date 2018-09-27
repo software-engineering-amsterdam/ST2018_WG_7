@@ -97,7 +97,27 @@ testExercise3 = do
                   quickCheck differenceTest
 
 -- == Exercise 5 == --
-
+{-
+Time spend: 15 minutes
+-}
 type Rel a = [(a,a)]
 symClos :: Ord a => Rel a -> Rel a
 symClos rel = nub (concat [[(a,b),(b,a)] | (a,b) <- rel])
+
+-- == Exercise 6 == --
+{-
+Time spend: ~1 hour
+-}
+infixr 5 @@
+
+(@@) :: Eq a => Rel a -> Rel a -> Rel a
+r @@ s = nub [(x,z) | (x,y) <- r, (w,z) <- s, y == w]
+
+trClos :: Ord a => Rel a -> Rel a
+trClos [x] = [x] 
+trClos rel | all (\x -> elem x rel) t = nub rel
+           | otherwise = trClos (t ++ rel) where
+             t = rel @@ rel
+
+
+
