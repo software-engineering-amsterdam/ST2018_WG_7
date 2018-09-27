@@ -11,13 +11,7 @@ import SetOrd
 
 -------------------------------------------------------------------------------
 -- == Assignment 2: QuickCheck tester for sets == --
--- instance Arbitrary a => Arbitrary (Set a) where
---     arbitrary = arbitrarySet
 
--- arbitrarySet :: (Arbitrary a, Eq a) => Gen (Set a)
--- arbitrarySet = do
---             x <- arbitrary
---             return (Set (nub (x)))
 
 instance (Arbitrary a, Eq a) => Arbitrary (Set a) where
     arbitrary = do 
@@ -82,11 +76,58 @@ trClos rs = if rs == ss then rs else trClos ss
 -------------------------------------------------------------------------------
 -- == Assignment 7: testing 5 & 6 == --
 
-symClosTester :: Rel Int -> Bool
-symClosTester rs = and [elem (swap r) rSymClos | r <- rSymClos]
+symClosTestHelper :: Ord a => Rel a -> Bool
+symClosTestHelper rs = and [elem (swap r) rSymClos | r <- rSymClos]
     where rSymClos = symClos rs
 
-trClosTester :: Rel Int -> Bool 
-trClosTester rs = all ((flip elem) rsTrClos ) (rsTrClos@@rsTrClos)
+-- trClosTester :: (Int a, String a) => Rel a -> Bool 
+trClosTestHelper :: Ord a => Rel a -> Bool 
+trClosTestHelper rs = all ((flip elem) rsTrClos ) (rsTrClos@@rsTrClos)
     where rsTrClos = trClos rs
 
+symClosTesterInt :: Rel Int -> Bool
+symClosTesterInt rs = symClosTestHelper rs
+
+symClosTesterStr :: Rel String -> Bool
+symClosTesterStr rs = symClosTestHelper rs
+
+trClosTesterInt :: Rel Int -> Bool
+trClosTesterInt rs = trClosTestHelper rs
+
+trClosTesterStr :: Rel String -> Bool
+trClosTesterStr rs = trClosTestHelper rs
+
+
+ass7Tester = do
+    putStrLn "-- == Assignment 7: testing 5 & 6 == --"
+    quickCheck symClosTesterInt
+    quickCheck symClosTesterStr
+    quickCheck trClosTesterInt
+    quickCheck trClosTesterStr
+
+-- Time: 20min
+-------------------------------------------------------------------------------
+-- == Assignment 8: checking (R^-1)^+ == (R^+)^-1 == --
+
+-- isEqualTrSymSymTr :: Rel Int -> Bool
+isEqualTrSymSymTrHelper :: Ord a => Rel a -> Bool
+isEqualTrSymSymTrHelper rs = trClos (symClos rs) == symClos (trClos rs)
+
+isEqualTrSymSymTrInt :: Rel Int -> Bool
+isEqualTrSymSymTrInt rs = isEqualTrSymSymTrHelper rs
+
+isEqualTrSymSymTrStr :: Rel String -> Bool
+isEqualTrSymSymTrStr rs = isEqualTrSymSymTrHelper rs
+
+ass8Tester = do
+    putStrLn "-- == Assignment 8: checking (R^-1)^+ == (R^+)^-1 == --"
+    quickCheck isEqualTrSymSymTrInt
+    quickCheck isEqualTrSymSymTrStr
+    putStrLn "The tests fail, as such (R^-1)^+ /= (R^+)^-1"
+
+
+-------------------------------------------------------------------------------
+-- == Main == --
+main = do
+    ass7Tester
+    ass8Tester
