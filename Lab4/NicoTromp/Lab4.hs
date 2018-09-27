@@ -24,9 +24,10 @@ convertToSet :: [Int] -> Set Int
 convertToSet [] = emptySet
 convertToSet (x:xs) = insertSet x (convertToSet xs)
 
-integerSetGenerator :: IO (Set Int)
-integerSetGenerator = do
+integerSetGeneratorFromScratch :: IO (Set Int)
+integerSetGeneratorFromScratch = do
     n <- getRandomNatural
     xs <- getRandomIntegers n
     return (convertToSet (nub xs))
 
+-- Time spent: 1:15
