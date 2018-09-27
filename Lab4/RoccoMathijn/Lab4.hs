@@ -5,6 +5,8 @@ import System.Random
 import Test.QuickCheck
 import SetOrd
 import Data.Tuple
+import Lecture4
+import Data.List.Utils
 -- == Exercise 2 == --
 {-
 Time spend: 2 hours
@@ -152,10 +154,44 @@ testExercise7 = do
                   quickCheck testTrClos
 
 -- == Exercise 8 == --
+exercise8Property :: Rel Int -> Bool
+exercise8Property rel = (trClos . symClos) rel == (symClos . trClos) rel
 
--- == Exercise 9 == --
+testExercise8 = do
+                  putStr "\n--== Exercise 8 ==--\n\t"
+                  quickCheck (expectFailure . exercise8Property)
+
+-- -- == Exercise 9 == --
+-- join sep xs = foldr (\a b-> a ++ if b=="" then b else sep ++ b) "" xs
+
+instance Show Statement where
+  show (Ass var expr)       = (var ++ " = " ++ (show expr))
+  show (Cond cond st1 st2)  = ("not implemented")
+  show (Seq statements)     = join "\n" (map show statements)
+  show (While cond st)      = "\nwhile (" ++ show cond ++ ") {\n\t" ++ (replace "\n" "\n\t" (show st)) ++ "\n}"
+
+instance Show Expr where
+  show (I int)              = show int
+  show (V var)              = var
+  show (Add expr1 expr2)    = "(" ++ (show expr1) ++ " + " ++ (show expr2) ++ ")"
+  show (Subtr expr1 expr2)  = "(" ++ (show expr1) ++ " - " ++ (show expr2) ++ ")"
+  show (Mult expr1 expr2)   = "(" ++ (show expr1) ++ " * " ++ (show expr2) ++ ")"
+
+instance Show Condition where
+  show (Prp var)        = var
+  show (Eq expr1 expr2) = (show expr1) ++ " == " ++ (show expr2)
+  show (Lt expr1 expr2) = (show expr1) ++ " < " ++ (show expr2)
+  show (Gt expr1 expr2) = (show expr1) ++ " > " ++ (show expr2)
+  show (Ng cond)        = "(" ++ "¬" ++ (show cond) ++ ")"
+  show (Cj conds)       = "(" ++ join " ∨ " (map show conds) ++ ")"
+  show (Dj conds)       = "(" ++ join " ∧ " (map show conds) ++ ")"
+
+testExercise9 = do
+                  putStr "\n--== Exercise 9 ==--\n"
+                  putStrLn (show fib)
 
 main = do 
         testExercise3
         testExercise7
-
+        testExercise8
+        testExercise9
