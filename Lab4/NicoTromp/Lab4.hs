@@ -158,6 +158,23 @@ testAssignment3 = do
 
 -- Time spent: 2:30
 
+-- ASSIGNMENT 5
+
+type Rel a = [(a,a)]
+
+symClos :: Ord a => Rel a -> Rel a
+symClos []     = []
+symClos (x:xs) =  x:(snd x, fst x):symClos xs 
+
+-- Time spent: 0:30
+
+testAssignment5 = do
+    putStrLn "\n--== Symmetric Closure ==--"
+    putStr "symClos test: \t"
+    putStrLn (showTest 1 (symClos [(1,2),(2,3),(3,4)] == [(1,2),(2,1),(2,3),(3,2),(3,4),(4,3)]))
+
+
 main = do
     testAssignment2
     testAssignment3
+    testAssignment5
