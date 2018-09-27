@@ -12,8 +12,8 @@ import SetOrd
 {-
  Todo:
     1
-    2: own generator
-    3: testing with own generator
+    2 done
+    3: test report
     4
     5 is done
     6 is done
@@ -33,35 +33,80 @@ instance (Arbitrary a, Eq a) => Arbitrary (Set a) where
 -- Time: 30 
 
 
+randomListGen :: Int -> Int -> IO [Int]
+randomListGen 0 maxN = return []
+randomListGen n maxN = do
+        p <- getStdRandom (randomR ((-maxN), maxN))
+        ps <- randomListGen (n-1) maxN
+        return (p:ps)
+
+maxLen :: Int
+maxLen = 30
+maxN :: Int
+maxN = 30
+
+randomSetGen :: IO (Set Int)
+randomSetGen = do
+        size <- getStdRandom (randomR (0, maxLen))
+        randomList <- randomListGen size maxN
+        return (Set (nub(randomList)))
+-- Time: 30min, even though it's mostly copy pasted.
 
 -------------------------------------------------------------------------------
 -- == Assignment 3: set operations == --
-
+-- Helper code, to check whether two sets contain the same elements.
 isEqualSet :: Eq a => Set a -> Set a -> Bool
 isEqualSet (Set r) (Set s) = length r == length s && and [elem x s | x <- r ]
 
-
+-- Operation definitions
 setIntersect :: Eq a => Set a -> Set a -> Set a
 setIntersect (Set r) (Set s) = Set [x | x <- r, elem x s]
+-- test properties: an intersection is at most as big as the biggest of r and s.
+--                  must contain any element both in r and in s
+--                  my not contain any element that is not both in r and s.
 
 setUnion :: Eq a => Set a -> Set a -> Set a
 setUnion (Set r) (Set s) = Set (nub (r++s))
+-- test properties: lenght of intersection is at least as big as the biggest of r and s.
+--                  must contain any element that is in r or in s
+--                  may not contain any element not in r or in s.
 
 setDifference :: Ord a => Set a -> Set a -> Set a
 setDifference (Set r) (Set s) = Set (concat [ x | x <- (groupBy (==) (sort (r++s))), length x == 1])
+-- test properties: lenght of intersection is at most the sum of sizes of r and s
+--                  must contain any element that is either in r or in s
+--                  may not contain any element not in r or in s, but not both.
 
+-- Helper code for testing 
+checkFuncsHelper :: (Ord a, Eq a) => Set a -> Set a -> Bool
+checkFuncsHelper r s = isEqualSet (setUnion (setDifference r s) (setIntersect r s)) (setUnion r s)
+
+
+-- My own tester. Runs 100 tests
+myCheckFuncs :: IO ()
+myCheckFuncs = do
+        rs <- sequence [randomSetGen | _ <- [0..100]]
+        ss <- sequence [randomSetGen | _ <- [0..100]]
+        -- return [checkFuncsHelper r s | r <- rs, s <- ss]
+        if and [checkFuncsHelper r s | r <- rs, s <- ss] then putStrLn "passed 100 tests" else putStrLn "failed a test"
+
+
+-- QuickTest test functions.
 checkFuncsInt :: Set Int -> Set Int -> Bool
-checkFuncsInt r s = isEqualSet (setUnion (setDifference r s) (setIntersect r s)) (setUnion r s)
+checkFuncsInt r s = checkFuncsHelper r s
 
 checkFuncsStr :: Set String -> Set String -> Bool
-checkFuncsStr r s = isEqualSet (setUnion (setDifference r s) (setIntersect r s)) (setUnion r s)
+checkFuncsStr r s = checkFuncsHelper r s
 
 ass3Tester = do
     putStrLn "\n-- == Assignment 3: set operations == --"
+    putStrLn "Testing with my own set generator"
+    myCheckFuncs
+    putStrLn "Testing with quickCheck"
     quickCheck checkFuncsInt
     quickCheck checkFuncsStr
 
--- Time: 30min
+-- Time: 1h30min
 
 -------------------------------------------------------------------------------
 -- == Assignment 4: haskell questions: 2nd edition == --
@@ -101,12 +146,16 @@ trClos rs = if isEqualRel rs ss then rs else trClos ss
 symClosTestHelper :: Ord a => Rel a -> Bool
 symClosTestHelper rs = and [elem (swap r) rSymClos | r <- rs]
     where rSymClos = symClos rs
+-- test properties: every element and the reverse of every element in rs must be in rs
+--                  but no more than that, and no duplicates
+--                  the symmetric closure of rs is at least as big as rs.
 
 -- 
 trClosTestHelper :: Ord a => Rel a -> Bool 
 trClosTestHelper rs = all ((flip elem) rsTrClos ) (rsTrClos@@rsTrClos)
     where rsTrClos = trClos (nub rs)
-
+-- test properties: every element in the @@ of the transitive closure of rs with itself, must be contained in the transitive closure of rs
+--                  transitive closure of rs is at least as big as rs
 
 symClosTesterInt :: Rel Int -> Bool
 symClosTesterInt rs = symClosTestHelper rs
@@ -145,8 +194,8 @@ isEqualTrSymSymTrStr rs = isEqualTrSymSymTrHelper rs
 
 ass8Tester = do
     putStrLn "\n-- == Assignment 8: checking (R^-1)^+ == (R^+)^-1 == --"
-    quickCheck isEqualTrSymSymTrInt
-    quickCheck isEqualTrSymSymTrStr
+    quickCheck (expectFailure . isEqualTrSymSymTrInt)
+    quickCheck (expectFailure . isEqualTrSymSymTrStr)
     putStrLn "The tests fail, as such (R^-1)^+ /= (R^+)^-1"
     putStrLn "Counterexample: R=[(1,0)]: (R_r)^+ = [(1,0),(0,1),(1,1),(0,0)], (R^+)_r = [(1,0)]"
 
@@ -155,5 +204,6 @@ ass8Tester = do
 -------------------------------------------------------------------------------
 -- == Main == --
 main = do
+    ass3Tester
     ass7Tester
     ass8Tester
