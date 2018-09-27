@@ -44,8 +44,8 @@ prop_UniqueElements :: Set Int -> Bool
 prop_UniqueElements (Set xs) = all (\y -> length y == 1) (group (sort xs))
 
 testAssignment2 = do
-    putStrLn "--== Set Int Generator ==--"
-    putStr "Generator from scratch\nElements are unique: "
+    putStrLn "\n--== Set Int Generator ==--"
+    putStr "\nGenerator from scratch\nElements are unique: "
     xs <- integerSetGeneratorFromScratch
     putStrLn (show (prop_UniqueElements xs))
     putStrLn "\nQuickCheck Generator\nElements are unique: "
@@ -53,5 +53,33 @@ testAssignment2 = do
 
 -- Time spent: 0:30
 
+-- ASSIGNMENT 3
+
+intersectSet :: Eq a => Set a -> Set a -> Set a
+intersectSet (Set r) (Set s) = Set (intersect r s)
+
+unionSet' :: Eq a => Set a -> Set a -> Set a
+unionSet' (Set r) (Set s) = Set (union r s)
+
+differenceSet :: Eq a => Set a -> Set a -> Set a
+differenceSet (Set r) (Set s) = Set (r \\ s)
+
+-- Testing properties
+
+extractList :: Set a -> [a]
+extractList (Set r) = r
+
+prop_Intersected :: Set Int -> Set Int -> Bool
+prop_Intersected r s = all (\x -> (elem x (extractList r)) && (elem x (extractList s))) (extractList (intersectSet r s))
+
+testAssignment3 = do
+    putStrLn "\n--== Set Operations ==--"
+    putStrLn "\nGenerator from scratch tests"
+    putStrLn "\nQuickCheck tests"
+    quickCheck prop_Intersected
+
+-- Time spent: 0:30
+
 main = do
     testAssignment2
+    testAssignment3
