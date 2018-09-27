@@ -64,7 +64,7 @@ testAssignment2 = do
     putStrLn "\nQuickCheck Generator\nElements are unique: "
     quickCheck prop_QuickCheckUniqueElements
 
--- Time spent: 0:30
+-- Time spent: 0:45
 
 -- ASSIGNMENT 3
 
@@ -153,7 +153,7 @@ testAssignment3 = do
     putStr "Difference: \t"
     quickCheck prop_QuickCheckDifferented
 
--- Time spent: 1:30
+-- Time spent: 2:30
 
 main = do
     testAssignment2
