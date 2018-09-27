@@ -34,7 +34,7 @@ getRandomIntegers n = do
 integerSetGeneratorFromScratch :: IO (Set Int)
 integerSetGeneratorFromScratch = do
     n <- getRandomNatural
-    xs <- getRandomIntegers n
+    xs <- getRandomIntegers maxNatural
     return (Set (nub xs))
 
 -- Time spent: 1:15
@@ -46,10 +46,15 @@ instance (Arbitrary a, Eq a) => Arbitrary (Set a) where
 
 -- Time spent: 1:00, trying all different kind of things and failing, until I talked to my teammates :-) 
 
--- Sorting is needed in order for the grouping to work. Once grouped it is a matter
--- of ensuring that the groups have a length of 1.
-prop_UniqueElements :: Set Int -> Bool
-prop_UniqueElements (Set xs) = all (\y -> length y == 1) (group (sort xs))
+uniqueElements :: (Eq a) => [a] -> Bool
+uniqueElements []     = True
+uniqueElements (x:xs) = not (elem x xs) && uniqueElements xs
+
+prop_UniqueElements :: (Eq a) => Set a -> Bool
+prop_UniqueElements (Set xs) = uniqueElements xs
+
+prop_QuickCheckUniqueElements :: Set Int -> Bool
+prop_QuickCheckUniqueElements (Set xs) = all (\y -> length y == 1) (group (sort xs))
 
 testAssignment2 = do
     putStrLn "\n--== Set Int Generator ==--"
@@ -57,7 +62,7 @@ testAssignment2 = do
     xs <- integerSetGeneratorFromScratch
     putStrLn (show (prop_UniqueElements xs))
     putStrLn "\nQuickCheck Generator\nElements are unique: "
-    quickCheck prop_UniqueElements
+    quickCheck prop_QuickCheckUniqueElements
 
 -- Time spent: 0:30
 
@@ -77,7 +82,8 @@ differenceSet (Set r) (Set s) = Set (r \\ s)
 prop_Intersected :: Eq a => Set a -> Set a -> Set a -> Bool
 prop_Intersected (Set r) (Set s) (Set rs) = all (\x -> (elem x r) && (elem x s)) rs &&
                                             all (\x -> (not (elem x s)) --> (not (elem x rs))) r &&
-                                            all (\x -> (not (elem x r)) --> (not (elem x rs))) s
+                                            all (\x -> (not (elem x r)) --> (not (elem x rs))) s &&
+                                            prop_UniqueElements (Set rs)
 
 prop_Unioned :: Eq a => Set a -> Set a -> Set a -> Bool
 prop_Unioned (Set r) (Set s) (Set rs) = all (\x -> elem x rs) r && 
@@ -87,23 +93,58 @@ prop_Unioned (Set r) (Set s) (Set rs) = all (\x -> elem x rs) r &&
 prop_Differented :: Eq a => Set a -> Set a -> Set a -> Bool
 prop_Differented (Set r) (Set s) (Set rs) = all (\x -> (elem x r) `xor` (elem x s)) rs
 
+-- Build from scratch properties
+
+testIt :: Eq a => [(Set a, Set a)] -> (Set a -> Set a -> Set a) -> (Set a -> Set a -> Set a -> Bool) -> Bool
+testIt xs op p = and [ p (fst x) (snd x) (op (fst x) (snd x)) | x <- xs ]
+
+-- prop_QuickCheckIntersected :: Set Int -> Set Int -> Bool
+
 -- QuickCheck testable propeties
 
 prop_QuickCheckIntersected :: Set Int -> Set Int -> Bool
-prop_QuickCheckIntersected r s = prop_Intersected r s rs && prop_UniqueElements rs
+prop_QuickCheckIntersected r s = prop_Intersected r s rs
     where rs = intersectSet r s
 
 prop_QuickCheckUnioned :: Set Int -> Set Int -> Bool
-prop_QuickCheckUnioned r s = prop_Unioned r s rs && prop_UniqueElements rs
+prop_QuickCheckUnioned r s = prop_Unioned r s rs
     where rs = unionSet' r s
 
 prop_QuickCheckDifferented :: Set Int -> Set Int -> Bool
-prop_QuickCheckDifferented r s = prop_Differented r s rs && prop_UniqueElements rs
+prop_QuickCheckDifferented r s = prop_Differented r s rs
     where rs = differenceSet r s
+
+-- Scatch support functions
+
+generateSetTuples :: Int -> IO [(Set Int, Set Int)]
+generateSetTuples 0 = return []
+generateSetTuples n = do
+            r <- integerSetGeneratorFromScratch
+            s <- integerSetGeneratorFromScratch
+            xs <- generateSetTuples (n - 1) 
+            return ((r, s):xs)
+
+numberOfTests :: Int
+numberOfTests = 100
+
+showTest :: Int -> Bool -> String
+showTest _ False = "--- Failed."
+showTest n _     = "+++ OK, passed " ++ (show n) ++ " tests."
 
 testAssignment3 = do
     putStrLn "\n--== Set Operations ==--"
+
     putStrLn "\nGenerator from scratch tests"
+    putStr "Intersection: \t"
+    xs <- generateSetTuples numberOfTests
+    putStrLn (showTest numberOfTests (testIt xs intersectSet prop_Intersected))
+    putStr "Union: \t\t"
+    xs <- generateSetTuples numberOfTests
+    putStrLn (showTest numberOfTests (testIt xs unionSet' prop_Unioned))
+    putStr "Difference: \t"
+    xs <- generateSetTuples numberOfTests
+    putStrLn (showTest numberOfTests (testIt xs differenceSet prop_Differented))
+
     putStrLn "\nQuickCheck tests"
     putStr "Intersection: \t"
     quickCheck prop_QuickCheckIntersected
