@@ -166,7 +166,7 @@ testExercise8 = do
 
 instance Show Statement where
   show (Ass var expr)       = (var ++ " = " ++ (show expr))
-  show (Cond cond st1 st2)  = ("not implemented")
+  show (Cond cond st1 st2)  = "if (" ++ (show cond) ++ ") {\n\t" ++ (replace "\n" "\n\t" (show st1)) ++ "\n} else {\n\t" ++ (replace "\n" "\n\t" (show st2)) ++ "\n}"
   show (Seq statements)     = join "\n" (map show statements)
   show (While cond st)      = "\nwhile (" ++ show cond ++ ") {\n\t" ++ (replace "\n" "\n\t" (show st)) ++ "\n}"
 
