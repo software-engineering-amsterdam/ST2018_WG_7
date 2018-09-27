@@ -32,6 +32,8 @@ instance (Eq a, Arbitrary a) => Arbitrary (Set a) where
 {-
 Implement operations for set intersection, set union and set difference, for the datatype Set defined in SetOrd.hs. Next, use automated testing to check that your implementation is correct. First use your own generator, next use QuickCheck.
 (Deliverables: implementations, test properties, short test report, indication of time spent.)
+
+Time spend ~ 2 hours
 -}
 
 {-
@@ -93,3 +95,9 @@ testExercise3 = do
                   quickCheck unionTest
                   mySetCheck differenceTest
                   quickCheck differenceTest
+
+-- == Exercise 5 == --
+
+type Rel a = [(a,a)]
+symClos :: Ord a => Rel a -> Rel a
+symClos rel = nub (concat [[(a,b),(b,a)] | (a,b) <- rel])
