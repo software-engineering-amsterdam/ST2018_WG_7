@@ -105,14 +105,14 @@ testAssignment3 = do
     putStrLn "\n--== Set Operations ==--"
     putStrLn "\nGenerator from scratch tests"
     putStrLn "\nQuickCheck tests"
-    putStr "Intersection: "
+    putStr "Intersection: \t"
     quickCheck prop_QuickCheckIntersected
-    putStr "Union: "
+    putStr "Union: \t\t"
     quickCheck prop_QuickCheckUnioned
-    putStr "Difference: "
+    putStr "Difference: \t"
     quickCheck prop_QuickCheckDifferented
 
--- Time spent: 0:30
+-- Time spent: 1:30
 
 main = do
     testAssignment2
