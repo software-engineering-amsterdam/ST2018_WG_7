@@ -53,21 +53,27 @@ difference                   :: Eq a => Set a -> Set a -> Set a
 difference (Set xs) (Set ys) = Set [x | x <- xs, not (elem x ys)]
 
 {-
-Test property of intersection used by quickCheck and intersectionTest'
+Test property of intersection used by quickCheck and mySetCheck
 -}
 intersectionTest                    :: Set Int -> Set Int -> Bool
 intersectionTest (Set xs) (Set ys)  = all (\x -> elem x xs && elem x ys) zs where 
                                           Set zs = intersection (Set xs) (Set ys)
 
+{-
+Test property of union used by quickCheck and mySetCheck
+-}
 unionTest                    :: Set Int -> Set Int -> Bool
 unionTest (Set xs) (Set ys)  = all (\x -> elem x zs) xs && all (\x -> elem x zs) ys where 
                                           Set zs = Lab4.union (Set xs) (Set ys)
 
+{-
+Test property of difference used by quickCheck and mySetCheck
+-}
 differenceTest                    :: Set Int -> Set Int -> Bool
 differenceTest (Set xs) (Set ys)  = not $ any (\x -> elem x ys) zs where 
                                           Set zs = difference (Set xs) (Set ys)
 {-
-Tests the intersection functions with my own random set generator
+Tests the set operations with my own random set generator
 -}
 mySetCheck :: (Set Int -> Set Int -> Bool) -> IO ()
 mySetCheck f = do 
