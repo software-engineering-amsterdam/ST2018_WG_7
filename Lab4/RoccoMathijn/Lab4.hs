@@ -77,23 +77,29 @@ differenceTest (Set xs) (Set ys)  = not $ any (\x -> elem x ys) zs where
 {-
 Tests the set operations with my own random set generator
 -}
-mySetCheck :: (Set Int -> Set Int -> Bool) -> IO ()
-mySetCheck f = do 
+mySetCheck    :: (Set Int -> Set Int -> Bool) -> IO ()
+mySetCheck f  = do 
                   aSets <- sequence [randomSet | _ <- [0..100]]
                   bSets <- sequence [randomSet | _ <- [0..100]]
                   let result = all (==True) [f a b | a <- aSets, b <- bSets]
-                  if (result) then print "+++ OK, passed 100 tests" else print "--- Failed" 
+                  if (result) then putStrLn "+++ OK, passed 100 tests." else putStrLn "--- Failed." 
 
 {-
 Test runner for exercise 3
 -}
 testExercise3 = do 
                   putStrLn "\n--== Exercise 3 - Set operations ==--"
+                  putStr "\tIntersection\n\t"
                   mySetCheck intersectionTest
+                  putStr "\t"
                   quickCheck intersectionTest
+                  putStr "\tUnion\n\t"
                   mySetCheck unionTest
+                  putStr "\t"
                   quickCheck unionTest
+                  putStr "\tDifference\n\t"
                   mySetCheck differenceTest
+                  putStr "\t"
                   quickCheck differenceTest
 
 -- == Exercise 5 == --
@@ -101,7 +107,8 @@ testExercise3 = do
 Time spend: 15 minutes
 -}
 type Rel a = [(a,a)]
-symClos :: Ord a => Rel a -> Rel a
+
+symClos     :: Ord a => Rel a -> Rel a
 symClos rel = nub (concat [[(a,b),(b,a)] | (a,b) <- rel])
 
 -- == Exercise 6 == --
@@ -110,14 +117,42 @@ Time spend: ~1 hour
 -}
 infixr 5 @@
 
-(@@) :: Eq a => Rel a -> Rel a -> Rel a
-r @@ s = nub [(x,z) | (x,y) <- r, (w,z) <- s, y == w]
+(@@)    :: Eq a => Rel a -> Rel a -> Rel a
+r @@ s  = nub [(x,z) | (x,y) <- r, (w,z) <- s, y == w]
 
-trClos :: Ord a => Rel a -> Rel a
-trClos [x] = [x] 
+trClos     :: Ord a => Rel a -> Rel a
 trClos rel | all (\x -> elem x rel) t = nub rel
-           | otherwise = trClos (t ++ rel) where
-             t = rel @@ rel
+           | otherwise                = trClos (t ++ rel) where
+                                          t = rel @@ rel
 
+-- == Exercise 7 == --
+{-
+Time spend: 1 hour
+-}
+testSymClos :: Rel Int -> Bool
+testSymClos xs = all (\(x, y) -> elem (y, x) symbolicClosure) symbolicClosure where
+                  symbolicClosure = symClos xs
 
+testTrClos :: Rel Int -> Bool
+testTrClos xs = all (\x -> elem x trClosure) transatives
+                where 
+                  transatives = trClosure @@ trClosure
+                  trClosure = trClos xs
+
+testExercise7 = do
+                  putStrLn "\n--== Exercise 7 ==--"
+                  putStrLn "\tSymmetric Closure"
+                  putStr "\t"
+                  quickCheck testSymClos
+                  putStrLn "\tTransative Closure"
+                  putStr "\t"
+                  quickCheck testTrClos
+
+-- == Exercise 8 == --
+
+-- == Exercise 9 == --
+
+main = do 
+        testExercise3
+        testExercise7
 
