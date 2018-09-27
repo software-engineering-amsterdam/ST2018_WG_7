@@ -61,12 +61,21 @@ isEqualSet (Set r) (Set s) = length r == length s && and [elem x s | x <- r ]
 -- Operation definitions
 setIntersect :: Eq a => Set a -> Set a -> Set a
 setIntersect (Set r) (Set s) = Set [x | x <- r, elem x s]
+-- test properties: an intersection is at most as big as the biggest of r and s.
+--                  must contain any element both in r and in s
+--                  my not contain any element that is not both in r and s.
 
 setUnion :: Eq a => Set a -> Set a -> Set a
 setUnion (Set r) (Set s) = Set (nub (r++s))
+-- test properties: lenght of intersection is at least as big as the biggest of r and s.
+--                  must contain any element that is in r or in s
+--                  may not contain any element not in r or in s.
 
 setDifference :: Ord a => Set a -> Set a -> Set a
 setDifference (Set r) (Set s) = Set (concat [ x | x <- (groupBy (==) (sort (r++s))), length x == 1])
+-- test properties: lenght of intersection is at most the sum of sizes of r and s
+--                  must contain any element that is either in r or in s
+--                  may not contain any element not in r or in s, but not both.
 
 -- Helper code for testing 
 checkFuncsHelper :: (Ord a, Eq a) => Set a -> Set a -> Bool
@@ -137,12 +146,16 @@ trClos rs = if isEqualRel rs ss then rs else trClos ss
 symClosTestHelper :: Ord a => Rel a -> Bool
 symClosTestHelper rs = and [elem (swap r) rSymClos | r <- rs]
     where rSymClos = symClos rs
+-- test properties: every element and the reverse of every element in rs must be in rs
+--                  but no more than that, and no duplicates
+--                  the symmetric closure of rs is at least as big as rs.
 
 -- 
 trClosTestHelper :: Ord a => Rel a -> Bool 
 trClosTestHelper rs = all ((flip elem) rsTrClos ) (rsTrClos@@rsTrClos)
     where rsTrClos = trClos (nub rs)
-
+-- test properties: every element in the @@ of the transitive closure of rs with itself, must be contained in the transitive closure of rs
+--                  transitive closure of rs is at least as big as rs
 
 symClosTesterInt :: Rel Int -> Bool
 symClosTesterInt rs = symClosTestHelper rs
