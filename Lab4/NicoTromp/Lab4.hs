@@ -24,10 +24,13 @@ maxNatural = 30
 getRandomNatural :: IO Int
 getRandomNatural = getStdRandom (randomR (1, maxNatural))
 
+getRandomInteger :: IO Int
+getRandomInteger = getStdRandom (randomR (-maxNatural, maxNatural))
+
 getRandomIntegers :: Int -> IO [Int]
 getRandomIntegers 0 = return []
 getRandomIntegers n = do
-             x <- getStdRandom (randomR (-maxNatural, maxNatural))
+             x <- getRandomInteger
              xs <- getRandomIntegers (n - 1) 
              return (x:xs)
 
@@ -88,17 +91,17 @@ prop_Intersected (Set r) (Set s) (Set rs) = all (\x -> (elem x r) && (elem x s))
 prop_Unioned :: Eq a => Set a -> Set a -> Set a -> Bool
 prop_Unioned (Set r) (Set s) (Set rs) = all (\x -> elem x rs) r && 
                                         all (\x -> elem x rs) s &&
-                                        all (\x -> (elem x r) || (elem x s)) rs
+                                        all (\x -> (elem x r) || (elem x s)) rs &&
+                                        prop_UniqueElements (Set rs)
 
 prop_Differented :: Eq a => Set a -> Set a -> Set a -> Bool
-prop_Differented (Set r) (Set s) (Set rs) = all (\x -> (elem x r) `xor` (elem x s)) rs
+prop_Differented (Set r) (Set s) (Set rs) = all (\x -> (elem x r) `xor` (elem x s)) rs &&
+                                            prop_UniqueElements (Set rs)
 
--- Build from scratch properties
+-- Build for testing own generator
 
 testIt :: Eq a => [(Set a, Set a)] -> (Set a -> Set a -> Set a) -> (Set a -> Set a -> Set a -> Bool) -> Bool
 testIt xs op p = and [ p (fst x) (snd x) (op (fst x) (snd x)) | x <- xs ]
-
--- prop_QuickCheckIntersected :: Set Int -> Set Int -> Bool
 
 -- QuickCheck testable propeties
 
