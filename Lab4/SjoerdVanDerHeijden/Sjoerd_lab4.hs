@@ -107,7 +107,7 @@ ass7Tester = do
 
 -- Time: 20min
 -------------------------------------------------------------------------------
--- == Assignment 8: checking (R^-1)^+ == (R^+)^-1 == --
+-- == Assignment 8: checking (R_r)^+ == (R^+)_r == --
 
 -- isEqualTrSymSymTr :: Rel Int -> Bool
 isEqualTrSymSymTrHelper :: Ord a => Rel a -> Bool
@@ -124,6 +124,7 @@ ass8Tester = do
     quickCheck isEqualTrSymSymTrInt
     quickCheck isEqualTrSymSymTrStr
     putStrLn "The tests fail, as such (R^-1)^+ /= (R^+)^-1"
+    putStrLn "Counterexample: R=[(1,0)]: (R_r)^+ = [(1,0),(0,1),(1,1),(0,0)], (R^+)_r = [(1,0)]"
 
 
 -------------------------------------------------------------------------------
