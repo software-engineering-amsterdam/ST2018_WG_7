@@ -133,14 +133,12 @@ trClos rel | all (\x -> elem x rel) t = nub rel
 {-
 Time spend: 1 hour
 -}
-testSymClos :: Rel Int -> Bool
-testSymClos xs = all (\x -> elem (swap x) symbolicClosure) symbolicClosure 
-                  where
+testSymClos     :: Rel Int -> Bool
+testSymClos xs  = all (\x -> elem (swap x) symbolicClosure) symbolicClosure where
                     symbolicClosure = symClos xs
 
-testTrClos :: Rel Int -> Bool
-testTrClos xs = all (\x -> elem x trClosure) transatives
-                where 
+testTrClos    :: Rel Int -> Bool
+testTrClos xs = all (\x -> elem x trClosure) transatives where 
                   transatives = trClosure @@ trClosure
                   trClosure = trClos xs
 
@@ -154,7 +152,7 @@ testExercise7 = do
                   quickCheck testTrClos
 
 -- == Exercise 8 == --
-exercise8Property :: Rel Int -> Bool
+exercise8Property     :: Rel Int -> Bool
 exercise8Property rel = (trClos . symClos) rel == (symClos . trClos) rel
 
 testExercise8 = do
