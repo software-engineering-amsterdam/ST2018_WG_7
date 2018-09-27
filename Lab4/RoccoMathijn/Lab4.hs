@@ -4,7 +4,7 @@ import Data.List
 import System.Random
 import Test.QuickCheck
 import SetOrd
-
+import Data.Tuple
 -- == Exercise 2 == --
 {-
 Time spend: 2 hours
@@ -86,6 +86,8 @@ mySetCheck f  = do
 
 {-
 Test runner for exercise 3
+
+Runs every test once with my own generator and then with the QuickCheck generator
 -}
 testExercise3 = do 
                   putStrLn "\n--== Exercise 3 - Set operations ==--"
@@ -130,8 +132,9 @@ trClos rel | all (\x -> elem x rel) t = nub rel
 Time spend: 1 hour
 -}
 testSymClos :: Rel Int -> Bool
-testSymClos xs = all (\(x, y) -> elem (y, x) symbolicClosure) symbolicClosure where
-                  symbolicClosure = symClos xs
+testSymClos xs = all (\x -> elem (swap x) symbolicClosure) symbolicClosure 
+                  where
+                    symbolicClosure = symClos xs
 
 testTrClos :: Rel Int -> Bool
 testTrClos xs = all (\x -> elem x trClosure) transatives
