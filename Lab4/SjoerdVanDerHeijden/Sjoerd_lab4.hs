@@ -67,8 +67,11 @@ infixr 5 @@
 r @@ s = 
     nub [ (x,z) | (x,y) <- r, (w,z) <- s, y == w ]
 
+isEqualRel :: (Ord a, Eq a) => Rel a -> Rel a -> Bool
+isEqualRel r s = length r == length s && and [elem x s | x <- r ]
+
 trClos :: Ord a => Rel a -> Rel a 
-trClos rs = if rs == ss then rs else trClos ss
+trClos rs = if isEqualRel rs ss then rs else trClos ss
     where
         ss = nub ((rs @@ rs) ++ rs)
 
@@ -77,13 +80,13 @@ trClos rs = if rs == ss then rs else trClos ss
 -- == Assignment 7: testing 5 & 6 == --
 
 symClosTestHelper :: Ord a => Rel a -> Bool
-symClosTestHelper rs = and [elem (swap r) rSymClos | r <- rSymClos]
+symClosTestHelper rs = and [elem (swap r) rSymClos | r <- rs]
     where rSymClos = symClos rs
 
 -- trClosTester :: (Int a, String a) => Rel a -> Bool 
 trClosTestHelper :: Ord a => Rel a -> Bool 
 trClosTestHelper rs = all ((flip elem) rsTrClos ) (rsTrClos@@rsTrClos)
-    where rsTrClos = trClos rs
+    where rsTrClos = trClos (nub rs)
 
 symClosTesterInt :: Rel Int -> Bool
 symClosTesterInt rs = symClosTestHelper rs
