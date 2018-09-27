@@ -9,6 +9,19 @@ import Lecture4
 import SetOrd
 
 
+{-
+ Todo:
+    1
+    2: own generator
+    3: testing with own generator
+    4
+    5 is done
+    6 is done
+    7: test report. Are my tests conclusive?
+    8 is done.
+-}
+
+
 -------------------------------------------------------------------------------
 -- == Assignment 2: QuickCheck tester for sets == --
 
@@ -17,14 +30,16 @@ instance (Arbitrary a, Eq a) => Arbitrary (Set a) where
     arbitrary = do 
                 x <- arbitrary
                 return (Set (nub (x)))
-
 -- Time: 30 
+
+
 
 -------------------------------------------------------------------------------
 -- == Assignment 3: set operations == --
 
 isEqualSet :: Eq a => Set a -> Set a -> Bool
 isEqualSet (Set r) (Set s) = length r == length s && and [elem x s | x <- r ]
+
 
 setIntersect :: Eq a => Set a -> Set a -> Set a
 setIntersect (Set r) (Set s) = Set [x | x <- r, elem x s]
@@ -33,17 +48,21 @@ setUnion :: Eq a => Set a -> Set a -> Set a
 setUnion (Set r) (Set s) = Set (nub (r++s))
 
 setDifference :: Ord a => Set a -> Set a -> Set a
--- setDifference (Set r) (Set s) = Set [x | x <- r, not (elem x s)]
 setDifference (Set r) (Set s) = Set (concat [ x | x <- (groupBy (==) (sort (r++s))), length x == 1])
 
--- checkFuncs :: (Ord a, Eq a) => Set a -> Set a -> Bool
-checkFuncs :: Set Int -> Set Int -> Bool
-checkFuncs r s = isEqualSet (setUnion (setDifference r s) (setIntersect r s)) (setUnion r s)
+checkFuncsInt :: Set Int -> Set Int -> Bool
+checkFuncsInt r s = isEqualSet (setUnion (setDifference r s) (setIntersect r s)) (setUnion r s)
 
 checkFuncsStr :: Set String -> Set String -> Bool
 checkFuncsStr r s = isEqualSet (setUnion (setDifference r s) (setIntersect r s)) (setUnion r s)
 
+ass3Tester = do
+    putStrLn "\n-- == Assignment 3: set operations == --"
+    quickCheck checkFuncsInt
+    quickCheck checkFuncsStr
+
 -- Time: 30min
+
 -------------------------------------------------------------------------------
 -- == Assignment 4: haskell questions: 2nd edition == --
 
@@ -67,8 +86,11 @@ infixr 5 @@
 r @@ s = 
     nub [ (x,z) | (x,y) <- r, (w,z) <- s, y == w ]
 
+isEqualRel :: (Ord a, Eq a) => Rel a -> Rel a -> Bool
+isEqualRel r s = length r == length s && and [elem x s | x <- r ]
+
 trClos :: Ord a => Rel a -> Rel a 
-trClos rs = if rs == ss then rs else trClos ss
+trClos rs = if isEqualRel rs ss then rs else trClos ss
     where
         ss = nub ((rs @@ rs) ++ rs)
 
@@ -77,13 +99,14 @@ trClos rs = if rs == ss then rs else trClos ss
 -- == Assignment 7: testing 5 & 6 == --
 
 symClosTestHelper :: Ord a => Rel a -> Bool
-symClosTestHelper rs = and [elem (swap r) rSymClos | r <- rSymClos]
+symClosTestHelper rs = and [elem (swap r) rSymClos | r <- rs]
     where rSymClos = symClos rs
 
--- trClosTester :: (Int a, String a) => Rel a -> Bool 
+-- 
 trClosTestHelper :: Ord a => Rel a -> Bool 
 trClosTestHelper rs = all ((flip elem) rsTrClos ) (rsTrClos@@rsTrClos)
-    where rsTrClos = trClos rs
+    where rsTrClos = trClos (nub rs)
+
 
 symClosTesterInt :: Rel Int -> Bool
 symClosTesterInt rs = symClosTestHelper rs
@@ -99,13 +122,14 @@ trClosTesterStr rs = trClosTestHelper rs
 
 
 ass7Tester = do
-    putStrLn "-- == Assignment 7: testing 5 & 6 == --"
+    putStrLn "\n-- == Assignment 7: testing 5 & 6 == --"
     quickCheck symClosTesterInt
     quickCheck symClosTesterStr
     quickCheck trClosTesterInt
     quickCheck trClosTesterStr
 
 -- Time: 20min
+
 -------------------------------------------------------------------------------
 -- == Assignment 8: checking (R_r)^+ == (R^+)_r == --
 
@@ -120,12 +144,13 @@ isEqualTrSymSymTrStr :: Rel String -> Bool
 isEqualTrSymSymTrStr rs = isEqualTrSymSymTrHelper rs
 
 ass8Tester = do
-    putStrLn "-- == Assignment 8: checking (R^-1)^+ == (R^+)^-1 == --"
+    putStrLn "\n-- == Assignment 8: checking (R^-1)^+ == (R^+)^-1 == --"
     quickCheck isEqualTrSymSymTrInt
     quickCheck isEqualTrSymSymTrStr
     putStrLn "The tests fail, as such (R^-1)^+ /= (R^+)^-1"
     putStrLn "Counterexample: R=[(1,0)]: (R_r)^+ = [(1,0),(0,1),(1,1),(0,0)], (R^+)_r = [(1,0)]"
 
+-- Time: 30min
 
 -------------------------------------------------------------------------------
 -- == Main == --
