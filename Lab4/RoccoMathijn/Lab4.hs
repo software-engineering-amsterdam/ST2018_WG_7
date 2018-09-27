@@ -189,6 +189,9 @@ testExercise9 = do
                   putStr "\n--== Exercise 9 ==--\n"
                   putStrLn (show fib)
 
+{-
+Main test runner
+-}
 main = do 
         testExercise3
         testExercise7
