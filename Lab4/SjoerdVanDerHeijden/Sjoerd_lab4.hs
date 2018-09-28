@@ -54,16 +54,32 @@ randomSetGen = do
 
 -------------------------------------------------------------------------------
 -- == Assignment 3: set operations == --
--- Helper code, to check whether two sets contain the same elements.
+-- Helper code:
+-- Checks whether two sets are equal (without needing them to be ordered)
 isEqualSet :: Eq a => Set a -> Set a -> Bool
 isEqualSet (Set r) (Set s) = length r == length s && and [elem x s | x <- r ]
+
+setLength :: Set a -> Int
+setLength (Set r) = length r
+
+-- Checks whether all elements of r are in s
+setAllElem :: Eq a => Set a -> Set a -> Bool
+setAllElem (Set r) (Set s) = all ((flip elem) s) r
+
+-- Why do I even have to do this? I should not be forced to do this
+getListFromSet :: Set a -> [a]
+getListFromSet (Set r) = r
+
+xor :: Bool -> Bool -> Bool
+xor a b = (a && not b) || (not a && b)
+
 
 -- Operation definitions
 setIntersect :: Eq a => Set a -> Set a -> Set a
 setIntersect (Set r) (Set s) = Set [x | x <- r, elem x s]
 -- test properties: an intersection is at most as big as the biggest of r and s.
 --                  must contain any element both in r and in s
---                  my not contain any element that is not both in r and s.
+--                  may not contain any element that is not both in r and s.
 
 setUnion :: Eq a => Set a -> Set a -> Set a
 setUnion (Set r) (Set s) = Set (nub (r++s))
@@ -77,9 +93,29 @@ setDifference (Set r) (Set s) = Set (concat [ x | x <- (groupBy (==) (sort (r++s
 --                  must contain any element that is either in r or in s
 --                  may not contain any element not in r or in s, but not both.
 
+
 -- Helper code for testing 
-checkFuncsHelper :: (Ord a, Eq a) => Set a -> Set a -> Bool
-checkFuncsHelper r s = isEqualSet (setUnion (setDifference r s) (setIntersect r s)) (setUnion r s)
+intersectTestHelper :: Ord a => Set a -> Set a -> Bool
+intersectTestHelper r s = setLength r >= setLength intersection 
+                        && setLength s >= setLength intersection
+                        && setAllElem intersection r
+                        && setAllElem intersection s
+                            where intersection = setIntersect r s
+
+unionTestHelper :: Ord a => Set a -> Set a -> Bool
+unionTestHelper r s = setLength r <= setLength union 
+                    && setLength s <= setLength union
+                    && setAllElem r union
+                    && setAllElem s union
+                        where union = setUnion r s
+
+differenceTestHelper :: Ord a => Set a -> Set a -> Bool
+differenceTestHelper (Set r) (Set s) = length r + length s >= setLength difference 
+                                     && and [xor (elem t r) (elem t s) | t <- getListFromSet difference]
+                                            where difference = setDifference (Set r) (Set s)
+
+-- allFuncsTestHelper :: (Ord a, Eq a) => Set a -> Set a -> Bool
+-- allFuncsTestHelper r s = isEqualSet (setUnion (setDifference r s) (setIntersect r s)) (setUnion r s)
 
 
 -- My own tester. Runs 100 tests
@@ -87,26 +123,57 @@ myCheckFuncs :: IO ()
 myCheckFuncs = do
         rs <- sequence [randomSetGen | _ <- [0..100]]
         ss <- sequence [randomSetGen | _ <- [0..100]]
-        -- return [checkFuncsHelper r s | r <- rs, s <- ss]
-        if and [checkFuncsHelper r s | r <- rs, s <- ss] then putStrLn "passed 100 tests" else putStrLn "failed a test"
-
+--         if and [checkAllFuncsHelper r s | r <- rs, s <- ss] then putStrLn "passed 100 tests" else putStrLn "failed a test"
+        if and [intersectTestHelper r s | r <- rs, s <- ss] then putStr "\tpassed 100 tests" else putStr "failed a test"
+        putStrLn " for setIntersect"
+        if and [unionTestHelper r s | r <- rs, s <- ss] then putStr "\tpassed 100 tests" else putStr "failed a test"
+        putStrLn " for setUnion"
+        if and [differenceTestHelper r s | r <- rs, s <- ss] then putStr "\tpassed 100 tests" else putStr "failed a test"
+        putStrLn " for setDifference"
 
 -- QuickTest test functions.
-checkFuncsInt :: Set Int -> Set Int -> Bool
-checkFuncsInt r s = checkFuncsHelper r s
+intersectTestInt :: Set Int -> Set Int -> Bool
+intersectTestInt r s = intersectTestHelper r s
+intersectTestStr :: Set String -> Set String -> Bool
+intersectTestStr r s = intersectTestHelper r s
 
-checkFuncsStr :: Set String -> Set String -> Bool
-checkFuncsStr r s = checkFuncsHelper r s
+unionTestInt :: Set Int -> Set Int -> Bool
+unionTestInt r s = unionTestHelper r s
+unionTestStr :: Set String -> Set String -> Bool
+unionTestStr r s = unionTestHelper r s
+
+differenceTestInt :: Set Int -> Set Int -> Bool
+differenceTestInt r s = differenceTestHelper r s
+differenceTestStr :: Set String -> Set String -> Bool
+differenceTestStr r s = differenceTestHelper r s
+
+-- checkFuncsInt :: Set Int -> Set Int -> Bool
+-- checkFuncsInt r s = checkAllFuncsHelper r s
+-- checkFuncsStr :: Set String -> Set String -> Bool
+-- checkFuncsStr r s = checkAllFuncsHelper r s
+
 
 ass3Tester = do
     putStrLn "\n-- == Assignment 3: set operations == --"
     putStrLn "Testing with my own set generator"
     myCheckFuncs
-    putStrLn "Testing with quickCheck"
-    quickCheck checkFuncsInt
-    quickCheck checkFuncsStr
+    putStrLn "Testing with quickCheck:"
+    putStr "Testing setIntersect\n\t"
+    quickCheck intersectTestInt
+    putStr "\t"
+    quickCheck intersectTestStr
+    putStr "Testing setUnion\n\t"
+    quickCheck unionTestInt
+    putStr "\t"
+    quickCheck unionTestStr
+    putStr "Testing setDifference\n\t"
+    quickCheck differenceTestInt
+    putStr "\t"
+    quickCheck differenceTestStr
+    -- quickCheck checkFuncsInt
+    -- quickCheck checkFuncsStr
 
--- Time: 1h30min
+-- Time: 2h
 
 -------------------------------------------------------------------------------
 -- == Assignment 4: haskell questions: 2nd edition == --
@@ -144,7 +211,7 @@ trClos rs = if isEqualRel rs ss then rs else trClos ss
 -- == Assignment 7: testing 5 & 6 == --
 
 symClosTestHelper :: Ord a => Rel a -> Bool
-symClosTestHelper rs = and [elem (swap r) rSymClos | r <- rs]
+symClosTestHelper rs = length rs <= length rSymClos && and [elem (swap r) rSymClos | r <- rs]
     where rSymClos = symClos rs
 -- test properties: every element and the reverse of every element in rs must be in rs
 --                  but no more than that, and no duplicates
@@ -152,8 +219,11 @@ symClosTestHelper rs = and [elem (swap r) rSymClos | r <- rs]
 
 -- 
 trClosTestHelper :: Ord a => Rel a -> Bool 
-trClosTestHelper rs = all ((flip elem) rsTrClos ) (rsTrClos@@rsTrClos)
-    where rsTrClos = trClos (nub rs)
+trClosTestHelper rs = length rsNubbed <= length rsTrClos 
+                   && all ((flip elem) rsTrClos ) rsNubbed 
+                   && all ((flip elem) rsTrClos ) (rsTrClos@@rsTrClos)
+                    where rsTrClos = trClos (nub rs)
+                          rsNubbed = nub rs
 -- test properties: every element in the @@ of the transitive closure of rs with itself, must be contained in the transitive closure of rs
 --                  transitive closure of rs is at least as big as rs
 
@@ -172,9 +242,13 @@ trClosTesterStr rs = trClosTestHelper rs
 
 ass7Tester = do
     putStrLn "\n-- == Assignment 7: testing 5 & 6 == --"
+    putStr "Testing symClos\n\t"
     quickCheck symClosTesterInt
+    putStr "\t"
     quickCheck symClosTesterStr
+    putStr "Testing symClos\n\t"
     quickCheck trClosTesterInt
+    putStr "\t"
     quickCheck trClosTesterStr
 
 -- Time: 20min
