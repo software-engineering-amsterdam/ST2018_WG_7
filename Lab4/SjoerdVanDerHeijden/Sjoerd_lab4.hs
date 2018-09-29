@@ -9,29 +9,17 @@ import Lecture4
 import SetOrd
 
 
-{-
- Todo:
-    1
-    2 done
-    3: test report
-    4
-    5 is done
-    6 is done
-    7: test report. Are my tests conclusive?
-    8 is done.
--}
-
+-------------------------------------------------------------------------------
+-- == Assignment 1: haskell questions == --
 
 -------------------------------------------------------------------------------
--- == Assignment 2: QuickCheck tester for sets == --
-
+-- == Assignment 2: QuickCheck generator for sets == --
 
 instance (Arbitrary a, Eq a) => Arbitrary (Set a) where
     arbitrary = do 
                 x <- arbitrary
                 return (Set (nub (x)))
 -- Time: 30 
-
 
 randomListGen :: Int -> Int -> IO [Int]
 randomListGen 0 maxN = return []
@@ -50,15 +38,12 @@ randomSetGen = do
         size <- getStdRandom (randomR (0, maxLen))
         randomList <- randomListGen size maxN
         return (Set (nub(randomList)))
+
 -- Time: 30min, even though it's mostly copy pasted.
 
 -------------------------------------------------------------------------------
--- == Assignment 3: set operations == --
+-- == Assignment 3: set operations and tests == --
 -- Helper code:
--- Checks whether two sets are equal (without needing them to be ordered)
-isEqualSet :: Eq a => Set a -> Set a -> Bool
-isEqualSet (Set r) (Set s) = length r == length s && and [elem x s | x <- r ]
-
 setLength :: Set a -> Int
 setLength (Set r) = length r
 
@@ -114,16 +99,12 @@ differenceTestHelper (Set r) (Set s) = length r + length s >= setLength differen
                                      && and [xor (elem t r) (elem t s) | t <- getListFromSet difference]
                                             where difference = setDifference (Set r) (Set s)
 
--- allFuncsTestHelper :: (Ord a, Eq a) => Set a -> Set a -> Bool
--- allFuncsTestHelper r s = isEqualSet (setUnion (setDifference r s) (setIntersect r s)) (setUnion r s)
-
 
 -- My own tester. Runs 100 tests
 myCheckFuncs :: IO ()
 myCheckFuncs = do
         rs <- sequence [randomSetGen | _ <- [0..100]]
         ss <- sequence [randomSetGen | _ <- [0..100]]
---         if and [checkAllFuncsHelper r s | r <- rs, s <- ss] then putStrLn "passed 100 tests" else putStrLn "failed a test"
         if and [intersectTestHelper r s | r <- rs, s <- ss] then putStr "\tpassed 100 tests" else putStr "failed a test"
         putStrLn " for setIntersect"
         if and [unionTestHelper r s | r <- rs, s <- ss] then putStr "\tpassed 100 tests" else putStr "failed a test"
@@ -147,11 +128,6 @@ differenceTestInt r s = differenceTestHelper r s
 differenceTestStr :: Set String -> Set String -> Bool
 differenceTestStr r s = differenceTestHelper r s
 
--- checkFuncsInt :: Set Int -> Set Int -> Bool
--- checkFuncsInt r s = checkAllFuncsHelper r s
--- checkFuncsStr :: Set String -> Set String -> Bool
--- checkFuncsStr r s = checkAllFuncsHelper r s
-
 
 ass3Tester = do
     putStrLn "\n-- == Assignment 3: set operations == --"
@@ -170,8 +146,6 @@ ass3Tester = do
     quickCheck differenceTestInt
     putStr "\t"
     quickCheck differenceTestStr
-    -- quickCheck checkFuncsInt
-    -- quickCheck checkFuncsStr
 
 -- Time: 2h
 
@@ -184,8 +158,10 @@ ass3Tester = do
 
 type Rel a = [(a,a)]
 
+-- Every element of rs and their reverse is put into a list; this list is then 
+-- the symmetric closure of rs.
 symClos :: Ord a => Rel a -> Rel a
-symClos rs = (nub(concat [ [r, swap(r)] | r <- rs ]))
+symClos rs = (nub (concat [ [r, swap(r)] | r <- rs ]) )
 
 -- Time: 5min
 
@@ -198,13 +174,14 @@ infixr 5 @@
 r @@ s = 
     nub [ (x,z) | (x,y) <- r, (w,z) <- s, y == w ]
 
-isEqualRel :: (Ord a, Eq a) => Rel a -> Rel a -> Bool
-isEqualRel r s = length r == length s && and [elem x s | x <- r ]
-
+{- (rs @@ rs) gives the transitions of rs, but not yet any transitions within
+ itself or between itself and rs. To do that recursion is required, until
+ the list does not change anymore; at that moment the closure is found.
+-}
 trClos :: Ord a => Rel a -> Rel a 
-trClos rs = if isEqualRel rs ss then rs else trClos ss
+trClos rs = if rs == ss then rs else trClos ss
     where
-        ss = nub ((rs @@ rs) ++ rs)
+        ss = sort ( nub( (rs @@ rs) ++ rs) )
 
 -- Time: 20min
 -------------------------------------------------------------------------------
@@ -251,12 +228,11 @@ ass7Tester = do
     putStr "\t"
     quickCheck trClosTesterStr
 
--- Time: 20min
+-- Time: 40min
 
 -------------------------------------------------------------------------------
 -- == Assignment 8: checking (R_r)^+ == (R^+)_r == --
 
--- isEqualTrSymSymTr :: Rel Int -> Bool
 isEqualTrSymSymTrHelper :: Ord a => Rel a -> Bool
 isEqualTrSymSymTrHelper rs = trClos (symClos rs) == symClos (trClos rs)
 
