@@ -205,6 +205,19 @@ testAssignment6 = do
 
 -- Symmetric Closure properties
 
+-- Yes, quickcheck can be used.
+-- 1:   The cardinality of the symmetric closure excluding any self relation, e.g. (x,x),
+--      must be an even number. This is because for every relation (x,y) in the original
+--      set of relatiosn the mirrored (y,x) must also be present
+-- 2:   There are three different possible combination possible: a equals the number of elements
+--      that match (x,x), b equals the number of elements that match the (x,y) and (y,x)
+--      and c equals the number of element that match (w,z). Given any combination of these,
+--      the cardinality of the symmetric closure is dedined as a + b + 2*c
+-- 3:   For every relation in the original set both versions (the original (x,y)
+--      and the mirrored (y,x)) must be present in the symmetric closure.
+-- 4:   For every relation in the symmetric closure (x,y) either (x,y) or (y,x) must
+--      be present in the original set.
+
 -- Self relations are defined as (x, x)
 numberOfSelfRelations :: Eq a => Rel a -> Int
 numberOfSelfRelations r = length (filter (\(x, y) -> x == y) r)
