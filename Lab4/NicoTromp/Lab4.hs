@@ -174,7 +174,32 @@ testAssignment5 = do
     putStrLn (showTest 1 (symClos [(1,2),(2,3),(3,4)] == [(1,2),(2,1),(2,3),(3,2),(3,4),(4,3)]))
 
 
+-- ASSIGNMENT 6
+
+infixr 5 @@
+
+(@@) :: Eq a => Rel a -> Rel a -> Rel a
+r @@ s = nub [ (x,z) | (x,y) <- r, (w,z) <- s, y == w ]
+
+-- Transitive transformation
+tr :: Ord a => Rel a -> Rel a
+tr r = sort (nub ((r @@ r) ++ r))
+
+-- Transitive closure
+trClos :: Ord a => Rel a -> Rel a
+trClos r = until (\s -> tr s == s) tr r
+
+testAssignment6 = do
+    putStrLn "\n--== Transitive Closure ==--"
+    putStr "trClos test: \t"
+    putStrLn (showTest 1 (trClos [(1,2),(2,3),(3,4)] == [(1,2),(1,3),(1,4),(2,3),(2,4),(3,4)]))
+
+-- Time spent: 1:30, mostly needed to figger out that the code in the condition
+-- needed sorting and nubbing. This insight resulted in the tr function since it is 
+-- used in twice.
+
 main = do
     testAssignment2
     testAssignment3
     testAssignment5
+    testAssignment6
