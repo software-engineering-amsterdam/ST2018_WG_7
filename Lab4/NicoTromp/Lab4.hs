@@ -232,7 +232,17 @@ prop_CorrectCardinality r = numberOfSymRelations r' +
                             2 * (numberOfSingleRelations r') + 
                             numberOfSelfRelations r' == length s
                             where s = symClos r'
-                                  r' = nub r 
+                                  r' = nub r
+
+prop_SymmetricElementsInClosure :: Rel Int -> Bool
+prop_SymmetricElementsInClosure r = all (\(x,y) -> elem (x,y) s && elem (y,x) s) r'
+    where s = symClos r'
+          r' = nub r
+
+prop_ClosureElementHaveOrigin :: Rel Int -> Bool
+prop_ClosureElementHaveOrigin r = all (\(x,y) -> elem (x,y) r' || elem (y,x) r') s
+    where s = symClos r'
+          r' = nub r
 
 -- Transitive closure properties
 
@@ -247,6 +257,10 @@ testAssignment7 = do
     quickCheck prop_EvenCardinality
     putStr "Correct cardinality: \t\t\t"
     quickCheck prop_CorrectCardinality
+    putStr "Symmetric elements exist in closure: \t"
+    quickCheck prop_SymmetricElementsInClosure
+    putStr "Closure element have origin: \t\t"
+    quickCheck prop_ClosureElementHaveOrigin
 
     putStrLn "\nTransitive Closure tests"
     -- quickCheck prop_TransitiveClosure
