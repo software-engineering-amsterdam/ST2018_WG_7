@@ -280,6 +280,30 @@ testAssignment7 = do
 
 -- Time spent: 1:15
 
+-- ASSIGNMENT 8
+
+prop_ClosureAreSymmetric :: Rel Int -> Bool
+prop_ClosureAreSymmetric r = symClos (trClos r') == trClos (symClos r') 
+    where r' = nub r
+
+testAssignment8 = do
+    putStrLn "\n--== Symmetric-Transitive Closure vs Transitive-Symmetric Closure ==--"
+
+    putStrLn "\nClosure vs Closure tests"
+    quickCheck prop_ClosureAreSymmetric
+
+-- The above test fails on [(1,0)]
+
+-- The transitive clusre of [(1,0)] is [(1,0)]
+-- The symmetric closure of [(1,0)] is [(1,0),(0,1)] <= A
+--
+-- The symmetric closure of [(1,0)] is [(1,0),(0,1)]
+-- The transitive closure of [(1,0),(0,1)] is [(0,0),(0,1),(1,0),(1,1)] <= B
+-- 
+-- Clearly the closures A and B are not equal, hence there is difference
+
+-- Time spent: 0:10
+
 -- MAIN PROGRAM
 
 main = do
@@ -288,3 +312,4 @@ main = do
     testAssignment5
     testAssignment6
     testAssignment7
+    testAssignment8
