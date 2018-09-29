@@ -163,8 +163,11 @@ testAssignment3 = do
 type Rel a = [(a,a)]
 
 symClos :: Ord a => Rel a -> Rel a
-symClos []     = []
-symClos (x:xs) =  x:(snd x, fst x):symClos xs 
+symClos []                  = []
+symClos ((x,y):xs) | x == y = (x, x):symClos xs 
+                   | x /= y = (x, y):(y, x):symClos (filter (\z -> z /= (y,x)) xs) 
+-- While creating tests for the function (assignment 7) I dicovered that
+-- the original implementation was not correct. It created a nuplicate of all elements.
 
 -- Time spent: 0:30
 
@@ -198,8 +201,63 @@ testAssignment6 = do
 -- needed sorting and nubbing. This insight resulted in the tr function since it is 
 -- used in twice.
 
+-- ASSIGNMENT 7
+
+-- Symmetric Closure properties
+
+-- Self relations are defined as (x, x)
+numberOfSelfRelations :: Eq a => Rel a -> Int
+numberOfSelfRelations r = length (filter (\(x, y) -> x == y) r)
+
+-- Unique relations exists but its symmetric counterpart.
+numberOfSingleRelations :: Eq a => Rel a -> Int
+numberOfSingleRelations r = length (filter (\(x, y) -> not (elem (y, x) r)) r)
+
+-- The number of relations with an existing symmetric counterpart (both are counted!)
+numberOfSymRelations :: Eq a => Rel a -> Int
+numberOfSymRelations r = length (filter (\(x, y) -> x /= y&& elem (y, x) r) r)
+
+-- Post condition: excluding self relations e.g. (x, x) the caridnality
+-- of the symmetric closure must be even
+prop_EvenCardinality :: Rel Int -> Bool
+prop_EvenCardinality r = even (length r' - numberOfSelfRelations r')
+    where r' = symClos (nub r)
+
+-- Post condiftion: the cardinality of the symmetric closure must be equal to the sum of:
+--   Existing symmetric relations, e.g. both (x,y) and (y,x) are present
+--   Two times the number of unique relations, e.g. (x,y) exists and (y,x) is not present
+--   The number of self relations, e.g. (x,x)
+prop_CorrectCardinality :: Rel Int -> Bool
+prop_CorrectCardinality r = numberOfSymRelations r' + 
+                            2 * (numberOfSingleRelations r') + 
+                            numberOfSelfRelations r' == length s
+                            where s = symClos r'
+                                  r' = nub r 
+
+-- Transitive closure properties
+
+prop_TransitiveClosure :: Rel Int -> Bool
+prop_TransitiveClosure r = length (trClos r) /= 0
+
+testAssignment7 = do
+    putStrLn "\n--== Testing Symmetric and Transitive Closure ==--"
+
+    putStrLn "\nSymmetric Closure tests"
+    putStr "Even cardinality (excl. self rels): \t"
+    quickCheck prop_EvenCardinality
+    putStr "Correct cardinality: \t\t\t"
+    quickCheck prop_CorrectCardinality
+
+    putStrLn "\nTransitive Closure tests"
+    -- quickCheck prop_TransitiveClosure
+
+-- Time spent: 1:15
+
+-- MAIN PROGRAM
+
 main = do
     testAssignment2
     testAssignment3
     testAssignment5
     testAssignment6
+    testAssignment7
