@@ -199,7 +199,7 @@ testAssignment6 = do
 
 -- Time spent: 1:30, mostly needed to figger out that the code in the condition
 -- needed sorting and nubbing. This insight resulted in the tr function since it is 
--- used in twice.
+-- used twice.
 
 -- ASSIGNMENT 7
 
