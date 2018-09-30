@@ -166,8 +166,8 @@ symClos :: Ord a => Rel a -> Rel a
 symClos []                  = []
 symClos ((x,y):xs) | x == y = (x, x):symClos xs 
                    | x /= y = (x, y):(y, x):symClos (filter (\z -> z /= (y,x)) xs) 
--- While creating tests for the function (assignment 7) I dicovered that
--- the original implementation was not correct. It created a nuplicate of all elements.
+-- While creating tests for the function (assignment 7) I discovered that
+-- the original implementation was not correct. It created a duplicate of all elements.
 
 -- Time spent: 0:30
 
