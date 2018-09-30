@@ -263,8 +263,29 @@ prop_ClosureElementHaveOrigin r = all (\(x,y) -> elem (x,y) r' || elem (y,x) r')
 
 -- Transitive closure properties
 
-prop_TransitiveClosure :: Rel Int -> Bool
-prop_TransitiveClosure r = length (trClos r) /= 0
+-- The transitive closure of a transitive closure is equal to the original transitive closure.
+prop_TransitivesDontChange :: Rel Int -> Bool
+prop_TransitivesDontChange r = r' == trClos r'
+    where r' = trClos (nub r)
+
+relToList :: Ord a => Rel a -> [a]
+relToList r = sort (nub (concat [ [x,y] | (x,y) <- r]))
+
+-- All elements of the original set must be present in the transitive closure
+prop_TransitiveClosurePreservesElements :: Rel Int -> Bool
+prop_TransitiveClosurePreservesElements r = relToList r' == relToList (trClos r')
+    where r' = nub r
+
+-- Determines for a non transtive closure for a given start element the
+-- elements that can trasitively be reached from that element.
+reachables :: Ord a => a -> Rel a -> [a]
+reachables x r = sort (nub (concat ([ z:(reachables z (filter (/=(y,z)) r')) | (y,z) <- r', y == x])))
+    where r' = nub r
+
+prop_TransitiveConnections :: Rel Int -> Bool
+prop_TransitiveConnections r = all (\(x,_) -> reachables x r' == [ z | (y,z) <- s, x == y]) r'
+    where s = trClos r'
+          r' = nub r
 
 testAssignment7 = do
     putStrLn "\n--== Testing Symmetric and Transitive Closure ==--"
@@ -280,9 +301,15 @@ testAssignment7 = do
     quickCheck prop_ClosureElementHaveOrigin
 
     putStrLn "\nTransitive Closure tests"
-    -- quickCheck prop_TransitiveClosure
+    putStr "Transitives don't change: \t\t"
+    quickCheck prop_TransitivesDontChange
+    putStr "Transitive closure preserves elements: \t"
+    quickCheck prop_TransitiveClosurePreservesElements
+    putStr "Transitive connections: \t\t"
+    quickCheck prop_TransitiveConnections
 
 -- Time spent: 1:15
+
 
 -- ASSIGNMENT 8
 
