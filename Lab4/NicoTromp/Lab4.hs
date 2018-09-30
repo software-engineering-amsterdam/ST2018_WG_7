@@ -247,11 +247,15 @@ prop_CorrectCardinality r = numberOfSymRelations r' +
                             where s = symClos r'
                                   r' = nub r
 
+-- Every relation in the original set must be present in its original form and in its
+-- morrored form in the symmetric closure.
 prop_SymmetricElementsInClosure :: Rel Int -> Bool
 prop_SymmetricElementsInClosure r = all (\(x,y) -> elem (x,y) s && elem (y,x) s) r'
     where s = symClos r'
           r' = nub r
 
+-- Every relation in the symmetric closure must be present in the same form or as its
+-- morrored counterpart in the original set.
 prop_ClosureElementHaveOrigin :: Rel Int -> Bool
 prop_ClosureElementHaveOrigin r = all (\(x,y) -> elem (x,y) r' || elem (y,x) r') s
     where s = symClos r'
