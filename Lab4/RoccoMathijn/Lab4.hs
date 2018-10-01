@@ -5,6 +5,8 @@ import System.Random
 import Test.QuickCheck
 import SetOrd
 import Data.Tuple
+import Lecture4
+import Data.List.Utils
 -- == Exercise 2 == --
 {-
 Time spend: 2 hours
@@ -131,14 +133,12 @@ trClos rel | all (\x -> elem x rel) t = nub rel
 {-
 Time spend: 1 hour
 -}
-testSymClos :: Rel Int -> Bool
-testSymClos xs = all (\x -> elem (swap x) symbolicClosure) symbolicClosure 
-                  where
+testSymClos     :: Rel Int -> Bool
+testSymClos xs  = all (\x -> elem (swap x) symbolicClosure) symbolicClosure where
                     symbolicClosure = symClos xs
 
-testTrClos :: Rel Int -> Bool
-testTrClos xs = all (\x -> elem x trClosure) transatives
-                where 
+testTrClos    :: Rel Int -> Bool
+testTrClos xs = all (\x -> elem x trClosure) transatives where 
                   transatives = trClosure @@ trClosure
                   trClosure = trClos xs
 
@@ -152,10 +152,48 @@ testExercise7 = do
                   quickCheck testTrClos
 
 -- == Exercise 8 == --
+exercise8Property     :: Rel Int -> Bool
+exercise8Property rel = (trClos . symClos) rel == (symClos . trClos) rel
 
--- == Exercise 9 == --
+testExercise8 = do
+                  putStr "\n--== Exercise 8 ==--\n\t"
+                  quickCheck (expectFailure . exercise8Property)
 
+-- -- == Exercise 9 == --
+{-
+Time spend: ~1 hour
+-}
+instance Show Statement where
+  show (Ass var expr)       = (var ++ " = " ++ (show expr))
+  show (Cond cond st1 st2)  = "if (" ++ (show cond) ++ ") {\n\t" ++ (replace "\n" "\n\t" (show st1)) ++ "\n} else {\n\t" ++ (replace "\n" "\n\t" (show st2)) ++ "\n}"
+  show (Seq statements)     = join "\n" (map show statements)
+  show (While cond st)      = "\nwhile (" ++ show cond ++ ") {\n\t" ++ (replace "\n" "\n\t" (show st)) ++ "\n}"
+
+instance Show Expr where
+  show (I int)              = show int
+  show (V var)              = var
+  show (Add expr1 expr2)    = "(" ++ (show expr1) ++ " + " ++ (show expr2) ++ ")"
+  show (Subtr expr1 expr2)  = "(" ++ (show expr1) ++ " - " ++ (show expr2) ++ ")"
+  show (Mult expr1 expr2)   = "(" ++ (show expr1) ++ " * " ++ (show expr2) ++ ")"
+
+instance Show Condition where
+  show (Prp var)        = var
+  show (Eq expr1 expr2) = (show expr1) ++ " == " ++ (show expr2)
+  show (Lt expr1 expr2) = (show expr1) ++ " < " ++ (show expr2)
+  show (Gt expr1 expr2) = (show expr1) ++ " > " ++ (show expr2)
+  show (Ng cond)        = "(" ++ "¬" ++ (show cond) ++ ")"
+  show (Cj conds)       = "(" ++ join " ∨ " (map show conds) ++ ")"
+  show (Dj conds)       = "(" ++ join " ∧ " (map show conds) ++ ")"
+
+testExercise9 = do
+                  putStr "\n--== Exercise 9 ==--\n"
+                  putStrLn (show fib)
+
+{-
+Main test runner
+-}
 main = do 
         testExercise3
         testExercise7
-
+        testExercise8
+        testExercise9
