@@ -82,6 +82,8 @@ differenceSet (Set r) (Set s) = Set (r \\ s)
 
 -- Common properties
 
+-- Must check both ways otherwise we might validate a implementation that always returns
+-- the empty set.
 prop_Intersected :: Eq a => Set a -> Set a -> Set a -> Bool
 prop_Intersected (Set r) (Set s) (Set rs) = all (\x -> (elem x r) && (elem x s)) rs &&
                                             all (\x -> (not (elem x s)) --> (not (elem x rs))) r &&
@@ -95,7 +97,9 @@ prop_Unioned (Set r) (Set s) (Set rs) = all (\x -> elem x rs) r &&
                                         prop_UniqueElements (Set rs)
 
 prop_Differented :: Eq a => Set a -> Set a -> Set a -> Bool
-prop_Differented (Set r) (Set s) (Set rs) = all (\x -> (elem x r) `xor` (elem x s)) rs &&
+prop_Differented (Set r) (Set s) (Set rs) = all (\x -> not(elem x s) --> elem x rs) r &&
+                                            all (\x -> not(elem x r) --> elem x rs) s &&
+                                            all (\x -> (elem x r) `xor` (elem x s)) rs &&
                                             prop_UniqueElements (Set rs)
 
 -- Build for testing own generator
