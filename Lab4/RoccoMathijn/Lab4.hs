@@ -7,6 +7,12 @@ import SetOrd
 import Data.Tuple
 import Lecture4
 import Data.List.Utils
+
+-- == Exercise 1 == --
+{-
+The concepts in Ch4 are clear to me
+-}
+
 -- == Exercise 2 == --
 {-
 Time spend: 2 hours
@@ -181,9 +187,9 @@ instance Show Condition where
   show (Eq expr1 expr2) = (show expr1) ++ " == " ++ (show expr2)
   show (Lt expr1 expr2) = (show expr1) ++ " < " ++ (show expr2)
   show (Gt expr1 expr2) = (show expr1) ++ " > " ++ (show expr2)
-  show (Ng cond)        = "(" ++ "¬" ++ (show cond) ++ ")"
-  show (Cj conds)       = "(" ++ join " ∨ " (map show conds) ++ ")"
-  show (Dj conds)       = "(" ++ join " ∧ " (map show conds) ++ ")"
+  show (Ng cond)        = "(" ++ "!" ++ (show cond) ++ ")"
+  show (Cj conds)       = "(" ++ join " || " (map show conds) ++ ")"
+  show (Dj conds)       = "(" ++ join " && " (map show conds) ++ ")"
 
 testExercise9 = do
                   putStr "\n--== Exercise 9 ==--\n"
