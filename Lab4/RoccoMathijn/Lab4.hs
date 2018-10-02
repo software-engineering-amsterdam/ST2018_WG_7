@@ -5,6 +5,8 @@ import System.Random
 import Test.QuickCheck
 import SetOrd
 import Data.Tuple
+import Data.Char
+
 import Lecture4
 import Data.List.Utils
 
@@ -190,6 +192,61 @@ instance Show Condition where
   show (Ng cond)        = "(" ++ "!" ++ (show cond) ++ ")"
   show (Cj conds)       = "(" ++ join " || " (map show conds) ++ ")"
   show (Dj conds)       = "(" ++ join " && " (map show conds) ++ ")"
+
+data Token 
+      = TokenI Int
+      | TokenV Var
+      | TokenAdd
+      | TokenSubtr
+      | TokenMult
+      | TokenOP
+      | TokenCP
+      | TokenOC
+      | TokenCC
+      | TokenAss
+      | TokenPrp Var
+      | TokenEquiv
+      | TokenLt
+      | TokenGt
+      | TokenNg
+      | TokenCj
+      | TokenDj
+      | TokenWhile
+      | TokenCond
+ deriving (Show,Eq)
+
+lexer :: String -> [Token]
+lexer [] = []
+lexer (c:cs) | isSpace c = lexer cs
+             | isDigit c = lexNum (c:cs) 
+lexer ('(':cs)                  = TokenOP : lexer cs
+lexer (')':cs)                  = TokenCP : lexer cs
+lexer ('{':cs)                  = TokenOC : lexer cs
+lexer ('}':cs)                  = TokenCC : lexer cs
+lexer ('<':cs)                  = TokenLt : lexer cs
+lexer ('>':cs)                  = TokenGt : lexer cs
+lexer ('!':cs)                  = TokenNg : lexer cs
+lexer ('=':'=':cs)              = TokenEquiv : lexer cs
+lexer ('|':'|':cs)              = TokenCj : lexer cs
+lexer ('&':'&':cs)              = TokenDj : lexer cs
+lexer ('=':cs)                  = TokenAss : lexer cs
+lexer ('+':cs)                  = TokenAdd : lexer cs
+lexer ('-':cs)                  = TokenSubtr : lexer cs
+lexer ('*':cs)                  = TokenMult : lexer cs
+lexer ('w':'h':'i':'l':'e':cs)  = TokenWhile : lexer cs
+lexer ('i':'f':cs)              = TokenCond : lexer cs
+lexer (c:cs) | isAlpha c        = lexVar (c:cs)
+lexCondition (c:cs) | isAlpha c = lexPrp (c:cs) 
+lexer (x:_)                     = error ("unknown token: " ++ [x])
+
+lexNum cs = TokenI (read num) : lexer rest
+  where (num,rest) = span isDigit cs
+
+lexVar cs = TokenV variable : lexer rest
+  where (variable,rest) = span (not . isSpace) cs
+
+lexPrp cs = TokenPrp variable : lexer rest
+  where (variable,rest) = span (not . isSpace) cs
 
 testExercise9 = do
                   putStr "\n--== Exercise 9 ==--\n"
