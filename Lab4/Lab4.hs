@@ -4,7 +4,9 @@ import Data.List
 import Data.Tuple
 import System.Random
 import Test.QuickCheck
+-- import Data.String.Utils
 
+import Lecture4
 import SetOrd
 
 
@@ -93,16 +95,15 @@ prop_Unioned (Set r) (Set s) (Set rs) = all (\x -> elem x rs) r &&
                                         all (\x -> elem x rs) s &&
                                         all (\x -> (elem x r) || (elem x s)) rs &&
                                         prop_UniqueElements (Set rs)
--- test properties: lenght of intersection is at least as big as the biggest of r and s.
+-- test properties: cardinality of intersection is at least as big as the biggest of r and s.
 --                  must contain any element that is in r or in s
 --                  may not contain any element not in r or in s.
 
 prop_Differented :: Eq a => Set a -> Set a -> Set a -> Bool
-prop_Differented (Set r) (Set s) (Set rs) = all (\x -> not(elem x s) --> elem x rs) r &&
-                                            all (\x -> not(elem x r) --> elem x rs) s &&
-                                            all (\x -> (elem x r) `xor` (elem x s)) rs &&
+prop_Differented (Set r) (Set s) (Set rs) = all (\x -> elem x s --> not(elem x rs)) r &&
+                                            all (\x -> (elem x r)) rs &&
                                             prop_UniqueElements (Set rs)
--- test properties: lenght of intersection is at most the sum of sizes of r and s
+-- test properties: cardinality of intersection is at most the sum of sizes of r and s
 --                  must contain any element that is either in r or in s
 --                  may not contain any element not in r or in s, but not both.
 
@@ -226,7 +227,7 @@ prop_SymmetricElementsInClosure r = all (\(x,y) -> elem (x,y) s && elem (y,x) s)
           r' = nub r
 
 -- Every relation in the symmetric closure must be present in the same form or as its
--- morrored counterpart in the original set.
+-- mirrored counterpart in the original set.
 prop_ClosureElementHaveOrigin :: Rel Int -> Bool
 prop_ClosureElementHaveOrigin r = all (\(x,y) -> elem (x,y) r' || elem (y,x) r') s
     where s = symClos r'
@@ -275,9 +276,116 @@ testAssignment7 = do
     putStr "Transitive connections: \t\t"
     quickCheck prop_TransitiveConnections
 
+-------------------------------------------------------------------------------
+-- == Assignment 8: checking (R_r)^+ == (R^+)_r == --
 
+isEqualTrSymSymTrHelper :: Ord a => Rel a -> Bool
+isEqualTrSymSymTrHelper rs = trClos (symClos rs) == symClos (trClos rs)
 
+isEqualTrSymSymTrInt :: Rel Int -> Bool
+isEqualTrSymSymTrInt rs = isEqualTrSymSymTrHelper rs
+
+isEqualTrSymSymTrStr :: Rel String -> Bool
+isEqualTrSymSymTrStr rs = isEqualTrSymSymTrHelper rs
+
+ass8Tester = do
+    putStrLn "\n-- == Assignment 8: checking (R^-1)^+ == (R^+)^-1 == --"
+    quickCheck (expectFailure . isEqualTrSymSymTrInt)
+    quickCheck (expectFailure . isEqualTrSymSymTrStr)
+    putStrLn "The tests fail, as such (R^-1)^+ /= (R^+)^-1"
+    putStrLn "Counterexample: R=[(1,0)]: (R_r)^+ = [(1,0),(0,1),(1,1),(0,0)], (R^+)_r = [(1,0),(0,1)]"
+
+-------------------------------------------------------------------------------
+-- == Assignment 9: Show and parser for imperative Haskell == --
+
+instance Show Statement where
+  show (Ass var expr)       = (var ++ " = " ++ (show expr))
+  show (Cond cond st1 st2)  = "if (" ++ (show cond) ++ ") {\n\t" ++ (replace "\n" "\n\t" (show st1)) ++ "\n} else {\n\t" ++ (replace "\n" "\n\t" (show st2)) ++ "\n}"
+  show (Seq statements)     = join "\n" (map show statements)
+  show (While cond st)      = "\nwhile (" ++ show cond ++ ") {\n\t" ++ (replace "\n" "\n\t" (show st)) ++ "\n}"
+
+instance Show Expr where
+  show (I int)              = show int
+  show (V var)              = var
+  show (Add expr1 expr2)    = "(" ++ (show expr1) ++ " + " ++ (show expr2) ++ ")"
+  show (Subtr expr1 expr2)  = "(" ++ (show expr1) ++ " - " ++ (show expr2) ++ ")"
+  show (Mult expr1 expr2)   = "(" ++ (show expr1) ++ " * " ++ (show expr2) ++ ")"
+
+instance Show Condition where
+  show (Prp var)        = var
+  show (Eq expr1 expr2) = (show expr1) ++ " == " ++ (show expr2)
+  show (Lt expr1 expr2) = (show expr1) ++ " < " ++ (show expr2)
+  show (Gt expr1 expr2) = (show expr1) ++ " > " ++ (show expr2)
+  show (Ng cond)        = "(" ++ "!" ++ (show cond) ++ ")"
+  show (Cj conds)       = "(" ++ join " || " (map show conds) ++ ")"
+  show (Dj conds)       = "(" ++ join " && " (map show conds) ++ ")"
+
+data Token 
+      = TokenI Int
+      | TokenV Var
+      | TokenAdd
+      | TokenSubtr
+      | TokenMult
+      | TokenOP
+      | TokenCP
+      | TokenOC
+      | TokenCC
+      | TokenAss
+      | TokenPrp Var
+      | TokenEquiv
+      | TokenLt
+      | TokenGt
+      | TokenNg
+      | TokenCj
+      | TokenDj
+      | TokenWhile
+      | TokenCond
+ deriving (Show,Eq)
+
+lexer :: String -> [Token]
+lexer [] = []
+lexer (c:cs) | isSpace c = lexer cs
+             | isDigit c = lexNum (c:cs) 
+lexer ('(':cs)                  = TokenOP : lexer cs
+lexer (')':cs)                  = TokenCP : lexer cs
+lexer ('{':cs)                  = TokenOC : lexer cs
+lexer ('}':cs)                  = TokenCC : lexer cs
+lexer ('<':cs)                  = TokenLt : lexer cs
+lexer ('>':cs)                  = TokenGt : lexer cs
+lexer ('!':cs)                  = TokenNg : lexer cs
+lexer ('=':'=':cs)              = TokenEquiv : lexer cs
+lexer ('|':'|':cs)              = TokenCj : lexer cs
+lexer ('&':'&':cs)              = TokenDj : lexer cs
+lexer ('=':cs)                  = TokenAss : lexer cs
+lexer ('+':cs)                  = TokenAdd : lexer cs
+lexer ('-':cs)                  = TokenSubtr : lexer cs
+lexer ('*':cs)                  = TokenMult : lexer cs
+lexer ('w':'h':'i':'l':'e':cs)  = TokenWhile : lexer cs
+lexer ('i':'f':cs)              = TokenCond : lexer cs
+lexer (c:cs) | isAlpha c        = lexVar (c:cs)
+lexer (x:_)                     = error ("unknown token: " ++ [x])
+
+lexNum cs = TokenI (read num) : lexer rest
+  where (num,rest) = span isDigit cs
+
+lexVar cs = TokenV variable : lexer rest
+  where (variable,rest) = span (not . isSpace) cs
+
+lexPrp cs = TokenPrp variable : lexer rest
+  where (variable,rest) = span (not . isSpace) cs
+
+testExercise9 = do
+                  putStrLn "\n--== Exercise 9 ==--\n"
+                  putStrLn "Show statement:\n"
+                  putStrLn (show fib)
+                  putStrLn "\n Result of lexer: \n"
+                  putStrLn $ show  $ lexer $ show fib
+
+-------------------------------------------------------------------------------
+-- == Main == --
 
 main = do
     testAssignment3
     testAssignment7
+    ass8Tester
+    testExercise9

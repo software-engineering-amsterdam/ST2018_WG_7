@@ -25,7 +25,6 @@ data Expr = I Integer | V Var
           | Add Expr Expr 
           | Subtr Expr Expr 
           | Mult Expr Expr 
-          deriving (Eq,Show)
 
 eval :: Expr -> Env -> Integer 
 eval (I i) _ = i 
@@ -47,13 +46,11 @@ data Condition = Prp Var
                | Ng Condition 
                | Cj [Condition] 
                | Dj [Condition]
-               deriving (Eq,Show)
 
 data Statement = Ass Var Expr
                | Cond Condition Statement Statement
                | Seq [Statement]
                | While Condition Statement
-               deriving (Eq,Show)
 
 evalc :: Condition -> Env -> Bool
 evalc (Eq e1 e2) env = eval e1 env == eval e2 env
