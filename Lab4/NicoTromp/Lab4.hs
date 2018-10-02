@@ -295,7 +295,7 @@ testAssignment8 = do
     putStrLn "\n--== Symmetric-Transitive Closure vs Transitive-Symmetric Closure ==--"
 
     putStrLn "\nSymmetric-Transitive vs Transitive-Symmetric Closure test"
-    putStr "rtClos . symClos vs symClos . trClos: "
+    putStr "rtClos . symClos vs symClos . trClos: \t"
     quickCheck (expectFailure . prop_ClosuresDifference)
 
 -- The above test ussually fails on [(1,0)] or [(0,1)].
