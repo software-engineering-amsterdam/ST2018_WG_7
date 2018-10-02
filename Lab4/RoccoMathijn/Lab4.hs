@@ -142,8 +142,8 @@ trClos rel | all (\x -> elem x rel) t = nub rel
 Time spend: 1 hour
 -}
 testSymClos     :: Rel Int -> Bool
-testSymClos xs  = all (\x -> elem (swap x) symbolicClosure) symbolicClosure where
-                    symbolicClosure = symClos xs
+testSymClos xs  = all (\x -> elem (swap x) symmetricClosure) symmetricClosure where
+                    symmetricClosure = symClos xs
 
 testTrClos    :: Rel Int -> Bool
 testTrClos xs = all (\x -> elem x trClosure) transatives where 
@@ -249,7 +249,8 @@ lexPrp cs = TokenPrp variable : lexer rest
   where (variable,rest) = span (not . isSpace) cs
 
 testExercise9 = do
-                  putStr "\n--== Exercise 9 ==--\n"
+                  putStrLn "\n--== Exercise 9 ==--\n"
+                  putStrLn ""
                   putStrLn (show fib)
 
 {-
