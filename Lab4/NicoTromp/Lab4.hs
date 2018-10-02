@@ -210,46 +210,10 @@ testAssignment6 = do
 -- Symmetric Closure properties
 
 -- Yes, quickcheck can be used.
--- 1:   The cardinality of the symmetric closure excluding any self relation, e.g. (x,x),
---      must be an even number. This is because for every relation (x,y) in the original
---      set of relatiosn the mirrored (y,x) must also be present
--- 2:   There are three different possible combination possible: a equals the number of elements
---      that match (x,x), b equals the number of elements that match the (x,y) and (y,x)
---      and c equals the number of element that match (w,z). Given any combination of these,
---      the cardinality of the symmetric closure is dedined as a + b + 2*c
--- 3:   For every relation in the original set both versions (the original (x,y)
+-- 1:   For every relation in the original set both versions (the original (x,y)
 --      and the mirrored (y,x)) must be present in the symmetric closure.
--- 4:   For every relation in the symmetric closure (x,y) either (x,y) or (y,x) must
+-- 2:   For every relation in the symmetric closure (x,y) either (x,y) or (y,x) must
 --      be present in the original set.
-
--- Self relations are defined as (x, x)
-numberOfSelfRelations :: Eq a => Rel a -> Int
-numberOfSelfRelations r = length (filter (\(x, y) -> x == y) r)
-
--- Unique relations exists but its symmetric counterpart.
-numberOfSingleRelations :: Eq a => Rel a -> Int
-numberOfSingleRelations r = length (filter (\(x, y) -> not (elem (y, x) r)) r)
-
--- The number of relations with an existing symmetric counterpart (both are counted!)
-numberOfSymRelations :: Eq a => Rel a -> Int
-numberOfSymRelations r = length (filter (\(x, y) -> x /= y&& elem (y, x) r) r)
-
--- Post condition: excluding self relations e.g. (x, x) the caridnality
--- of the symmetric closure must be even
-prop_EvenCardinality :: Rel Int -> Bool
-prop_EvenCardinality r = even (length r' - numberOfSelfRelations r')
-    where r' = symClos (nub r)
-
--- Post condiftion: the cardinality of the symmetric closure must be equal to the sum of:
---   Existing symmetric relations, e.g. both (x,y) and (y,x) are present
---   Two times the number of unique relations, e.g. (x,y) exists and (y,x) is not present
---   The number of self relations, e.g. (x,x)
-prop_CorrectCardinality :: Rel Int -> Bool
-prop_CorrectCardinality r = numberOfSymRelations r' + 
-                            2 * (numberOfSingleRelations r') + 
-                            numberOfSelfRelations r' == length s
-                            where s = symClos r'
-                                  r' = nub r
 
 -- Every relation in the original set must be present in its original form and in its
 -- morrored form in the symmetric closure.
@@ -295,10 +259,6 @@ testAssignment7 = do
     putStrLn "\n--== Testing Symmetric and Transitive Closure ==--"
 
     putStrLn "\nSymmetric Closure tests"
-    putStr "Even cardinality (excl. self rels): \t"
-    quickCheck prop_EvenCardinality
-    putStr "Correct cardinality: \t\t\t"
-    quickCheck prop_CorrectCardinality
     putStr "Symmetric elements exist in closure: \t"
     quickCheck prop_SymmetricElementsInClosure
     putStr "Closure element have origin: \t\t"
