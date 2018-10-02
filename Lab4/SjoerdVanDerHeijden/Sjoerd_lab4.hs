@@ -7,7 +7,8 @@ import System.Random
 import Test.QuickCheck
 import Lecture4
 import SetOrd
-
+import Data.List.Split
+import Data.Char
 
 -------------------------------------------------------------------------------
 -- == Assignment 1: haskell questions == --
@@ -44,6 +45,7 @@ randomSetGen = do
 -------------------------------------------------------------------------------
 -- == Assignment 3: set operations and tests == --
 -- Helper code:
+
 setLength :: Set a -> Int
 setLength (Set r) = length r
 
@@ -257,3 +259,56 @@ main = do
     ass3Tester
     ass7Tester
     ass8Tester
+
+
+
+
+
+-------------------------------------------------------------------------------
+-- Temporary testing space
+
+-- instance Show Statement where
+--   show (Ass var expr)       = (var ++ " = " ++ (show expr))
+--   show (Cond cond st1 st2)  = "if (" ++ (show cond) ++ ") {\n\t" ++ (replace "\n" "\n\t" (show st1)) ++ "\n} else {\n\t" ++ (replace "\n" "\n\t" (show st2)) ++ "\n}"
+--   show (Seq statements)     = join "\n" (map show statements)
+--   show (While cond st)      = "\nwhile (" ++ show cond ++ ") {\n\t" ++ (replace "\n" "\n\t" (show st)) ++ "\n}"
+
+-- instance Show Expr where
+--   show (I int)              = show int
+--   show (V var)              = var
+--   show (Add expr1 expr2)    = "(" ++ (show expr1) ++ " + " ++ (show expr2) ++ ")"
+--   show (Subtr expr1 expr2)  = "(" ++ (show expr1) ++ " - " ++ (show expr2) ++ ")"
+--   show (Mult expr1 expr2)   = "(" ++ (show expr1) ++ " * " ++ (show expr2) ++ ")"
+
+-- instance Show Condition where
+--   show (Prp var)        = var
+--   show (Eq expr1 expr2) = (show expr1) ++ " == " ++ (show expr2)
+--   show (Lt expr1 expr2) = (show expr1) ++ " < " ++ (show expr2)
+--   show (Gt expr1 expr2) = (show expr1) ++ " > " ++ (show expr2)
+--   show (Ng cond)        = "(" ++ "!" ++ (show cond) ++ ")"
+--   show (Cj conds)       = "(" ++ join " || " (map show conds) ++ ")"
+--   show (Dj conds)       = "(" ++ join " && " (map show conds) ++ ")"
+
+-- testExercise9 = do
+--                   putStr "\n--== Exercise 9 ==--\n"
+--                   putStrLn (show fib)
+
+-- simpleParser "("++str++"||"++  ++")" = 
+
+
+-- simpleParser "("++str = simpleParser str
+-- simpleParser str1 ++ "||" ++ str2 = 
+-- simpleParser ")"++str = 
+
+stripWhitespace :: String -> String
+stripWhitespace str = [ char | char <- str, not (isSpace char)]
+
+-- simpleParser "("++str++")" = simpleParser str
+-- simpleParser str | elem '|' str = Dj [ simpleParser cond | cond <- splitOn "||" str ]
+--                  | elem '&' str = Dj [ simpleParser cond | cond <- splitOn "&&" str ]
+--                  | elem '+' str = (Add (splitOn "+" str)!!0 (splitOn "+" str)!!1)
+--                  | elem '-' str = (Subtr (splitOn "-" str)!!0 (splitOn "-" str)!!1)
+--                  | elem '*' str = (Mult (splitOn "*" str)!!0 (splitOn "*" str)!!1)
+--                  | elem '<' str = (Mult (splitOn "<" str)!!0 (splitOn "<" str)!!1)
+--                  | elem '>' str = (Mult (splitOn ">" str)!!0 (splitOn ">" str)!!1)
+--                  | otherwise = Prp str
