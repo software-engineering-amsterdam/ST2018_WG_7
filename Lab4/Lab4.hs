@@ -185,7 +185,7 @@ type Rel a  = [(a, a)]
 --remove duplicates from this cumulative list
 
 symClos :: Ord a => Rel a -> Rel a
-symClos (x:xs) = nub ([x, swap x] ++ (symClos xs))
+symClos rs = (nub (concat [ [r, swap(r)] | r <- rs ]) )
 
 -- Time: 10min
 
@@ -210,4 +210,74 @@ trClos r = until (\s -> tr s == s) tr r
 -------------------------------------------------------------------------------
 -- == Assignment 7: testing 5 & 6 == --
 
+-- Symmetric Closure properties
 
+-- Yes, quickcheck can be used.
+-- 1:   For every relation in the original set both versions (the original (x,y)
+--      and the mirrored (y,x)) must be present in the symmetric closure.
+-- 2:   For every relation in the symmetric closure (x,y) either (x,y) or (y,x) must
+--      be present in the original set.
+
+-- Every relation in the original set must be present in its original form and in its
+-- morrored form in the symmetric closure.
+prop_SymmetricElementsInClosure :: Rel Int -> Bool
+prop_SymmetricElementsInClosure r = all (\(x,y) -> elem (x,y) s && elem (y,x) s) r'
+    where s = symClos r'
+          r' = nub r
+
+-- Every relation in the symmetric closure must be present in the same form or as its
+-- morrored counterpart in the original set.
+prop_ClosureElementHaveOrigin :: Rel Int -> Bool
+prop_ClosureElementHaveOrigin r = all (\(x,y) -> elem (x,y) r' || elem (y,x) r') s
+    where s = symClos r'
+          r' = nub r
+
+-- Transitive closure properties
+
+-- The transitive closure of a transitive closure is equal to the original transitive closure.
+prop_TransitivesDontChange :: Rel Int -> Bool
+prop_TransitivesDontChange r = r' == trClos r'
+    where r' = trClos (nub r)
+
+relToList :: Ord a => Rel a -> [a]
+relToList r = sort (nub (concat [ [x,y] | (x,y) <- r]))
+
+-- All elements of the original set must be present in the transitive closure
+prop_TransitiveClosurePreservesElements :: Rel Int -> Bool
+prop_TransitiveClosurePreservesElements r = relToList r' == relToList (trClos r')
+    where r' = nub r
+
+-- Determines for a non transtive closure for a given start element the
+-- elements that can trasitively be reached from that element.
+reachables :: Ord a => a -> Rel a -> [a]
+reachables x r = sort (nub (concat ([ z:(reachables z (filter (/=(y,z)) r')) | (y,z) <- r', y == x])))
+    where r' = nub r
+
+prop_TransitiveConnections :: Rel Int -> Bool
+prop_TransitiveConnections r = all (\(x,_) -> reachables x r' == [ z | (y,z) <- s, x == y]) r'
+    where s = trClos r'
+          r' = nub r
+
+testAssignment7 = do
+    putStrLn "\n--== Testing Symmetric and Transitive Closure ==--"
+
+    putStrLn "\nSymmetric Closure tests"
+    putStr "Symmetric elements exist in closure: \t"
+    quickCheck prop_SymmetricElementsInClosure
+    putStr "Closure element have origin: \t\t"
+    quickCheck prop_ClosureElementHaveOrigin
+
+    putStrLn "\nTransitive Closure tests"
+    putStr "Transitives don't change: \t\t"
+    quickCheck prop_TransitivesDontChange
+    putStr "Transitive closure preserves elements: \t"
+    quickCheck prop_TransitiveClosurePreservesElements
+    putStr "Transitive connections: \t\t"
+    quickCheck prop_TransitiveConnections
+
+
+
+
+main = do
+    testAssignment3
+    testAssignment7
