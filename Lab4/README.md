@@ -1,6 +1,7 @@
 # LAB4
 
 **How to run?** Run the `main` function inside module `Lab4` too run all tests.
+Note that we edited the Lecture4.hs file to prevent conflicts with our own show function in exercise 9.
 
 ## --== EXERCISE 1 ==--
 No mayor questions came up, no questions came up that could not be answeredamongst ourselves.
@@ -20,7 +21,7 @@ Difference:     +++ OK, passed 100 tests.
 ```
 
 ## --== EXERCISE 4 ==--
-No questions arose that probably won't be answered by close study of the material.
+No questions arose that probably won't be answered by closer study of the material.
 
 ## --== EXERCISE 7 ==--
 ```
@@ -38,29 +39,29 @@ Transitive connections:         +++ OK, passed 100 tests.
 
 ## --== EXERCISE 8 ==--
 ```
-+++ OK, failed as expected. Falsifiable (after 2 tests and 2 shrinks):
++++ OK, failed as expected. Falsifiable (after 3 tests and 2 shrinks):
 [(0,1)]
-+++ OK, failed as expected. Falsifiable (after 3 tests and 1 shrink):
++++ OK, failed as expected. Falsifiable (after 3 tests and 3 shrinks):
 [("a","")]
-The tests fail, as such (R^-1)^+ /= (R^+)^-1
+The tests fail, as such we can conclude (R^-1)^+ /= (R^+)^-1
 Counterexample: R=[(1,0)]: (R_r)^+ = [(1,0),(0,1),(1,1),(0,0)], (R^+)_r = [(1,0),(0,1)]
 ```
 
 ## --== EXERCISE 9 ==--
 ```
-Show statement:
+Calling show on the fib Statement:
 
 x = 0
 y = 1
 
 while (n > 0) {
-    z = x
-    x = y
-    y = (z + y)
-    n = (n - 1)
+	z = x
+	x = y
+	y = (z + y)
+	n = (n - 1)
 }
 
- Result of lexer:
+ Result of lexer: 
 
 [TokenV "x",TokenAss,TokenI 0,TokenV "y",TokenAss,TokenI 1,TokenWhile,TokenOP,TokenV "n",TokenGt,TokenI 0,TokenCP,TokenOC,TokenV "z",TokenAss,TokenV "x",TokenV "x",TokenAss,TokenV "y",TokenV "y",TokenAss,TokenOP,TokenV "z",TokenAdd,TokenV "y)",TokenV "n",TokenAss,TokenOP,TokenV "n",TokenSubtr,TokenI 1,TokenCP,TokenCC]
 ```
