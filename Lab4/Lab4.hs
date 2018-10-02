@@ -4,11 +4,9 @@ import Data.List
 import Data.Tuple
 import System.Random
 import Test.QuickCheck
--- import Data.String.Utils
-
+import Data.Char
 import Lecture4
 import SetOrd
-
 
 xor :: Bool -> Bool -> Bool
 xor p q = (p || q) && not (p && q)
@@ -288,7 +286,7 @@ isEqualTrSymSymTrInt rs = isEqualTrSymSymTrHelper rs
 isEqualTrSymSymTrStr :: Rel String -> Bool
 isEqualTrSymSymTrStr rs = isEqualTrSymSymTrHelper rs
 
-ass8Tester = do
+testAssignment8 = do
     putStrLn "\n-- == Assignment 8: checking (R^-1)^+ == (R^+)^-1 == --"
     quickCheck (expectFailure . isEqualTrSymSymTrInt)
     quickCheck (expectFailure . isEqualTrSymSymTrStr)
@@ -297,6 +295,30 @@ ass8Tester = do
 
 -------------------------------------------------------------------------------
 -- == Assignment 9: Show and parser for imperative Haskell == --
+{-
+Time spend: 3 hours.
+
+We did not get to build the parser. The amount of work involved was too much. We tried to model the form parser
+from Lab3 but that parser can read from left to right. To proper parse the imperative code that we get from our show 
+function you have to build a proper parse tree and we did not have time for that. We do however have the lexer.
+
+The testAssignment9 function shows the output of 'fib' given in Lecture4.hs. After that it shows what the lexer 
+makes of it.
+-}
+
+{-
+We first took join and replace function from Data.List.Utils but this would require installing the 'MissingH'
+package. We did not want to bother the TA with installing this package so we took the code snippets below
+from StackOverflow.
+-}
+--https://stackoverflow.com/questions/9220986/is-there-any-haskell-function-to-concatenate-list-with-separator
+join sep xs = foldr (\a b-> a ++ if b=="" then b else sep ++ b) "" xs
+
+--https://stackoverflow.com/questions/14907600/how-to-replace-a-string-with-another-in-haskell
+replace a b s@(x:xs) = if isPrefixOf a s
+                     then b++replace a b (drop (length a) s)
+                     else x:replace a b xs
+replace _ _ [] = []
 
 instance Show Statement where
   show (Ass var expr)       = (var ++ " = " ++ (show expr))
@@ -374,7 +396,7 @@ lexVar cs = TokenV variable : lexer rest
 lexPrp cs = TokenPrp variable : lexer rest
   where (variable,rest) = span (not . isSpace) cs
 
-testExercise9 = do
+testAssignment9 = do
                   putStrLn "\n--== Exercise 9 ==--\n"
                   putStrLn "Show statement:\n"
                   putStrLn (show fib)
@@ -387,5 +409,5 @@ testExercise9 = do
 main = do
     testAssignment3
     testAssignment7
-    ass8Tester
-    testExercise9
+    testAssignment8
+    testAssignment9
