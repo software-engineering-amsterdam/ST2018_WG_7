@@ -236,7 +236,6 @@ lexer ('*':cs)                  = TokenMult : lexer cs
 lexer ('w':'h':'i':'l':'e':cs)  = TokenWhile : lexer cs
 lexer ('i':'f':cs)              = TokenCond : lexer cs
 lexer (c:cs) | isAlpha c        = lexVar (c:cs)
-lexCondition (c:cs) | isAlpha c = lexPrp (c:cs) 
 lexer (x:_)                     = error ("unknown token: " ++ [x])
 
 lexNum cs = TokenI (read num) : lexer rest
@@ -250,8 +249,11 @@ lexPrp cs = TokenPrp variable : lexer rest
 
 testExercise9 = do
                   putStrLn "\n--== Exercise 9 ==--\n"
-                  putStrLn ""
+                  putStrLn "Show statement:\n"
                   putStrLn (show fib)
+                  putStrLn "\n Result of lexer: \n"
+                  putStrLn $ show  $ lexer $ show fib
+
 
 {-
 Main test runner
