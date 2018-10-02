@@ -8,7 +8,6 @@ import Data.Tuple
 import Data.Char
 
 import Lecture4
-import Data.List.Utils
 
 -- == Exercise 1 == --
 {-
@@ -171,6 +170,15 @@ testExercise8 = do
 {-
 Time spend: ~1 hour
 -}
+--https://stackoverflow.com/questions/9220986/is-there-any-haskell-function-to-concatenate-list-with-separator
+join sep xs = foldr (\a b-> a ++ if b=="" then b else sep ++ b) "" xs
+
+--https://stackoverflow.com/questions/14907600/how-to-replace-a-string-with-another-in-haskell
+replace a b s@(x:xs) = if isPrefixOf a s
+                     then b++replace a b (drop (length a) s)
+                     else x:replace a b xs
+replace _ _ [] = []
+
 instance Show Statement where
   show (Ass var expr)       = (var ++ " = " ++ (show expr))
   show (Cond cond st1 st2)  = "if (" ++ (show cond) ++ ") {\n\t" ++ (replace "\n" "\n\t" (show st1)) ++ "\n} else {\n\t" ++ (replace "\n" "\n\t" (show st2)) ++ "\n}"
@@ -253,7 +261,6 @@ testExercise9 = do
                   putStrLn (show fib)
                   putStrLn "\n Result of lexer: \n"
                   putStrLn $ show  $ lexer $ show fib
-
 
 {-
 Main test runner
