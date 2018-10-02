@@ -249,7 +249,7 @@ ass8Tester = do
     quickCheck (expectFailure . isEqualTrSymSymTrInt)
     quickCheck (expectFailure . isEqualTrSymSymTrStr)
     putStrLn "The tests fail, as such (R^-1)^+ /= (R^+)^-1"
-    putStrLn "Counterexample: R=[(1,0)]: (R_r)^+ = [(1,0),(0,1),(1,1),(0,0)], (R^+)_r = [(1,0)]"
+    putStrLn "Counterexample: R=[(1,0)]: (R_r)^+ = [(1,0),(0,1),(1,1),(0,0)], (R^+)_r = [(1,0),(0,1)]"
 
 -- Time: 30min
 
