@@ -149,10 +149,14 @@ prune (r,c,v) ((x,y,zs):rest)
 sameblock :: (Row,Column) -> (Row,Column) -> Bool
 sameblock (r,c) (x,y) = bl r == bl x && bl c == bl y 
 
+-- initNode :: Grid -> [Node]
+-- initNode gr = let s = grid2sud gr in 
+--               if (not . consistent) s then [] 
+--               else [(s, constraints s)]
+
 initNode :: Grid -> [Node]
 initNode gr = let s = grid2sud gr in 
-              if (not . consistent) s then [] 
-              else [(s, constraints s)]
+              [(s, constraints s)]
 
 openPositions :: Sudoku -> [(Row,Column)]
 openPositions s = [ (r,c) | r <- positions,  
