@@ -143,7 +143,7 @@ showTest _ False = "--- Failed."
 showTest n _     = "+++ OK, passed " ++ (show n) ++ " tests."
 
 testAssignment3 = do
-    putStrLn "\n--== Set Operations ==--"
+    putStrLn "\n--== Assignment 3: Set Operations ==--"
 
     putStrLn "\nGenerator from scratch tests"
     putStr "Intersection: \t"
@@ -171,7 +171,7 @@ testAssignment3 = do
 -------------------------------------------------------------------------------
 -- == Assignment 4: haskell questions: 2nd edition == --
 {-
- No questions arose that probably won't be answered by close study of the material.
+ No questions arose that probably won't be answered by closer study of the material.
 -}
 
 -------------------------------------------------------------------------------
@@ -258,7 +258,7 @@ prop_TransitiveConnections r = all (\(x,_) -> reachables x r' == [ z | (y,z) <- 
           r' = nub r
 
 testAssignment7 = do
-    putStrLn "\n--== Testing Symmetric and Transitive Closure ==--"
+    putStrLn "\n--== Assignment 7: Testing Symmetric and Transitive Closure ==--"
 
     putStrLn "\nSymmetric Closure tests"
     putStr "Symmetric elements exist in closure: \t"
@@ -290,7 +290,7 @@ testAssignment8 = do
     putStrLn "\n-- == Assignment 8: checking (R^-1)^+ == (R^+)^-1 == --"
     quickCheck (expectFailure . isEqualTrSymSymTrInt)
     quickCheck (expectFailure . isEqualTrSymSymTrStr)
-    putStrLn "The tests fail, as such (R^-1)^+ /= (R^+)^-1"
+    putStrLn "The tests fail, as such we can conclude (R^-1)^+ /= (R^+)^-1"
     putStrLn "Counterexample: R=[(1,0)]: (R_r)^+ = [(1,0),(0,1),(1,1),(0,0)], (R^+)_r = [(1,0),(0,1)]"
 
 -------------------------------------------------------------------------------
@@ -341,6 +341,7 @@ instance Show Condition where
   show (Ng cond)        = "(" ++ "!" ++ (show cond) ++ ")"
   show (Cj conds)       = "(" ++ join " || " (map show conds) ++ ")"
   show (Dj conds)       = "(" ++ join " && " (map show conds) ++ ")"
+
 
 data Token 
       = TokenI Int
@@ -397,8 +398,8 @@ lexPrp cs = TokenPrp variable : lexer rest
   where (variable,rest) = span (not . isSpace) cs
 
 testAssignment9 = do
-                  putStrLn "\n--== Exercise 9 ==--\n"
-                  putStrLn "Show statement:\n"
+                  putStrLn "\n--== Exercise 9: Show and parser for imperative Haskell ==--\n"
+                  putStrLn "Calling show on the fib Statement:\n"
                   putStrLn (show fib)
                   putStrLn "\n Result of lexer: \n"
                   putStrLn $ show  $ lexer $ show fib
