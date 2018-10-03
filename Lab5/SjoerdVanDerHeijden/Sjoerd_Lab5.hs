@@ -4,7 +4,6 @@ import Data.List
 import Test.QuickCheck
 import Lecture5
 
-import SetOrd
 
 -------------------------------------------------------------------------------
 -- == Assignment 1 == --
