@@ -36,20 +36,17 @@ exercise1 = [[0,0,0,3,0,0,0,0,0],
 showRowNrcNormal :: [Value] -> IO()
 showRowNrcNormal [a1,a2,a3,a4,a5,a6,a7,a8,a9] = 
  do  putChar '|'         ; putChar ' '
-     putStr (showVal a1) ; putChar ' '
-     putChar ' '         ; putChar ' '
-     putStr (showVal a2) ; putChar ' '
+     putStr (showVal a1) ; putStr "  "
+     putStr (showVal a2) ; putStr "  "
      putStr (showVal a3) ; putChar ' '
      putChar '|'         ; putChar ' '
-     putStr (showVal a4) ; 
-     putChar ' '         ; putChar ' '
+     putStr (showVal a4) ; putStr "  "
      putStr (showVal a5) ; putChar ' '
      putChar ' '         ; putChar ' '
      putStr (showVal a6) ; 
      putChar '|'         ; putChar ' '
-     putStr (showVal a7) ; putChar ' '
-     putStr (showVal a8) ; putChar ' '
-     putChar ' '         ; putChar ' '
+     putStr (showVal a7) ; putStr "  "
+     putStr (showVal a8) ; putStr "  "
      putStr (showVal a9) ; putChar ' '
      putChar '|'         ; putChar '\n'
 
@@ -57,8 +54,8 @@ showRowNrc :: [Value] -> IO()
 showRowNrc [a1,a2,a3,a4,a5,a6,a7,a8,a9] = 
  do  putChar '|'         ; putChar ' '
      putStr (showVal a1) ; putChar ' '
-     putChar '|'         ; putChar ' '
-     putStr (showVal a2) ; putChar ' '
+     putChar '|'         ; 
+     putStr (showVal a2) ; putStr "  "
      putStr (showVal a3) ; putChar ' '
      putChar '|'         ; putChar ' '
      putStr (showVal a4) ; 
@@ -67,8 +64,8 @@ showRowNrc [a1,a2,a3,a4,a5,a6,a7,a8,a9] =
      putChar '|'         ; putChar ' '
      putStr (showVal a6) ; 
      putChar '|'         ; putChar ' '
-     putStr (showVal a7) ; putChar ' '
-     putStr (showVal a8) ; putChar ' '
+     putStr (showVal a7) ; putStr "  "
+     putStr (showVal a8) ; 
      putChar '|'         ; putChar ' '
      putStr (showVal a9) ; putChar ' '
      putChar '|'         ; putChar '\n'
