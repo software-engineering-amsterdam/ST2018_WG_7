@@ -3,7 +3,7 @@ module Sjoerd_Lab5 where
 import Data.List
 import Test.QuickCheck
 
--- import Lecture5
+-- import Lecture5'
 import Sjoerd_Lab5_Ex1
 import Sjoerd_Lab5_Ex2
 
@@ -12,6 +12,7 @@ import Sjoerd_Lab5_Ex2
 
 x = Sjoerd_Lab5_Ex1.grid2sud exercise1
 
+exercise1 :: Sjoerd_Lab5_Ex1.Grid
 exercise1 = [[0,0,0,3,0,0,0,0,0],
              [0,0,0,7,0,0,3,0,0],
              [2,0,0,0,0,0,0,0,8],

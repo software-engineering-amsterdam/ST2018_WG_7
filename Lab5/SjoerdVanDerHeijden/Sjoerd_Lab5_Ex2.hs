@@ -60,10 +60,9 @@ columnConstrnt = [[(r,c)| r <- values ] | c <- values ]
 blockConstrnt = [[(r,c)| r <- b1, c <- b2 ] | b1 <- blocks, b2 <- blocks ]
 
 freeAtPos' :: Sudoku -> Position -> Constrnt -> [Value]
-freeAtPos' s (r,c) xs = let 
-   ys = filter (elem (r,c)) xs 
- in 
-   foldl1 intersect (map ((values \\) . map s) ys)
+freeAtPos' s (r,c) xs | ys == [] = [1..9]
+                      | otherwise = foldl1 intersect (map ((values \\) . map s) ys)
+                       where ys = filter (elem (r,c)) xs  
 
 
 -- Lecture5 code
@@ -407,12 +406,6 @@ genProblem :: Node -> IO Node
 genProblem n = do ys <- randomize xs
                   return (minimalize n ys)
    where xs = filledPositions (fst n)
-
-main :: IO ()
-main = do [r] <- rsolveNs [emptyN]
-          showNode r
-          s  <- genProblem r
-          showNode s
 
 
 
