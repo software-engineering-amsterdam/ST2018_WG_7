@@ -9,19 +9,7 @@ import System.Random
 import Test.QuickCheck
 import Test.QuickCheck.Monadic
 
-
-exercise1 :: Grid
-exercise1 = [[0,0,0,3,0,0,0,0,0],
-             [0,0,0,7,0,0,3,0,0],
-             [2,0,0,0,0,0,0,0,8],
-             [0,0,6,0,0,5,0,0,0],
-             [0,9,1,6,0,0,0,0,0],
-             [3,0,0,0,7,1,2,0,0],
-             [0,0,0,0,0,0,0,3,1],
-             [0,8,0,0,4,0,0,0,0],
-             [0,0,2,0,0,0,0,0,0]]
-
-
+-- This code builds on my Sjoerd_Lab5_Ex2 code.
 
 -- My own code:
 -- Ex3:
@@ -35,7 +23,7 @@ minimalTester = do
                       && uniqueSol s -- Takes 4 minutes to complete...
 
             return mybool
-
+-- Time: 30m
 
 -- Ex2:
 nrcBlocks :: [[Int]]

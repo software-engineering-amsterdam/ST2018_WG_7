@@ -11,9 +11,6 @@ import System.Random
 nrcBlocks :: [[Int]]
 nrcBlocks = [[2..4],[6..8]]
 
--- blockCoords :: [(Int,Int)]
--- blockCoords = [(r,c) | r <- [1,4,7], c <- [1,4,7]] ++ [(r,c) | r <- [2,6], c <- [2,6]]
-
 bl :: Int -> [[Int]]
 bl x = [(concat $ filter (elem x) blocks), (concat $ filter (elem x) nrcBlocks)]
 
@@ -50,6 +47,9 @@ constraints s = sortBy length3rd
 
 freeAtPosForAllConstr :: Sudoku -> Position -> [Value]
 freeAtPosForAllConstr s (r,c) = allIntersect [freeAtPos' s (r,c) xs | xs <- allConstrnt ]
+
+-- Time: 1h
+
 
 -- Lab5.htm code
 type Position = (Row,Column)

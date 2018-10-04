@@ -1,15 +1,42 @@
 
-module Sjoerd_Lab5_Ex1
+module Sjoerd_Lab5_Ex5
 
 where 
 
 import Data.List
 import System.Random
 
+import Test.QuickCheck
+import Test.QuickCheck.Monadic
 
--- My own code:
+-- Ex 5:
+copyOfMain :: IO ()
+copyOfMain = do 
+          [r] <- rsolveNs [emptyN]
+          showNode r
+          s  <- genProblem r
+          showNode s
+-- This code is just a copy of main. All the code required was already present thanks to ex2.
+-- Time: 10min
+
+-- Ex3:
+-- minimalTester :: IO Bool
+-- minimalTester = do 
+--             [r] <- rsolveNs [emptyN]
+--             s <- (genProblem r)
+--             ys <- randomize (filledPositions (fst r))
+--             let mybool = sud2grid(fst(minimalize s ys)) == sud2grid(fst s) 
+--                       && uniqueSol s -- Takes 4 minutes to complete...
+
+--             return mybool
+-- Time: 30min
+
+-- Ex2:
 nrcBlocks :: [[Int]]
 nrcBlocks = [[2..4],[6..8]]
+
+blockCoords :: [(Int,Int)]
+blockCoords = [(r,c) | r <- [1,4,7], c <- [1,4,7]] ++ [(r,c) | r <- [2,6], c <- [2,6]]
 
 bl :: Int -> [[Int]]
 bl x = [(concat $ filter (elem x) blocks), (concat $ filter (elem x) nrcBlocks)]
@@ -36,7 +63,31 @@ sameblock (r,c) (x,y) = or [subgr!!i == subgx!!i && subgc!!i == subgy!!i | i <- 
         subgx = bl x
         subgy = bl y
 
--- Time: 2h
+
+nrcblockConstrnt = [[(r,c)| r <- b1, c <- b2 ] | b1 <- nrcBlocks, b2 <- nrcBlocks ]
+allConstrnt = [rowConstrnt, columnConstrnt, blockConstrnt, nrcblockConstrnt] 
+
+constraints :: Sudoku -> [Constraint] 
+constraints s = sortBy length3rd 
+    [(r,c, freeAtPosForAllConstr s (r,c)) | 
+                       (r,c) <- openPositions s ]
+
+freeAtPosForAllConstr :: Sudoku -> Position -> [Value]
+freeAtPosForAllConstr s (r,c) = allIntersect [freeAtPos' s (r,c) xs | xs <- allConstrnt ]
+
+-- Lab5.htm code
+type Position = (Row,Column)
+type Constrnt = [[Position]]
+
+rowConstrnt = [[(r,c)| c <- values ] | r <- values ]
+columnConstrnt = [[(r,c)| r <- values ] | c <- values ]
+blockConstrnt = [[(r,c)| r <- b1, c <- b2 ] | b1 <- blocks, b2 <- blocks ]
+
+freeAtPos' :: Sudoku -> Position -> Constrnt -> [Value]
+freeAtPos' s (r,c) xs | ys == [] = [1..9]
+                      | otherwise = foldl1 intersect (map ((values \\) . map s) ys)
+                       where ys = filter (elem (r,c)) xs  
+
 
 -- Lecture5 code
 type Row    = Int 
@@ -195,10 +246,10 @@ openPositions s = [ (r,c) | r <- positions,
 length3rd :: (a,b,[c]) -> (a,b,[c]) -> Ordering
 length3rd (_,_,zs) (_,_,zs') = compare (length zs) (length zs')
 
-constraints :: Sudoku -> [Constraint] 
-constraints s = sortBy length3rd 
-    [(r,c, freeAtPos s (r,c)) | 
-                       (r,c) <- openPositions s ]
+-- constraints :: Sudoku -> [Constraint] 
+-- constraints s = sortBy length3rd 
+--     [(r,c, freeAtPos s (r,c)) | 
+--                        (r,c) <- openPositions s ]
 
 data Tree a = T a [Tree a] deriving (Eq,Ord,Show)
 
@@ -381,8 +432,9 @@ genProblem n = do ys <- randomize xs
    where xs = filledPositions (fst n)
 
 -- main :: IO ()
--- main = do [r] <- rsolveNs [emptyN]
+-- main = do 
+--           [r] <- rsolveNs [emptyN]
 --           showNode r
 --           s  <- genProblem r
 --           showNode s
-          
+

@@ -6,6 +6,8 @@ import Test.QuickCheck
 -- import Lecture5'
 import Sjoerd_Lab5_Ex1
 import Sjoerd_Lab5_Ex2
+import Sjoerd_Lab5_Ex3_v2
+import Sjoerd_Lab5_Ex5
 
 -------------------------------------------------------------------------------
 -- Helper code
@@ -25,14 +27,14 @@ exercise1 = [[0,0,0,3,0,0,0,0,0],
 
 non_min_sud :: Sjoerd_Lab5_Ex1.Grid
 non_min_sud = [[0,0,0,0,0,0,0,0,0],
-            [0,0,0,0,0,0,0,0,0],
-            [0,0,0,0,0,0,0,0,0],
-            [0,0,0,0,0,0,0,0,0],
-            [0,0,0,0,0,0,0,0,0],
-            [0,0,0,0,0,0,0,0,0],
-            [0,0,0,0,0,0,0,0,0],
-            [0,0,0,0,0,0,0,0,0],
-            [0,0,0,0,0,0,0,0,0]]
+               [0,0,0,0,0,0,0,0,0],
+               [0,0,0,0,0,0,0,0,0],
+               [0,0,0,0,0,0,0,0,0],
+               [0,0,0,0,0,0,0,0,0],
+               [0,0,0,0,0,0,0,0,0],
+               [0,0,0,0,0,0,0,0,0],
+               [0,0,0,0,0,0,0,0,0],
+               [0,0,0,0,0,0,0,0,0]]
 
 
 -------------------------------------------------------------------------------
@@ -65,8 +67,26 @@ execEx2 = do
     Sjoerd_Lab5_Ex2.solveAndShow exercise1
 
 
+-------------------------------------------------------------------------------
+-- == Assignment 3 == --
+execEx3 = do
+    x <- minimalTester
+    print x
+
+-------------------------------------------------------------------------------
+-- == Assignment 5 == --
+execEx5 = do
+    copyOfMain
+
+
+
 main = do
-    putStrLn "-- == Assignment 1 == --" 
+    putStrLn "\n-- == Assignment 1 == --" 
     execEx1
-    putStrLn "-- == Assignment 2 == --" 
+    putStrLn "\n-- == Assignment 2 == --" 
     execEx2
+    putStrLn "\n-- == Assignment 3 == --" 
+    putStrLn "Please wait...\nIs a randomly generated sudoku minimal? " 
+    execEx3
+    putStrLn "\n-- == Assignment 5 == --\nGenerating NRC conform sudoku:" 
+    copyOfMain
