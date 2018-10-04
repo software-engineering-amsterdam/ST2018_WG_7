@@ -27,9 +27,6 @@ values    = [1..9]
 blocks :: [[Int]]
 blocks = [[1..3],[4..6],[7..9]]
 
-nrcBlocks :: [[Int]]
-nrcBlocks = [[2..4],[6..8]]
-
 rowConstrnt :: Constrnt
 rowConstrnt = [[(r,c)| c <- values ] | r <- values ]
 
@@ -39,12 +36,9 @@ columnConstrnt = [[(r,c)| r <- values ] | c <- values ]
 blockConstrnt :: Constrnt
 blockConstrnt = [[(r,c)| r <- b1, c <- b2 ] | b1 <- blocks, b2 <- blocks ]
 
-nrcConstrnt :: Constrnt
-nrcConstrnt = [[(r,c)| r <- b1, c <- b2 ] | b1 <- nrcBlocks, b2 <- nrcBlocks ]
-
 -- All constraint that should be met
 allConstrnts :: Constrnt
-allConstrnts = rowConstrnt ++ columnConstrnt ++ blockConstrnt ++ nrcConstrnt
+allConstrnts = rowConstrnt ++ columnConstrnt ++ blockConstrnt
 
 -- Give the constraints that apply to a given position
 positionConstrns :: Position -> Constrnt
@@ -200,6 +194,61 @@ solveAndShow gr = solveShowNs (initNode gr)
 solveShowNs :: [Node] -> IO[()]
 solveShowNs = sequence . fmap showNode . solveNs
 
+example1 :: Grid
+example1 = [[5,3,0,0,7,0,0,0,0],
+            [6,0,0,1,9,5,0,0,0],
+            [0,9,8,0,0,0,0,6,0],
+            [8,0,0,0,6,0,0,0,3],
+            [4,0,0,8,0,3,0,0,1],
+            [7,0,0,0,2,0,0,0,6],
+            [0,6,0,0,0,0,2,8,0],
+            [0,0,0,4,1,9,0,0,5],
+            [0,0,0,0,8,0,0,7,9]]
+
+example2 :: Grid
+example2 = [[0,3,0,0,7,0,0,0,0],
+            [6,0,0,1,9,5,0,0,0],
+            [0,9,8,0,0,0,0,6,0],
+            [8,0,0,0,6,0,0,0,3],
+            [4,0,0,8,0,3,0,0,1],
+            [7,0,0,0,2,0,0,0,6],
+            [0,6,0,0,0,0,2,8,0],
+            [0,0,0,4,1,9,0,0,5],
+            [0,0,0,0,8,0,0,7,9]]
+
+example3 :: Grid
+example3 = [[1,0,0,0,3,0,5,0,4],
+            [0,0,0,0,0,0,0,0,3],
+            [0,0,2,0,0,5,0,9,8], 
+            [0,0,9,0,0,0,0,3,0],
+            [2,0,0,0,0,0,0,0,7],
+            [8,0,3,0,9,1,0,6,0],
+            [0,5,1,4,7,0,0,0,0],
+            [0,0,0,3,0,0,0,0,0],
+            [0,4,0,0,0,9,7,0,0]]
+
+example4 :: Grid
+example4 = [[1,2,3,4,5,6,7,8,9],
+            [2,0,0,0,0,0,0,0,0],
+            [3,0,0,0,0,0,0,0,0],
+            [4,0,0,0,0,0,0,0,0],
+            [5,0,0,0,0,0,0,0,0],
+            [6,0,0,0,0,0,0,0,0],
+            [7,0,0,0,0,0,0,0,0],
+            [8,0,0,0,0,0,0,0,0],
+            [9,0,0,0,0,0,0,0,0]]
+
+example5 :: Grid
+example5 = [[1,0,0,0,0,0,0,0,0],
+            [0,2,0,0,0,0,0,0,0],
+            [0,0,3,0,0,0,0,0,0],
+            [0,0,0,4,0,0,0,0,0],
+            [0,0,0,0,5,0,0,0,0],
+            [0,0,0,0,0,6,0,0,0],
+            [0,0,0,0,0,0,7,0,0],
+            [0,0,0,0,0,0,0,8,0],
+            [0,0,0,0,0,0,0,0,9]]
+
 emptyN :: Node
 emptyN = (\ _ -> 0,constraints (\ _ -> 0))
 
@@ -289,18 +338,8 @@ genProblem n = do ys <- randomize xs
                   return (minimalize n ys)
    where xs = filledPositions (fst n)
 
-exercise1 :: Grid
-exercise1 = [[0,0,0,3,0,0,0,0,0],
-            [0,0,0,7,0,0,3,0,0],
-            [2,0,0,0,0,0,0,0,8],
-            [0,0,6,0,0,5,0,0,0],
-            [0,9,1,6,0,0,0,0,0],
-            [3,0,0,0,7,1,2,0,0],
-            [0,0,0,0,0,0,0,3,1],
-            [0,8,0,0,4,0,0,0,0],
-            [0,0,2,0,0,0,0,0,0]]
-
-main :: IO[()]
-main = do 
-    showGrid exercise1
-    solveAndShow exercise1
+main :: IO ()
+main = do [r] <- rsolveNs [emptyN]
+          showNode r
+          s  <- genProblem r
+          showNode s
