@@ -92,21 +92,21 @@ showSudoku = showGrid . sud2grid
 -- determine the possible values for a position.
 freeAtPos :: Sudoku -> Position -> Constrnt -> [Value]
 freeAtPos s p xs = let 
-   ys = filter (elem p) xs -- Filter out any constraint that does is not valid for the position
+   ys = filter (elem p) xs -- Filter out any constraint that is not valid for the position
  in 
    foldl1 intersect (map ((values \\) . map s) ys)
 
 injective :: Eq a => [a] -> Bool
 injective xs = nub xs == xs
 
--- Does the injective hold for the given positions?
+-- Does the injective hold for the given position and constraint?
 constrntInjective :: Sudoku -> [Position] -> Bool
 constrntInjective s sg = injective vs where 
    vs = filter (/= 0) (map s sg)
 
 -- A valid solution should satisfy all constraints
 consistent :: Sudoku -> Bool
-consistent s = and [ constrntInjective s sg | sg <- allConstrnts ]
+consistent s = and (map (constrntInjective s) allConstrnts)
 
 extend :: Sudoku -> (Position,Value) -> Sudoku
 extend = update
@@ -133,15 +133,11 @@ extendNode (s,constraints) (r,c,vs) =
 prune :: (Row,Column,Value) -> [Constraint] -> [Constraint]
 prune _ [] = []
 prune (r,c,v) ((x,y,zs):rest)
-  | sameblock (r,c) (x,y) = 
-        (x,y,zs\\[v]) : prune (r,c,v) rest
-  | otherwise = (x,y,zs) : prune (r,c,v) rest
+  | sameConstraint (r,c) (x,y) = (x,y,zs\\[v]) : prune (r,c,v) rest
+  | otherwise                  = (x,y,zs) : prune (r,c,v) rest
 
-subGrids :: Position -> [[Position]]
-subGrids p = filter (elem p) allConstrnts
-
-sameblock :: Position -> Position -> Bool
-sameblock pos1 pos2 = subGrids pos1 `intersect` subGrids pos2 /= []
+sameConstraint :: Position -> Position -> Bool
+sameConstraint p1 p2 = positionConstrns p1 `intersect` positionConstrns p2 /= []
 
 initNode :: Grid -> [Node]
 initNode gr = let s = grid2sud gr in 
