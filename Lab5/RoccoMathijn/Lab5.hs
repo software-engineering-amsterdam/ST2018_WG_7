@@ -22,6 +22,10 @@ Deliverables: modified Sudoku solver, solution to the above puzzle, indication o
 time spent.
 -}
 
+{-
+Time spend: 3 hours
+-}
+
 exercise1 :: Grid
 exercise1 = [[0,0,0,3,0,0,0,0,0],
              [0,0,0,7,0,0,3,0,0],
