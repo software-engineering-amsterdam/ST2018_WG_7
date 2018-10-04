@@ -187,13 +187,10 @@ infixr 5 @@
 (@@) :: Eq a => Rel a -> Rel a -> Rel a
 r @@ s = nub [ (x,z) | (x,y) <- r, (w,z) <- s, y == w ]
 
--- Transitive transformation
-tr :: Ord a => Rel a -> Rel a
-tr r = sort (nub ((r @@ r) ++ r))
-
 -- Transitive closure
 trClos :: Ord a => Rel a -> Rel a
 trClos r = until (\s -> tr s == s) tr r
+    where tr r = sort (nub ((r @@ r) ++ r))
 
 testAssignment6 = do
     putStrLn "\n--== Transitive Closure ==--"
