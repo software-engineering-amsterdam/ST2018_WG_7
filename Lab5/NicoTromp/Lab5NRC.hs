@@ -45,7 +45,7 @@ showRow [a1,a2,a3,a4,a5,a6,a7,a8,a9] =
 
 showGrid :: Grid -> IO()
 showGrid [as,bs,cs,ds,es,fs,gs,hs,is] =
- do putStrLn ("+---------+-------+-------+")
+ do putStrLn ("+---------+-------+-----+")
     showRow as; showRow bs; showRow cs
     putStrLn ("+-------+-------+-------+")
     showRow ds; showRow es; showRow fs
@@ -329,4 +329,5 @@ exercise1 = [[0,0,0,3,0,0,0,0,0],
 
 main :: IO[()]
 main = do 
+    showGrid exercise1
     solveAndShow exercise1
