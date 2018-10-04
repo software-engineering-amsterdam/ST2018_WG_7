@@ -6,6 +6,7 @@ import System.Random
 {-
 'Refactoring' is done by copying existing functions and changing them to handle the extra NRC constraints.
 These functions have NRC as prefix added to there names.
+Time spent: 2:00
 -}
 
 type Row    = Int 
