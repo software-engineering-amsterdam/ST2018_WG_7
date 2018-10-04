@@ -2,11 +2,12 @@ module Lab5 where
 
 import Data.List
 import System.Random
+import Text.Printf
 
 {-
 'Refactoring' is done by copying existing functions and changing them to handle the extra NRC constraints.
 These functions have NRC as prefix added to there names.
-Time spent: 2:00
+Time spent: 2:00 and 0:30 for adding ASCII art table.
 -}
 
 type Row    = Int 
@@ -28,31 +29,47 @@ showVal :: Value -> String
 showVal 0 = " "
 showVal d = show d
 
-showRow :: [Value] -> IO()
-showRow [a1,a2,a3,a4,a5,a6,a7,a8,a9] = 
+type Markers = [String]
+empty :: Markers
+empty = ["   ","   ","   ","   "]
+bars :: Markers
+bars = [" | "," | "," | "," | "]
+
+showRow :: [Value] -> Markers -> IO()
+showRow [a1,a2,a3,a4,a5,a6,a7,a8,a9] ms = 
  do  putChar '|'         ; putChar ' '
-     putStr (showVal a1) ; putChar ' '
+     putStr (showVal a1) ; putStr (ms !! 0)
      putStr (showVal a2) ; putChar ' '
      putStr (showVal a3) ; putChar ' '
      putChar '|'         ; putChar ' '
-     putStr (showVal a4) ; putChar ' '
-     putStr (showVal a5) ; putChar ' '
+     putStr (showVal a4) ; putStr (ms !! 1)
+     putStr (showVal a5) ; putStr (ms !! 2)
      putStr (showVal a6) ; putChar ' '
      putChar '|'         ; putChar ' '
      putStr (showVal a7) ; putChar ' '
-     putStr (showVal a8) ; putChar ' '
+     putStr (showVal a8) ; putStr (ms !! 3)
      putStr (showVal a9) ; putChar ' '
      putChar '|'         ; putChar '\n'
 
 showGrid :: Grid -> IO()
 showGrid [as,bs,cs,ds,es,fs,gs,hs,is] =
- do putStrLn ("+---------+-------+-----+")
-    showRow as; showRow bs; showRow cs
-    putStrLn ("+-------+-------+-------+")
-    showRow ds; showRow es; showRow fs
-    putStrLn ("+-------+-------+-------+")
-    showRow gs; showRow hs; showRow is
-    putStrLn ("+-------+-------+-------+")
+ do putStrLn ("+---------+-----+-----+---------+")
+    showRow as empty
+    putStrLn ("|   +-----+---+   +---+-----+   |")
+    showRow bs bars
+    showRow cs bars
+    putStrLn ("+---+-----+---+---+---+-----+---+")
+    showRow ds bars
+    putStrLn ("|   +-----+---+   +---+-----+   |")
+    showRow es empty
+    putStrLn ("|   +-----+---+   +---+-----+   |")
+    showRow fs bars
+    putStrLn ("+---+-----+---+---+---+-----+---+")
+    showRow gs bars
+    showRow hs bars
+    putStrLn ("|   +-----+---+   +---+-----+   |")
+    showRow is empty
+    putStrLn ("+---------+-----------+---------+")
 
 type Sudoku = (Row,Column) -> Value
 
