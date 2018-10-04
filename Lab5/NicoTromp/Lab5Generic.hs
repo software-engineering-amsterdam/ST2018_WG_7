@@ -19,6 +19,7 @@ values    = [1..9]
 
 blocks :: [[Int]]
 blocks = [[1..3],[4..6],[7..9]]
+
 nrcBlocks :: [[Int]]
 nrcBlocks = [[2..4],[6..8]]
 
@@ -30,7 +31,17 @@ columnConstrnt = [[(r,c)| r <- values ] | c <- values ]
 
 blockConstrnt :: Constrnt
 blockConstrnt = [[(r,c)| r <- b1, c <- b2 ] | b1 <- blocks, b2 <- blocks ]
-                ++ [[(r,c)| r <- b1, c <- b2 ] | b1 <- nrcBlocks, b2 <- nrcBlocks ]
+
+nrcConstrnt :: Constrnt
+nrcConstrnt = [[(r,c)| r <- b1, c <- b2 ] | b1 <- nrcBlocks, b2 <- nrcBlocks ]
+
+-- All constraint that should be met
+allConstrnts :: Constrnt
+allConstrnts = rowConstrnt ++ columnConstrnt ++ blockConstrnt ++ nrcConstrnt
+
+-- Give the constraints that apply to a given position
+positionConstrns :: Position -> Constrnt
+positionConstrns p = filter (elem p) allConstrnts
 
 showVal :: Value -> String
 showVal 0 = " "
@@ -77,34 +88,25 @@ grid2sud gr = \ (r,c) -> pos gr (r,c)
 showSudoku :: Sudoku -> IO()
 showSudoku = showGrid . sud2grid
 
+-- Given a partially solved sudoku and the list of constraints
+-- determine the possible values for a position.
 freeAtPos :: Sudoku -> Position -> Constrnt -> [Value]
-freeAtPos s (r,c) xs = let 
-   ys = filter (elem (r,c)) xs 
+freeAtPos s p xs = let 
+   ys = filter (elem p) xs -- Filter out any constraint that does is not valid for the position
  in 
    foldl1 intersect (map ((values \\) . map s) ys)
 
 injective :: Eq a => [a] -> Bool
 injective xs = nub xs == xs
 
-rowInjective :: Sudoku -> Row -> Bool
-rowInjective s r = injective vs where 
-   vs = filter (/= 0) [ s (r,i) | i <- positions ]
-
-colInjective :: Sudoku -> Column -> Bool
-colInjective s c = injective vs where 
-   vs = filter (/= 0) [ s (i,c) | i <- positions ]
-
-subgridInjective :: Sudoku -> [Position] -> Bool
-subgridInjective s sg = injective vs where 
+-- Does the injective hold for the given positions?
+constrntInjective :: Sudoku -> [Position] -> Bool
+constrntInjective s sg = injective vs where 
    vs = filter (/= 0) (map s sg)
 
+-- A valid solution should satisfy all constraints
 consistent :: Sudoku -> Bool
-consistent s = and $
-               [ rowInjective s r |  r <- positions ]
-                ++
-               [ colInjective s c |  c <- positions ]
-                ++
-               [ subgridInjective s sg | sg <- blockConstrnt ]
+consistent s = and [ constrntInjective s sg | sg <- allConstrnts ]
 
 extend :: Sudoku -> (Position,Value) -> Sudoku
 extend = update
@@ -128,18 +130,15 @@ extendNode (s,constraints) (r,c,vs) =
      sortBy length3rd $ 
          prune (r,c,v) constraints) | v <- vs ]
 
-prune :: (Row,Column,Value) 
-      -> [Constraint] -> [Constraint]
+prune :: (Row,Column,Value) -> [Constraint] -> [Constraint]
 prune _ [] = []
 prune (r,c,v) ((x,y,zs):rest)
-  | r == x = (x,y,zs\\[v]) : prune (r,c,v) rest
-  | c == y = (x,y,zs\\[v]) : prune (r,c,v) rest
   | sameblock (r,c) (x,y) = 
         (x,y,zs\\[v]) : prune (r,c,v) rest
   | otherwise = (x,y,zs) : prune (r,c,v) rest
 
 subGrids :: Position -> [[Position]]
-subGrids pos = filter (elem pos) blockConstrnt
+subGrids p = filter (elem p) allConstrnts
 
 sameblock :: Position -> Position -> Bool
 sameblock pos1 pos2 = subGrids pos1 `intersect` subGrids pos2 /= []
@@ -159,7 +158,7 @@ length3rd (_,_,zs) (_,_,zs') = compare (length zs) (length zs')
 
 constraints :: Sudoku -> [Constraint] 
 constraints s = sortBy length3rd 
-    [(r,c, freeAtPos s (r,c) (rowConstrnt ++ columnConstrnt ++ blockConstrnt)) | 
+    [(r,c, freeAtPos s (r,c) allConstrnts) | 
                        (r,c) <- openPositions s ]
 
 data Tree a = T a [Tree a] deriving (Eq,Ord,Show)
