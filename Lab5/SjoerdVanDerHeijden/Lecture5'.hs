@@ -16,7 +16,10 @@ positions = [1..9]
 values    = [1..9] 
 
 blocks :: [[Int]]
-blocks = [[1..3],[4..6],[7..9],[2..4],[6..8]]
+blocks = [[1..3],[4..6],[7..9]]
+
+nrcBlocks :: [[Int]]
+nrcBlocks = [[2..4],[6..8]]
 
 showVal :: Value -> String
 showVal 0 = " "
@@ -63,12 +66,13 @@ grid2sud gr = \ (r,c) -> pos gr (r,c)
 showSudoku :: Sudoku -> IO()
 showSudoku = showGrid . sud2grid
 
-bl :: Int -> [Int]
-bl x = concat $ filter (elem x) blocks 
+bl :: Int -> [[Int]]
+bl x = [(concat $ filter (elem x) blocks), (concat $ filter (elem x) nrcBlocks)]
 
-subGrid :: Sudoku -> (Row,Column) -> [Value]
+subGrid :: Sudoku -> (Row,Column) -> [[Value]]
 subGrid s (r,c) = 
-  [ s (r',c') | r' <- bl r, c' <- bl c ]
+  [ [s (r',c') | r' <- row, c' <-column] | row <- bl r, column <- bl c ]
+  -- [ s (r',c') | r' <- bl r, c' <- bl c ]
 
 freeInSeq :: [Value] -> [Value]
 freeInSeq seq = values \\ seq 
@@ -149,14 +153,10 @@ prune (r,c,v) ((x,y,zs):rest)
 sameblock :: (Row,Column) -> (Row,Column) -> Bool
 sameblock (r,c) (x,y) = bl r == bl x && bl c == bl y 
 
--- initNode :: Grid -> [Node]
--- initNode gr = let s = grid2sud gr in 
---               if (not . consistent) s then [] 
---               else [(s, constraints s)]
-
 initNode :: Grid -> [Node]
 initNode gr = let s = grid2sud gr in 
-              [(s, constraints s)]
+              if (not . consistent) s then [] 
+              else [(s, constraints s)]
 
 openPositions :: Sudoku -> [(Row,Column)]
 openPositions s = [ (r,c) | r <- positions,  
