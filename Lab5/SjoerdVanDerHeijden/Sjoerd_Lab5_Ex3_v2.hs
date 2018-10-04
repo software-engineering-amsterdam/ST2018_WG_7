@@ -6,7 +6,7 @@ where
 import Data.List
 import System.Random
 
--- This code builds directly on lecture5.hs code, only Ex3 is new
+-- This code builds directly on lecture5.hs code, only Ex3 is new. Therefore it considers regular sudokus
 
 
 -- Ex 3

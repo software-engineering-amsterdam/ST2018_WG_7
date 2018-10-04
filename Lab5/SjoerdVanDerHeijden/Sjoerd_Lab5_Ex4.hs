@@ -1,97 +1,16 @@
 
-module Sjoerd_Lab5_Ex5
+module Sjoerd_Lab5_Ex4
 
 where 
 
 import Data.List
 import System.Random
 
-import Test.QuickCheck
-import Test.QuickCheck.Monadic
-
--- This code builds on Sjoerd_Lab5_Ex2, therefore it considers NRC sudokus.
-
--- Ex 5:
-copyOfMain :: IO ()
-copyOfMain = do 
-          [r] <- rsolveNs [emptyN]
-          showNode r
-          s  <- genProblem r
-          showNode s
--- This code is just a copy of main. All the code required was already present thanks to ex2.
--- Time: 10min
-
--- Ex3, but for nrc sudokus:
-nrcMinimalTester :: IO Bool
-nrcMinimalTester = do 
-            [r] <- rsolveNs [emptyN]
-            s <- (genProblem r)
-            ys <- randomize (filledPositions (fst r))
-            let mybool = sud2grid(fst(minimalize s ys)) == sud2grid(fst s) 
-                      && uniqueSol s -- Takes 4 minutes to complete...
-
-            return mybool
--- Time: 30min
-
--- Ex2:
-nrcBlocks :: [[Int]]
-nrcBlocks = [[2..4],[6..8]]
-
-blockCoords :: [(Int,Int)]
-blockCoords = [(r,c) | r <- [1,4,7], c <- [1,4,7]] ++ [(r,c) | r <- [2,6], c <- [2,6]]
-
-bl :: Int -> [[Int]]
-bl x = [(concat $ filter (elem x) blocks), (concat $ filter (elem x) nrcBlocks)]
-
-subGrid :: Sudoku -> (Row,Column) -> [[Value]]
-subGrid s (r,c) = 
-  [ [s (r',c') | r' <- (bl r)!!i, c' <- (bl c)!!i] 
-  | i <- [0.. length(bl r)-1 ] ]
-
-allIntersect :: [[Int]] -> [Int]
-allIntersect mygrids = [ x | x <- [1..9], all (elem x) (filter (/=[]) mygrids)]
-
-freeInSubgrid :: Sudoku -> (Row,Column) -> [Value]
-freeInSubgrid s (r,c) = allIntersect (map freeInSeq (subGrid s (r,c)))
-
-subgridInjective :: Sudoku -> (Row,Column) -> Bool
-subgridInjective s (r,c) = and [injective v | v <- vs ] where 
-   vs = [filter (/= 0) subg | subg <- (subGrid s (r,c))]
-
-sameblock :: (Row,Column) -> (Row,Column) -> Bool
-sameblock (r,c) (x,y) = or [subgr!!i == subgx!!i && subgc!!i == subgy!!i | i <- [0..length subgr -1] ] 
-  where subgr = bl r
-        subgc = bl c
-        subgx = bl x
-        subgy = bl y
+-- This file buils on Lecture5 code, so it considers regular sudokus
 
 
-nrcblockConstrnt = [[(r,c)| r <- b1, c <- b2 ] | b1 <- nrcBlocks, b2 <- nrcBlocks ]
-allConstrnt = [rowConstrnt, columnConstrnt, blockConstrnt, nrcblockConstrnt] 
-
-constraints :: Sudoku -> [Constraint] 
-constraints s = sortBy length3rd 
-    [(r,c, freeAtPosForAllConstr s (r,c)) | 
-                       (r,c) <- openPositions s ]
-
-freeAtPosForAllConstr :: Sudoku -> Position -> [Value]
-freeAtPosForAllConstr s (r,c) = allIntersect [freeAtPos' s (r,c) xs | xs <- allConstrnt ]
-
--- Lab5.htm code
-type Position = (Row,Column)
-type Constrnt = [[Position]]
-
-rowConstrnt = [[(r,c)| c <- values ] | r <- values ]
-columnConstrnt = [[(r,c)| r <- values ] | c <- values ]
-blockConstrnt = [[(r,c)| r <- b1, c <- b2 ] | b1 <- blocks, b2 <- blocks ]
-
-freeAtPos' :: Sudoku -> Position -> Constrnt -> [Value]
-freeAtPos' s (r,c) xs | ys == [] = [1..9]
-                      | otherwise = foldl1 intersect (map ((values \\) . map s) ys)
-                       where ys = filter (elem (r,c)) xs  
 
 
--- Lecture5 code
 type Row    = Int 
 type Column = Int 
 type Value  = Int
@@ -149,12 +68,12 @@ grid2sud gr = \ (r,c) -> pos gr (r,c)
 showSudoku :: Sudoku -> IO()
 showSudoku = showGrid . sud2grid
 
--- bl :: Int -> [Int]
--- bl x = concat $ filter (elem x) blocks 
+bl :: Int -> [Int]
+bl x = concat $ filter (elem x) blocks 
 
--- subGrid :: Sudoku -> (Row,Column) -> [Value]
--- subGrid s (r,c) = 
---   [ s (r',c') | r' <- bl r, c' <- bl c ]
+subGrid :: Sudoku -> (Row,Column) -> [Value]
+subGrid s (r,c) = 
+  [ s (r',c') | r' <- bl r, c' <- bl c ]
 
 freeInSeq :: [Value] -> [Value]
 freeInSeq seq = values \\ seq 
@@ -167,8 +86,8 @@ freeInColumn :: Sudoku -> Column -> [Value]
 freeInColumn s c = 
   freeInSeq [ s (i,c) | i <- positions ]
 
--- freeInSubgrid :: Sudoku -> (Row,Column) -> [Value]
--- freeInSubgrid s (r,c) = freeInSeq (subGrid s (r,c))
+freeInSubgrid :: Sudoku -> (Row,Column) -> [Value]
+freeInSubgrid s (r,c) = freeInSeq (subGrid s (r,c))
 
 freeAtPos :: Sudoku -> (Row,Column) -> [Value]
 freeAtPos s (r,c) = 
@@ -187,9 +106,9 @@ colInjective :: Sudoku -> Column -> Bool
 colInjective s c = injective vs where 
    vs = filter (/= 0) [ s (i,c) | i <- positions ]
 
--- subgridInjective :: Sudoku -> (Row,Column) -> Bool
--- subgridInjective s (r,c) = injective vs where 
---    vs = filter (/= 0) (subGrid s (r,c))
+subgridInjective :: Sudoku -> (Row,Column) -> Bool
+subgridInjective s (r,c) = injective vs where 
+   vs = filter (/= 0) (subGrid s (r,c))
 
 consistent :: Sudoku -> Bool
 consistent s = and $
@@ -232,8 +151,8 @@ prune (r,c,v) ((x,y,zs):rest)
         (x,y,zs\\[v]) : prune (r,c,v) rest
   | otherwise = (x,y,zs) : prune (r,c,v) rest
 
--- sameblock :: (Row,Column) -> (Row,Column) -> Bool
--- sameblock (r,c) (x,y) = bl r == bl x && bl c == bl y 
+sameblock :: (Row,Column) -> (Row,Column) -> Bool
+sameblock (r,c) (x,y) = bl r == bl x && bl c == bl y 
 
 initNode :: Grid -> [Node]
 initNode gr = let s = grid2sud gr in 
@@ -248,10 +167,10 @@ openPositions s = [ (r,c) | r <- positions,
 length3rd :: (a,b,[c]) -> (a,b,[c]) -> Ordering
 length3rd (_,_,zs) (_,_,zs') = compare (length zs) (length zs')
 
--- constraints :: Sudoku -> [Constraint] 
--- constraints s = sortBy length3rd 
---     [(r,c, freeAtPos s (r,c)) | 
---                        (r,c) <- openPositions s ]
+constraints :: Sudoku -> [Constraint] 
+constraints s = sortBy length3rd 
+    [(r,c, freeAtPos s (r,c)) | 
+                       (r,c) <- openPositions s ]
 
 data Tree a = T a [Tree a] deriving (Eq,Ord,Show)
 
@@ -433,10 +352,9 @@ genProblem n = do ys <- randomize xs
                   return (minimalize n ys)
    where xs = filledPositions (fst n)
 
--- main :: IO ()
--- main = do 
---           [r] <- rsolveNs [emptyN]
---           showNode r
---           s  <- genProblem r
---           showNode s
+main :: IO ()
+main = do [r] <- rsolveNs [emptyN]
+          showNode r
+          s  <- genProblem r
+          showNode s
 

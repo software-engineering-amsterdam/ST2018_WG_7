@@ -3,9 +3,8 @@ module Sjoerd_Lab5 where
 import Data.List
 import Test.QuickCheck
 
--- import Lecture5'
 import Sjoerd_Lab5_Ex1
-import Sjoerd_Lab5_Ex2
+-- import Sjoerd_Lab5_Ex2
 import Sjoerd_Lab5_Ex3_v2
 import Sjoerd_Lab5_Ex5
 
@@ -64,7 +63,7 @@ execEx1 = do
 -- == Assignment 2 == --
 
 execEx2 = do
-    Sjoerd_Lab5_Ex2.solveAndShow exercise1
+    Sjoerd_Lab5_Ex5.solveAndShow exercise1
 
 
 -------------------------------------------------------------------------------
