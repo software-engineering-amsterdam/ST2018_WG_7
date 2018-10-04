@@ -6,6 +6,13 @@ where
 import Data.List
 import System.Random
 
+{-
+Refactored in such a way that there is no notion anymore of row-, column- or grid-constraints.
+All the constraints have been incorporated into a single list of positions to which the injective
+function should apply.
+Time spent: 3:00
+-}
+
 type Row    = Int 
 type Column = Int 
 type Value  = Int
