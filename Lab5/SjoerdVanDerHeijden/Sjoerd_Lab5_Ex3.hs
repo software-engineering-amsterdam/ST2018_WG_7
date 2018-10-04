@@ -1,18 +1,48 @@
 
-module Sjoerd_Lab5_Ex2
+module Sjoerd_Lab5_Ex3
 
 where 
 
 import Data.List
 import System.Random
 
+import Test.QuickCheck
+import Test.QuickCheck.Monadic
+
+
+exercise1 :: Grid
+exercise1 = [[0,0,0,3,0,0,0,0,0],
+             [0,0,0,7,0,0,3,0,0],
+             [2,0,0,0,0,0,0,0,8],
+             [0,0,6,0,0,5,0,0,0],
+             [0,9,1,6,0,0,0,0,0],
+             [3,0,0,0,7,1,2,0,0],
+             [0,0,0,0,0,0,0,3,1],
+             [0,8,0,0,4,0,0,0,0],
+             [0,0,2,0,0,0,0,0,0]]
+
+
 
 -- My own code:
+-- Ex3:
+
+minimalTester :: IO Bool
+minimalTester = do 
+            [r] <- rsolveNs [emptyN]
+            s <- (genProblem r)
+            ys <- randomize (filledPositions (fst r))
+            let mybool = sud2grid(fst(minimalize s ys)) == sud2grid(fst s) 
+                      && uniqueSol s -- Takes 4 minutes to complete...
+
+            return mybool
+
+
+-- Ex2:
 nrcBlocks :: [[Int]]
 nrcBlocks = [[2..4],[6..8]]
 
--- blockCoords :: [(Int,Int)]
--- blockCoords = [(r,c) | r <- [1,4,7], c <- [1,4,7]] ++ [(r,c) | r <- [2,6], c <- [2,6]]
+blockCoords :: [(Int,Int)]
+blockCoords = [(r,c) | r <- [1,4,7], c <- [1,4,7]] ++ [(r,c) | r <- [2,6], c <- [2,6]]
 
 bl :: Int -> [[Int]]
 bl x = [(concat $ filter (elem x) blocks), (concat $ filter (elem x) nrcBlocks)]
@@ -408,7 +438,9 @@ genProblem n = do ys <- randomize xs
    where xs = filledPositions (fst n)
 
 -- main :: IO ()
--- main = do [r] <- rsolveNs [emptyN]
+-- main = do 
+--           [r] <- rsolveNs [emptyN]
 --           showNode r
 --           s  <- genProblem r
 --           showNode s
+
