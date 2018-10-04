@@ -21,7 +21,7 @@ time spent.
 -}
 
 {-
-Time spend: 3 hours
+Time spend: 3,5 hours
 -}
 
 type Row    = Int 
