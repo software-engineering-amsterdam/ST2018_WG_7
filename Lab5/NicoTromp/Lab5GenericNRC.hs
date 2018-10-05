@@ -7,7 +7,9 @@ import Data.List
 import System.Random
 
 {-
-All the hard work was already doen for exercise 2. Including the extra NRC constraints.
+All the hard work was originally already done for exercise 2.
+Just needed to add the NRC constraints.
+
 Time spent: 0:05
 -}
 
@@ -104,10 +106,10 @@ freeAtPos s p xs = let
 injective :: Eq a => [a] -> Bool
 injective xs = nub xs == xs
 
--- Does the injective hold for the given position and constraint?
+-- Does the injective hold for the given positions?
 constrntInjective :: Sudoku -> [Position] -> Bool
-constrntInjective s sg = injective vs where 
-   vs = filter (/= 0) (map s sg)
+constrntInjective s ps = injective vs where 
+   vs = filter (/= 0) (map s ps)
 
 -- A valid solution should satisfy all constraints
 consistent :: Sudoku -> Bool
@@ -141,6 +143,7 @@ prune (r,c,v) ((x,y,zs):rest)
   | sameConstraint (r,c) (x,y) = (x,y,zs\\[v]) : prune (r,c,v) rest
   | otherwise                  = (x,y,zs) : prune (r,c,v) rest
 
+-- Given any two positions, is there at least one constraint that applies to both?
 sameConstraint :: Position -> Position -> Bool
 sameConstraint p1 p2 = positionConstrns p1 `intersect` positionConstrns p2 /= []
 
@@ -159,8 +162,7 @@ length3rd (_,_,zs) (_,_,zs') = compare (length zs) (length zs')
 
 constraints :: Sudoku -> [Constraint] 
 constraints s = sortBy length3rd 
-    [(r,c, freeAtPos s (r,c) allConstrnts) | 
-                       (r,c) <- openPositions s ]
+    [(r,c, freeAtPos s (r,c) allConstrnts) | (r,c) <- openPositions s ]
 
 data Tree a = T a [Tree a] deriving (Eq,Ord,Show)
 

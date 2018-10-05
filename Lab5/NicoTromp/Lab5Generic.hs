@@ -8,8 +8,10 @@ import System.Random
 
 {-
 Refactored in such a way that there is no notion anymore of row-, column- or grid-constraints.
-All the constraints have been incorporated into a single list of positions to which the injective
-function should apply.
+A constraint can be defined as a list of 9 position for which the injective function must apply.
+Therefore there is nomore any difference between a row-, column-, or gridconstraint. As long
+as the list of constraints holds the corresponding positions they will be applied.
+
 Time spent: 3:00
 -}
 
@@ -93,17 +95,17 @@ showSudoku = showGrid . sud2grid
 -- determine the possible values for a position.
 freeAtPos :: Sudoku -> Position -> Constrnt -> [Value]
 freeAtPos s p xs = let 
-   ys = filter (elem p) xs -- Filter out any constraint that is not valid for the position
+   ys = positionConstrns p -- Filter out any constraint that is not valid for the position
  in 
    foldl1 intersect (map ((values \\) . map s) ys)
 
 injective :: Eq a => [a] -> Bool
 injective xs = nub xs == xs
 
--- Does the injective hold for the given position and constraint?
+-- Does the injective hold for the given positions?
 constrntInjective :: Sudoku -> [Position] -> Bool
-constrntInjective s sg = injective vs where 
-   vs = filter (/= 0) (map s sg)
+constrntInjective s ps = injective vs where 
+   vs = filter (/= 0) (map s ps)
 
 -- A valid solution should satisfy all constraints
 consistent :: Sudoku -> Bool
@@ -137,6 +139,7 @@ prune (r,c,v) ((x,y,zs):rest)
   | sameConstraint (r,c) (x,y) = (x,y,zs\\[v]) : prune (r,c,v) rest
   | otherwise                  = (x,y,zs) : prune (r,c,v) rest
 
+-- Given any two positions, is there at least one constraint that applies to both?
 sameConstraint :: Position -> Position -> Bool
 sameConstraint p1 p2 = positionConstrns p1 `intersect` positionConstrns p2 /= []
 
@@ -155,8 +158,7 @@ length3rd (_,_,zs) (_,_,zs') = compare (length zs) (length zs')
 
 constraints :: Sudoku -> [Constraint] 
 constraints s = sortBy length3rd 
-    [(r,c, freeAtPos s (r,c) allConstrnts) | 
-                       (r,c) <- openPositions s ]
+    [(r,c, freeAtPos s (r,c) allConstrnts) | (r,c) <- openPositions s ]
 
 data Tree a = T a [Tree a] deriving (Eq,Ord,Show)
 
