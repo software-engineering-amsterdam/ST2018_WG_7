@@ -95,7 +95,7 @@ showSudoku = showGrid . sud2grid
 -- determine the possible values for a position.
 freeAtPos :: Sudoku -> Position -> Constrnt -> [Value]
 freeAtPos s p xs = let 
-   ys = positionConstrns p -- Filter out any constraint that is not valid for the position
+   ys = filter (elem p) xs -- Filter out any constraint that is not valid for the position
  in 
    foldl1 intersect (map ((values \\) . map s) ys)
 
