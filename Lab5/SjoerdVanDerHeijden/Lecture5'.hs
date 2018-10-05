@@ -16,7 +16,7 @@ positions = [1..9]
 values    = [1..9] 
 
 blocks :: [[Int]]
-blocks = [[1..3],[4..6],[7..9],[2..4],[6..8]]
+blocks = [[1..3],[4..6],[7..9]]
 
 showVal :: Value -> String
 showVal 0 = " "
@@ -63,12 +63,12 @@ grid2sud gr = \ (r,c) -> pos gr (r,c)
 showSudoku :: Sudoku -> IO()
 showSudoku = showGrid . sud2grid
 
-bl :: Int -> [Int]
-bl x = concat $ filter (elem x) blocks 
+-- bl :: Int -> [Int]
+-- bl x = concat $ filter (elem x) blocks 
 
-subGrid :: Sudoku -> (Row,Column) -> [Value]
-subGrid s (r,c) = 
-  [ s (r',c') | r' <- bl r, c' <- bl c ]
+-- subGrid :: Sudoku -> (Row,Column) -> [Value]
+-- subGrid s (r,c) = 
+--   [ s (r',c') | r' <- bl r, c' <- bl c ]
 
 freeInSeq :: [Value] -> [Value]
 freeInSeq seq = values \\ seq 
@@ -81,8 +81,8 @@ freeInColumn :: Sudoku -> Column -> [Value]
 freeInColumn s c = 
   freeInSeq [ s (i,c) | i <- positions ]
 
-freeInSubgrid :: Sudoku -> (Row,Column) -> [Value]
-freeInSubgrid s (r,c) = freeInSeq (subGrid s (r,c))
+-- freeInSubgrid :: Sudoku -> (Row,Column) -> [Value]
+-- freeInSubgrid s (r,c) = freeInSeq (subGrid s (r,c))
 
 freeAtPos :: Sudoku -> (Row,Column) -> [Value]
 freeAtPos s (r,c) = 
@@ -101,9 +101,9 @@ colInjective :: Sudoku -> Column -> Bool
 colInjective s c = injective vs where 
    vs = filter (/= 0) [ s (i,c) | i <- positions ]
 
-subgridInjective :: Sudoku -> (Row,Column) -> Bool
-subgridInjective s (r,c) = injective vs where 
-   vs = filter (/= 0) (subGrid s (r,c))
+-- subgridInjective :: Sudoku -> (Row,Column) -> Bool
+-- subgridInjective s (r,c) = injective vs where 
+--    vs = filter (/= 0) (subGrid s (r,c))
 
 consistent :: Sudoku -> Bool
 consistent s = and $
@@ -146,17 +146,13 @@ prune (r,c,v) ((x,y,zs):rest)
         (x,y,zs\\[v]) : prune (r,c,v) rest
   | otherwise = (x,y,zs) : prune (r,c,v) rest
 
-sameblock :: (Row,Column) -> (Row,Column) -> Bool
-sameblock (r,c) (x,y) = bl r == bl x && bl c == bl y 
-
--- initNode :: Grid -> [Node]
--- initNode gr = let s = grid2sud gr in 
---               if (not . consistent) s then [] 
---               else [(s, constraints s)]
+-- sameblock :: (Row,Column) -> (Row,Column) -> Bool
+-- sameblock (r,c) (x,y) = bl r == bl x && bl c == bl y 
 
 initNode :: Grid -> [Node]
 initNode gr = let s = grid2sud gr in 
-              [(s, constraints s)]
+              if (not . consistent) s then [] 
+              else [(s, constraints s)]
 
 openPositions :: Sudoku -> [(Row,Column)]
 openPositions s = [ (r,c) | r <- positions,  
@@ -166,10 +162,10 @@ openPositions s = [ (r,c) | r <- positions,
 length3rd :: (a,b,[c]) -> (a,b,[c]) -> Ordering
 length3rd (_,_,zs) (_,_,zs') = compare (length zs) (length zs')
 
-constraints :: Sudoku -> [Constraint] 
-constraints s = sortBy length3rd 
-    [(r,c, freeAtPos s (r,c)) | 
-                       (r,c) <- openPositions s ]
+-- constraints :: Sudoku -> [Constraint] 
+-- constraints s = sortBy length3rd 
+--     [(r,c, freeAtPos s (r,c)) | 
+--                        (r,c) <- openPositions s ]
 
 data Tree a = T a [Tree a] deriving (Eq,Ord,Show)
 
@@ -356,4 +352,3 @@ main = do [r] <- rsolveNs [emptyN]
           showNode r
           s  <- genProblem r
           showNode s
-
