@@ -1,6 +1,7 @@
 module Exercise1 where
 
 import Data.List
+import System.Random
 
 -- == Exercise 1 == --
 {-
@@ -286,6 +287,6 @@ exercise1 = [[0,0,0,3,0,0,0,0,0],
              [0,8,0,0,4,0,0,0,0],
              [0,0,2,0,0,0,0,0,0]]
 
-main = do
+runExercise1 = do
         putStrLn "-- == Exercise 1 == --"
         solveAndShow exercise1

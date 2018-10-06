@@ -22,6 +22,9 @@ values    = [1..9]
 blocks :: [[Int]]
 blocks = [[1..3],[4..6],[7..9]]
 
+blocksNrc :: [[Int]]
+blocksNrc = [[2,3,4],[6,7,8]]
+
 showVal :: Value -> String
 showVal 0 = " "
 showVal d = show d
@@ -29,28 +32,57 @@ showVal d = show d
 showRow :: [Value] -> IO()
 showRow [a1,a2,a3,a4,a5,a6,a7,a8,a9] = 
  do  putChar '|'         ; putChar ' '
-     putStr (showVal a1) ; putChar ' '
-     putStr (showVal a2) ; putChar ' '
+     putStr (showVal a1) ; putStr "  "
+     putStr (showVal a2) ; putStr "  "
      putStr (showVal a3) ; putChar ' '
      putChar '|'         ; putChar ' '
-     putStr (showVal a4) ; putChar ' '
+     putStr (showVal a4) ; putStr "  "
      putStr (showVal a5) ; putChar ' '
-     putStr (showVal a6) ; putChar ' '
+     putChar ' '         ; putChar ' '
+     putStr (showVal a6) ; 
      putChar '|'         ; putChar ' '
-     putStr (showVal a7) ; putChar ' '
-     putStr (showVal a8) ; putChar ' '
+     putStr (showVal a7) ; putStr "  "
+     putStr (showVal a8) ; putStr "  "
+     putStr (showVal a9) ; putChar ' '
+     putChar '|'         ; putChar '\n'
+
+showRowNrc :: [Value] -> IO()
+showRowNrc [a1,a2,a3,a4,a5,a6,a7,a8,a9] = 
+ do  putChar '|'         ; putChar ' '
+     putStr (showVal a1) ; putChar ' '
+     putChar '|'         ; 
+     putStr (showVal a2) ; putStr "  "
+     putStr (showVal a3) ; putChar ' '
+     putChar '|'         ; putChar ' '
+     putStr (showVal a4) ; 
+     putChar '|'         ; putChar ' '
+     putStr (showVal a5) ; putChar ' '
+     putChar '|'         ; putChar ' '
+     putStr (showVal a6) ; 
+     putChar '|'         ; putChar ' '
+     putStr (showVal a7) ; putStr "  "
+     putStr (showVal a8) ; 
+     putChar '|'         ; putChar ' '
      putStr (showVal a9) ; putChar ' '
      putChar '|'         ; putChar '\n'
 
 showGrid :: Grid -> IO()
 showGrid [as,bs,cs,ds,es,fs,gs,hs,is] =
- do putStrLn ("+-------+-------+-------+")
-    showRow as; showRow bs; showRow cs
-    putStrLn ("+-------+-------+-------+")
-    showRow ds; showRow es; showRow fs
-    putStrLn ("+-------+-------+-------+")
-    showRow gs; showRow hs; showRow is
-    putStrLn ("+-------+-------+-------+")
+ do putStrLn ("+---------+---------+---------+")
+    showRow as; 
+    putStrLn ("|   +-----|--+   +--|-----+   |")
+    showRowNrc bs; showRowNrc cs
+    putStrLn ("+---------+---------+---------+")
+    showRowNrc ds; 
+    putStrLn ("|   +-----|--+   +--|-----+   |")
+    showRow es; 
+    putStrLn ("|   +-----|--+   +--|-----+   |")
+    showRowNrc fs
+    putStrLn ("+---------+---------+---------+")
+    showRowNrc gs; showRowNrc hs; 
+    putStrLn ("|   +-----|--+   +--|-----+   |")
+    showRow is
+    putStrLn ("+---------+---------+---------+")
 
 type Sudoku = (Row,Column) -> Value
 
@@ -70,35 +102,26 @@ showSudoku = showGrid . sud2grid
 bl :: Int -> [Int]
 bl x = concat $ filter (elem x) blocks 
 
+blNrc :: Int -> [Int]
+blNrc x = concat $ filter (elem x) blocksNrc 
+
 subGrid :: Sudoku -> (Row,Column) -> [Value]
 subGrid s (r,c) = 
   [ s (r',c') | r' <- bl r, c' <- bl c ]
 
+subgridNrc :: Sudoku -> (Row,Column) -> [Value]
+subgridNrc s (r,c) = 
+  [ s (r',c') | r' <- blNrc r, c' <- blNrc c ]
+
 freeInSeq :: [Value] -> [Value]
-freeInSeq seq = values \\ seq 
-
-freeInRow :: Sudoku -> Row -> [Value]
-freeInRow s r = 
-  freeInSeq [ s (r,i) | i <- positions  ]
-
-freeInColumn :: Sudoku -> Column -> [Value]
-freeInColumn s c = 
-  freeInSeq [ s (i,c) | i <- positions ]
-
-freeInSubgrid :: Sudoku -> (Row,Column) -> [Value]
-freeInSubgrid s (r,c) = freeInSeq (subGrid s (r,c))
-
-freeAtPos :: Sudoku -> (Row,Column) -> [Value]
-freeAtPos s (r,c) = 
-  (freeInRow s r) 
-   `intersect` (freeInColumn s c) 
-   `intersect` (freeInSubgrid s (r,c)) 
+freeInSeq seq = values \\ seq  
 
 rowConstrnt, columnConstrnt, blockConstrnt :: Constrnt
 rowConstrnt = [[(r,c)| c <- values ] | r <- values ]
 columnConstrnt = [[(r,c)| r <- values ] | c <- values ]
 blockConstrnt = [[(r,c)| r <- b1, c <- b2 ] | b1 <- blocks, b2 <- blocks ]
-constrnts = rowConstrnt ++ columnConstrnt ++ blockConstrnt
+nrcConstrnt = [[(r,c)| r <- b1, c <- b2 ] | b1 <- blocksNrc, b2 <- blocksNrc ]
+constrnts = rowConstrnt ++ columnConstrnt ++ blockConstrnt ++ nrcConstrnt
 
 freeAtPos' :: Sudoku -> Position -> Constrnt -> [Value]
 freeAtPos' s (r,c) xs = let 
@@ -156,10 +179,15 @@ prune (r,c,v) ((x,y,zs):rest)
   | c == y = (x,y,zs\\[v]) : prune (r,c,v) rest
   | sameblock (r,c) (x,y) = 
         (x,y,zs\\[v]) : prune (r,c,v) rest
+  | sameblockNrc (r,c) (x,y) = 
+        (x,y,zs\\[v]) : prune (r,c,v) rest   
   | otherwise = (x,y,zs) : prune (r,c,v) rest
 
 sameblock :: (Row,Column) -> (Row,Column) -> Bool
 sameblock (r,c) (x,y) = bl r == bl x && bl c == bl y 
+
+sameblockNrc :: (Row,Column) -> (Row,Column) -> Bool
+sameblockNrc (r,c) (x,y) = blNrc r == blNrc x && blNrc c == blNrc y
 
 initNode :: Grid -> [Node]
 initNode gr = let s = grid2sud gr in 
@@ -226,7 +254,6 @@ exercise2 = [[0,0,0,3,0,0,0,0,0],
              [0,8,0,0,4,0,0,0,0],
              [0,0,2,0,0,0,0,0,0]]
 
-main = do
+runExercise2 = do
         putStrLn "-- == Exercise 2 == --"
         solveAndShow exercise2
-
