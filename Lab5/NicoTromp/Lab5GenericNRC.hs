@@ -101,7 +101,8 @@ freeAtPos :: Sudoku -> Position -> Constrnt -> [Value]
 freeAtPos s p xs = let 
    ys = filter (elem p) xs -- Filter out any constraint that is not valid for the position
  in 
-   foldl1 intersect (map ((values \\) . map s) ys)
+  if null ys then values
+  else foldl1 intersect (map ((values \\) . map s) ys)
 
 injective :: Eq a => [a] -> Bool
 injective xs = nub xs == xs
