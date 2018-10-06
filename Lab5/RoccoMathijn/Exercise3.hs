@@ -13,29 +13,45 @@ A Sudoku problem P is minimal if it admits a unique solution, and every problem 
 Deliverables: testing code, test report, indication of time spent.
 -}
 
---genRandomSudoku
-
 {-
-Time spend: 1,5 hours
+Time spend: 2,5 hours
 -}
 
-parents :: Node -> [Node]
-parents (s, constraints) = [(extend s ((r,c), 0), deprune s (r,c) constraints) | r <- positions, c <- positions]
 
-deprune :: Sudoku -> (Row,Column) -> [Constraint] -> [Constraint]
-deprune s (r,c) constraints = sortBy length3rd ((r,c, (freeAtPos s (r,c))) : constraints)
+--Finds all parents of a node
+parents :: Node -> [Node]
+parents (s, _) = [(extend s ((r,c), 0), constraints (extend s ((r,c), 0))) | r <- positions, c <- positions, not (elem (r,c) (openPositions s))]
+
+{-
+Applying length to unknown lists is generally a bad idea, both practically due to infinite lists,
+and conceptually because often it turns out that you don't actually care about the length anyway.
+Slow solution:
+admitsOneSolution :: Node -> Bool
+admitsOneSolution node = length $ solveNs [node] == 1
+
+-- https://stackoverflow.com/questions/7371730/how-to-tell-if-a-list-is-infinite
+-}
+
+isNonEmpty [] = False
+isNonEmpty (_:_) = True
+
+longerThan :: Int -> [a] -> Bool
+longerThan n xs = isNonEmpty $ drop n xs
 
 admitsOneSolution :: Node -> Bool
-admitsOneSolution node = (length $  solveNs [node]) == 1
+admitsOneSolution node = not (longerThan 1 (solveNs [node]))
 
 minimalSudoku :: Node -> Bool
-minimalSudoku node = all (not . admitsOneSolution) (parents node)
+minimalSudoku node = not $ any admitsOneSolution (parents node)
 
+randomMinimalSudoku = do 
+                        [r] <- rsolveNs [emptyN]
+                        genProblem r
 runExercise3 = do
                   putStrLn "-- == Exercise 3 Minimal sudokus == --"
-                  putStrLn "Testing 100 sudokus ..."
-                  randomSudokus <- sequence [genRandomSudoku | _ <- [0..100]]
-                  let result = all minimalSudoku randomSudokus
-                  if result == True then putStrLn "+++ OK, Tested 100 sudokus" else putStrLn "--- Failed"
-                                
-
+                  putStrLn "Testing 10 sudokus ..."
+                  randomSudokus <- sequence [randomMinimalSudoku | _ <- [0..10]]
+                  let result = filter (not . minimalSudoku) randomSudokus
+                  if null result then putStrLn "+++ OK, Tested 10 sudokus" else do
+                    putStrLn "--- Failed, found a more minimal sudoku for: " 
+                    showNode $ head result
