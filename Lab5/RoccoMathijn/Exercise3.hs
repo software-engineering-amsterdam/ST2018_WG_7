@@ -47,6 +47,8 @@ minimalSudoku node = not $ any admitsOneSolution (parents node)
 randomMinimalSudoku = do 
                         [r] <- rsolveNs [emptyN]
                         genProblem r
+
+-- runs in about 30 seconds                        
 runExercise3 = do
                   putStrLn "-- == Exercise 3 Minimal sudokus == --"
                   putStrLn "Testing 10 sudokus ..."
