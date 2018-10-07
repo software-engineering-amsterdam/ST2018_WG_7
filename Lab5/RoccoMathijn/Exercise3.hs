@@ -14,7 +14,7 @@ Deliverables: testing code, test report, indication of time spent.
 -}
 
 {-  
-Time spend: 2,5 hours
+Time spend: 3,5 hours
 -}
 
 
