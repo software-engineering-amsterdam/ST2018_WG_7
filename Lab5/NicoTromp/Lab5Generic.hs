@@ -12,7 +12,17 @@ A constraint can be defined as a list of 9 position for which the injective func
 Therefore there is nomore any difference between a row-, column-, or gridconstraint. As long
 as the list of constraints holds the corresponding positions they will be applied.
 
-Time spent: 3:00
+Refactoring the original code and creating this version took more time then modifying the
+original code when incorporating the NRC constraint. Once this refactoring is done adding or
+changing the constraints is a lot easier in this version, it took about 5 minutes to add the
+NRC constraints (see Lab5GenericNRC.hs). Adding the NRC constraints is easier because this version
+is extensible. Just add a list of positions for which the injective function should be applied
+and your ready to go.
+
+When taking the number of lines of code for efficiency metric this version should be more
+efficien.
+
+Time spent: 3:30
 -}
 
 type Row    = Int 
@@ -41,6 +51,10 @@ blockConstrnt = [[(r,c)| r <- b1, c <- b2 ] | b1 <- blocks, b2 <- blocks ]
 -- All constraint that should be met
 allConstrnts :: Constrnt
 allConstrnts = rowConstrnt ++ columnConstrnt ++ blockConstrnt
+               -- ++ [[(2,2),(2,5),(2,8),(5,2),(5,5),(5,8),(8,2),(8,5),(8,8)]]
+               -- ++ [[(1,1),(1,2),(1,3),(2,4),(2,5),(2,6),(3,7),(3,8),(3,9)],
+               --     [(4,1),(4,2),(4,3),(5,4),(5,5),(5,6),(6,7),(6,8),(6,9)],
+               --     [(7,1),(7,2),(7,3),(8,4),(8,5),(8,6),(9,7),(9,8),(9,9)]]
 
 -- Give the constraints that apply to a given position
 positionConstrns :: Position -> Constrnt
