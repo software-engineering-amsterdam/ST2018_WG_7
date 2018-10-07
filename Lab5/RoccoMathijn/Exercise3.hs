@@ -13,23 +13,23 @@ A Sudoku problem P is minimal if it admits a unique solution, and every problem 
 Deliverables: testing code, test report, indication of time spent.
 -}
 
-{-
+{-  
 Time spend: 2,5 hours
 -}
 
 
 --Finds all parents of a node
 parents :: Node -> [Node]
-parents (s, _) = [(parent, constraints parent) 
-                  | r <- positions, 
-                    c <- positions, 
-                    let parent = extend s ((r,c), 0), 
-                    elem (r,c) $ filledPositions s
-                  ]
+parents n = [eraseN n (r,c) | 
+              r <- positions, 
+              c <- positions, 
+              elem (r,c) $ filledPositions (fst n)
+            ]
 
 {-
 Applying length to unknown lists is generally a bad idea, both practically due to infinite lists,
 and conceptually because often it turns out that you don't actually care about the length anyway.
+
 Slow solution:
 admitsOneSolution :: Node -> Bool
 admitsOneSolution node = length $ solveNs [node] == 1
@@ -45,7 +45,7 @@ admitsOneSolution :: Node -> Bool
 admitsOneSolution node = not (longerThan 1 (solveNs [node]))
 -- https://stackoverflow.com/questions/7371730/how-to-tell-if-a-list-is-infinite
 
-I now found the uniqueSol function in the Lecture5 module. Using that one.
+I now found the uniqueSol function in the Lecture5 module. Using that one, although mine was a bit faster.
 -}
 
 minimalSudoku :: Node -> Bool
