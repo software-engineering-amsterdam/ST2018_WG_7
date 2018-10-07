@@ -45,7 +45,7 @@ admitsOneSolution :: Node -> Bool
 admitsOneSolution node = not (longerThan 1 (solveNs [node]))
 -- https://stackoverflow.com/questions/7371730/how-to-tell-if-a-list-is-infinite
 
-I now found the uniqueSol function in the Lecture5 module. Using that one, although mine was a bit faster.
+I now found the uniqueSol function in the Lecture5 module. Using that one.
 -}
 
 minimalSudoku :: Node -> Bool
