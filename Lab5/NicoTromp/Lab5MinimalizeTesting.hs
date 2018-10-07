@@ -15,7 +15,7 @@ What we do is that we check for every single hint if there are multiple
 solutions once the hint is erased. If so that would mean the Sudoku is
 a minimal Sudoku.
 
-Time spent: 0:45
+Time spent: 0:30
 -}
 
 type Row    = Int 
