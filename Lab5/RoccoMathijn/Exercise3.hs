@@ -24,7 +24,7 @@ parents (s, _) = [(parent, constraints parent)
                   | r <- positions, 
                     c <- positions, 
                     let parent = extend s ((r,c), 0), 
-                    not (elem (r,c) (openPositions s))
+                    elem (r,c) $ filledPositions s
                   ]
 
 {-
