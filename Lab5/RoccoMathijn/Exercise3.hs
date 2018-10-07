@@ -20,7 +20,12 @@ Time spend: 2,5 hours
 
 --Finds all parents of a node
 parents :: Node -> [Node]
-parents (s, _) = [(extend s ((r,c), 0), constraints (extend s ((r,c), 0))) | r <- positions, c <- positions, not (elem (r,c) (openPositions s))]
+parents (s, _) = [(parent, constraints parent) 
+                  | r <- positions, 
+                    c <- positions, 
+                    let parent = extend s ((r,c), 0), 
+                    not (elem (r,c) (openPositions s))
+                  ]
 
 {-
 Applying length to unknown lists is generally a bad idea, both practically due to infinite lists,
