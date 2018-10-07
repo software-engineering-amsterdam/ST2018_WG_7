@@ -350,7 +350,7 @@ hintPositions :: Grid -> [Position]
 hintPositions xs = [ (r,c) | r <- values, c <- filter (/=0) (xs !! (r-1))]
 
 none :: [Bool] -> Bool
-none xs = and (map not xs)
+none = all not
 
 isMinimal :: Sudoku -> Bool
 isMinimal s = none (map uniqueSol [eraseN n p | p <- hintPositions xs])
