@@ -6,6 +6,9 @@ import Data.List
 
 import Lecture5
 
+{-
+ Time spend: 1.5 hours 
+-}
 eraseBlock :: Node -> (Row,Column) -> Node
 eraseBlock n (r,c) = foldr (\rc n' -> eraseN n' rc) n [(r',c') | r' <- bl r, c' <- bl c]
 
