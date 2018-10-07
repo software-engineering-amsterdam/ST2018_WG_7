@@ -34,9 +34,7 @@ Slow solution:
 admitsOneSolution :: Node -> Bool
 admitsOneSolution node = length $ solveNs [node] == 1
 
--- https://stackoverflow.com/questions/7371730/how-to-tell-if-a-list-is-infinite
--}
-
+Faster solution:
 isNonEmpty [] = False
 isNonEmpty (_:_) = True
 
@@ -45,9 +43,13 @@ longerThan n xs = isNonEmpty $ drop n xs
 
 admitsOneSolution :: Node -> Bool
 admitsOneSolution node = not (longerThan 1 (solveNs [node]))
+-- https://stackoverflow.com/questions/7371730/how-to-tell-if-a-list-is-infinite
+
+I now found the uniqueSol function in the Lecture5 module. Using that one.
+-}
 
 minimalSudoku :: Node -> Bool
-minimalSudoku node = not $ any admitsOneSolution (parents node)
+minimalSudoku node = not $ any uniqueSol (parents node)
 
 randomMinimalSudoku = do 
                         [r] <- rsolveNs [emptyN]
