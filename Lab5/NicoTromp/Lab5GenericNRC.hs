@@ -1,5 +1,4 @@
-
-module Lecture5
+module Lab5GenericNRC
 
 where 
 
