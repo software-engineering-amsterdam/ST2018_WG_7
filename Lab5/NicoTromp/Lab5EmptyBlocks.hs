@@ -76,15 +76,15 @@ cleanCells n []     = n
 cleanCells n (x:xs) = eraseN (cleanCells n xs) x
 
 cleanBlocks :: Node -> [(Row, Column)] -> Node
-cleanBlocks n xs = cleanCells n (concatMap (\(r,c) -> [(r',c') | r' <- blocks !! r, c' <- blocks !! c]) xs)
+cleanBlocks n xs = cleanCells n (concatMap (\(r,c) -> [(r',c') | r' <- blocks !! (r-1), c' <- blocks !! (c-1)]) xs)
 
 checkEmptyBlockSudoku :: Int -> IO ()
 checkEmptyBlockSudoku n = do [r] <- rsolveNs [emptyN]
                              showNode r
-                             xs <- randomize [(r,c) | r <- [0..2], c <- [0..2]]
+                             xs <- randomize [(r,c) | r <- [1..3], c <- [1..3]]
                              let xs' = take n xs
                              let r' = cleanBlocks r xs'
                              s  <- genProblem r'
                              if uniqueSol r' then showNode s
                              else putStrLn ("--- Failed.\n There is no unique solution possible whith clean blocks: "
-                                           ++ (show (map (\(r,c) -> (r+1,c+1)) xs'))) 
+                                           ++ (show  xs')) 
