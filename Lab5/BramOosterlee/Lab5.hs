@@ -6,6 +6,8 @@ where
 import Data.List
 import System.Random
 
+--Assignment 1, time 12:40
+
 type Row    = Int 
 type Column = Int 
 type Value  = Int
@@ -16,7 +18,7 @@ positions = [1..9]
 values    = [1..9] 
 
 blocks :: [[Int]]
-blocks = [[1..3],[4..6],[7..9]]
+blocks = [[1..3],[4..6],[7..9],[2..4], [6..8]]
 
 showVal :: Value -> String
 showVal 0 = " "
@@ -63,12 +65,47 @@ grid2sud gr = \ (r,c) -> pos gr (r,c)
 showSudoku :: Sudoku -> IO()
 showSudoku = showGrid . sud2grid
 
+-------------------------------------------------------------------------------------
+
+-- bl takes a row/column number, and returns what rows/colums share this block.
+-- for row number 5 it will return 4,5,6, because rows 4, 5, and 6 share a block.
+
+-- bl has two important uses: In the sameblock function, which we can fix by returning multiple blocks.
+-- The other use is in the subGrid method.
+blMultiple :: Int -> [[Int]]
+blMultiple x = filter (elem x) blocks 
+
 bl :: Int -> [Int]
 bl x = concat $ filter (elem x) blocks 
 
-subGrid :: Sudoku -> (Row,Column) -> [Value]
-subGrid s (r,c) = 
-  [ s (r',c') | r' <- bl r, c' <- bl c ]
+-- the subGrid method returns all values if this coordinates subgrid.
+-- our updated blocks field now holds all blocks for a given row or column.
+-- the original subGrid method combines the row's block and column's block to get all subgrid coordinates.
+-- unfortunately, with our new blocks field, we suddenly have to combine row and column blocks into the appropriate block.
+-- we define the new method nrcBlock to check whether a block is part of the NRC blocks.
+nrcBlock :: [Int] -> Bool
+nrcBlock a  | a == [2..4] = True
+            | a == [6..8] = True
+            | otherwise   = False
+
+-- we then only combine NRC blocks with eachother, and non NRC blocks with eachother, and collect the values in the subgrids.
+nrcSubgrid :: Sudoku -> (Row, Column) -> [Value]
+nrcSubgrid s (r, c) = [s (rNRC, cNRC) | rNRC <- (concat [rBlock | rBlock <- blMultiple r, nrcBlock rBlock]), 
+                                        cNRC <- (concat [cBlock | cBlock <- blMultiple c, nrcBlock cBlock])]
+
+origSubgrid :: Sudoku -> (Row, Column) -> [Value]
+origSubgrid s (r, c) = [s (rOrig, cOrig) | rOrig <- (concat [rBlock | rBlock <- blMultiple r, not (nrcBlock rBlock)]), 
+                                           cOrig <- (concat [cBlock | cBlock <- blMultiple c, not (nrcBlock cBlock)])]
+
+-- subGridInjective needs to perform actions on each subgrid individually. We therefore return subgrid values as separate lists.
+subGrids :: Sudoku -> (Row, Column) -> [[Value]]
+subGrids s (r,c) = [nrcSubgrid s (r, c), origSubgrid s (r, c)]
+
+-- subGrid :: Sudoku -> (Row,Column) -> [Value]
+-- subGrid s (r,c) = 
+--   [ s (r',c') | r' <- bl r, c' <- bl c ]
+
+-------------------------------------------------------------------------------------
 
 freeInSeq :: [Value] -> [Value]
 freeInSeq seq = values \\ seq 
@@ -81,8 +118,15 @@ freeInColumn :: Sudoku -> Column -> [Value]
 freeInColumn s c = 
   freeInSeq [ s (i,c) | i <- positions ]
 
+-------------------------------------------------------------------------------------
+
+-- freeInSubgrid checks what values are not in the set of values in this coordinate's subgrid
+-- the new version of this method should return the values which are free in all of it's subgrids.
 freeInSubgrid :: Sudoku -> (Row,Column) -> [Value]
-freeInSubgrid s (r,c) = freeInSeq (subGrid s (r,c))
+-- freeInSubgrid s (r,c) = freeInSeq (subGrid s (r,c))
+freeInSubgrid s (r,c) = foldr1 intersect [freeInSeq sg | sg <- (subGrids s (r,c))]
+
+-------------------------------------------------------------------------------------
 
 freeAtPos :: Sudoku -> (Row,Column) -> [Value]
 freeAtPos s (r,c) = 
@@ -101,9 +145,16 @@ colInjective :: Sudoku -> Column -> Bool
 colInjective s c = injective vs where 
    vs = filter (/= 0) [ s (i,c) | i <- positions ]
 
+-------------------------------------------------------------------------------------
+
+-- subgridInjective checks whether values of one subgrid only appear once.
+-- the new version of this method will check this for each subgrid of a coordinate.
 subgridInjective :: Sudoku -> (Row,Column) -> Bool
-subgridInjective s (r,c) = injective vs where 
-   vs = filter (/= 0) (subGrid s (r,c))
+-- subgridInjective s (r,c) = injective vs where 
+--    vs = filter (/= 0) (subGrid s (r,c))
+subgridInjective s (r,c) = all (==True) [injective (filter (/= 0) sg) | sg <- subGrids s (r, c)]
+
+-------------------------------------------------------------------------------------
 
 consistent :: Sudoku -> Bool
 consistent s = and $
@@ -136,18 +187,36 @@ extendNode (s,constraints) (r,c,vs) =
      sortBy length3rd $ 
          prune (r,c,v) constraints) | v <- vs ]
 
+-------------------------------------------------------------------------------------
+
+--prune uses sameblock, which is incompatible with the NRC sudoku, as coordinates might be in multiple blocks.
 prune :: (Row,Column,Value) 
       -> [Constraint] -> [Constraint]
+-- prune _ [] = []
+-- prune (r,c,v) ((x,y,zs):rest)
+--   | r == x = (x,y,zs\\[v]) : prune (r,c,v) rest
+--   | c == y = (x,y,zs\\[v]) : prune (r,c,v) rest
+--   | sameblock (r,c) (x,y) = 
+--         (x,y,zs\\[v]) : prune (r,c,v) rest
+--   | otherwise = (x,y,zs) : prune (r,c,v) rest
 prune _ [] = []
 prune (r,c,v) ((x,y,zs):rest)
   | r == x = (x,y,zs\\[v]) : prune (r,c,v) rest
   | c == y = (x,y,zs\\[v]) : prune (r,c,v) rest
-  | sameblock (r,c) (x,y) = 
+  | shareblock (r,c) (x,y) = 
         (x,y,zs\\[v]) : prune (r,c,v) rest
   | otherwise = (x,y,zs) : prune (r,c,v) rest
 
-sameblock :: (Row,Column) -> (Row,Column) -> Bool
-sameblock (r,c) (x,y) = bl r == bl x && bl c == bl y 
+-- since sameblock is built on the assumption that coordinates only share one block, 
+-- we define a new function shareblock.
+shareblock :: (Row,Column) -> (Row,Column) -> Bool
+shareblock (r,c) (x,y) = (not (null (intersect (blMultiple r) (blMultiple x)))) &&
+                         (not (null (intersect (blMultiple c) (blMultiple y)))) 
+
+-- sameblock :: (Row,Column) -> (Row,Column) -> Bool
+-- sameblock (r,c) (x,y) = bl r == bl x && bl c == bl y 
+
+-------------------------------------------------------------------------------------
 
 initNode :: Grid -> [Node]
 initNode gr = let s = grid2sud gr in 
@@ -353,3 +422,17 @@ main = do [r] <- rsolveNs [emptyN]
           s  <- genProblem r
           showNode s
 
+-------------------------------------------------------------------------------------
+
+exampleNRC :: Grid
+exampleNRC = [[0,0,0, 3,0,0, 0,0,0],
+              [0,0,0, 7,0,0, 3,0,0],
+              [2,0,0, 0,0,0, 0,0,8],
+              [0,0,6, 0,0,5, 0,0,0],
+              [0,9,1, 6,0,0, 0,0,0],
+              [3,0,0, 0,7,1, 2,0,0],
+              [0,0,0, 0,0,0, 0,3,1],
+              [0,8,0, 0,4,0, 0,0,0],
+              [0,0,2, 0,0,0, 0,0,0]]
+
+-------------------------------------------------------------------------------------
