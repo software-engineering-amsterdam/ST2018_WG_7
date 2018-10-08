@@ -9,10 +9,10 @@ cleanCells n []     = n
 cleanCells n (x:xs) = eraseN (cleanCells n xs) x
 
 cleanBlocks :: Node -> [(Row, Column)] -> Node
-cleanBlocks n xs = cleanCells n [ (r',c') | (r,c) <- xs, r' <- blocks !! (r-1), c' <- blocks !! (c-1)]
+cleanBlocks n xs = cleanCells n [ (r',c') | (r,c) <- xs, r' <- blocks !! r, c' <- blocks !! c]
 
 selectEmptyBlocks :: Int -> (Row, Column)
-selectEmptyBlocks n = ((n `div` 3) + 1, (n `rem` 3) + 1)
+selectEmptyBlocks n = (n `div` 3, n `rem` 3)
 
 genEmptyBlockSudoku :: Int -> IO ()
 genEmptyBlockSudoku n = do [r] <- rsolveNs [emptyN]
