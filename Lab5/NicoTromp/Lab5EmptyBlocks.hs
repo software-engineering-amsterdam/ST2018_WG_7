@@ -4,6 +4,12 @@ import Data.List
 
 import Lecture5
 
+{-
+Select randomly the blocks to empty and then generate a Sudoku problem with the cleaned Sudoku.
+
+Time spent: 0:20
+-}
+
 cleanCells :: Node -> [(Row, Column)] -> Node
 cleanCells n []     = n
 cleanCells n (x:xs) = eraseN (cleanCells n xs) x
