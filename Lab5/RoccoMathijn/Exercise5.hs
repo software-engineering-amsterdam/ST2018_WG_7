@@ -8,6 +8,9 @@ import System.Random
 
 {-
 Time spend 30 minutes
+
+Basically the provided Sudoku generator from Lecture5 generates a NRC sudoku when we import the extended code from
+exercise 1. We got this exercise for free. We did build a test to check the answers.
 -}
 emptyN :: Node
 emptyN = (\ _ -> 0,constraints (\ _ -> 0))
