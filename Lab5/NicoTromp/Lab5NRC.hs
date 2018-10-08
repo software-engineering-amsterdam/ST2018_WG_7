@@ -1,4 +1,4 @@
-module Lab5 where
+module Lab5NRC where
 
 import Data.List
 import System.Random
