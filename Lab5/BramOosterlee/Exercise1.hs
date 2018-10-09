@@ -6,7 +6,7 @@ where
 import Data.List
 import System.Random
 
---Assignment 1, time 12:40
+--Assignment 1, time 05:00
 
 type Row    = Int 
 type Column = Int 
