@@ -84,7 +84,7 @@ showGrid [as,bs,cs,ds,es,fs,gs,hs,is] =
     showRow is
     putStrLn ("+---------+---------+---------+")
 
-type Sudoku = (Row,Column) -> Value
+type Sudoku = Position -> Value
 
 sud2grid :: Sudoku -> Grid
 sud2grid s = 
@@ -93,7 +93,7 @@ sud2grid s =
 grid2sud :: Grid -> Sudoku
 grid2sud gr = \ (r,c) -> pos gr (r,c) 
   where 
-  pos :: [[a]] -> (Row,Column) -> a 
+  pos :: [[a]] -> Position -> a 
   pos gr (r,c) = (gr !! (r-1)) !! (c-1)
 
 showSudoku :: Sudoku -> IO()
@@ -105,11 +105,11 @@ bl x = concat $ filter (elem x) blocks
 blNrc :: Int -> [Int]
 blNrc x = concat $ filter (elem x) blocksNrc 
 
-subGrid :: Sudoku -> (Row,Column) -> [Value]
+subGrid :: Sudoku -> Position -> [Value]
 subGrid s (r,c) = 
   [ s (r',c') | r' <- bl r, c' <- bl c ]
 
-subgridNrc :: Sudoku -> (Row,Column) -> [Value]
+subgridNrc :: Sudoku -> Position -> [Value]
 subgridNrc s (r,c) = 
   [ s (r',c') | r' <- blNrc r, c' <- blNrc c ]
 
@@ -140,7 +140,7 @@ colInjective :: Sudoku -> Column -> Bool
 colInjective s c = injective vs where 
    vs = filter (/= 0) [ s (i,c) | i <- positions ]
 
-subgridInjective :: Sudoku -> (Row,Column) -> Bool
+subgridInjective :: Sudoku -> Position -> Bool
 subgridInjective s (r,c) = injective vs where 
    vs = filter (/= 0) (subGrid s (r,c))
 
@@ -153,7 +153,7 @@ consistent s = and $
                [ subgridInjective s (r,c) | 
                     r <- [1,4,7], c <- [1,4,7]]
 
-extend :: Sudoku -> ((Row,Column),Value) -> Sudoku
+extend :: Sudoku -> (Position,Value) -> Sudoku
 extend = update
 
 update :: Eq a => (a -> b) -> (a,b) -> a -> b 
@@ -183,10 +183,10 @@ prune (r,c,v) ((x,y,zs):rest)
         (x,y,zs\\[v]) : prune (r,c,v) rest   
   | otherwise = (x,y,zs) : prune (r,c,v) rest
 
-sameblock :: (Row,Column) -> (Row,Column) -> Bool
+sameblock :: Position -> Position -> Bool
 sameblock (r,c) (x,y) = bl r == bl x && bl c == bl y 
 
-sameblockNrc :: (Row,Column) -> (Row,Column) -> Bool
+sameblockNrc :: Position -> Position -> Bool
 sameblockNrc (r,c) (x,y) = blNrc r == blNrc x && blNrc c == blNrc y
 
 initNode :: Grid -> [Node]
@@ -194,7 +194,7 @@ initNode gr = let s = grid2sud gr in
               if (not . consistent) s then [] 
               else [(s, constraints s)]
 
-openPositions :: Sudoku -> [(Row,Column)]
+openPositions :: Sudoku -> [Position]
 openPositions s = [ (r,c) | r <- positions,  
                             c <- positions, 
                             s (r,c) == 0 ]

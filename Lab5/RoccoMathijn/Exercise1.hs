@@ -52,9 +52,8 @@ showRow [a1,a2,a3,a4,a5,a6,a7,a8,a9] =
      putStr (showVal a3) ; putChar ' '
      putChar '|'         ; putChar ' '
      putStr (showVal a4) ; putStr "  "
-     putStr (showVal a5) ; putChar ' '
-     putChar ' '         ; putChar ' '
-     putStr (showVal a6) ; 
+     putStr (showVal a5) ; putStr "  "
+     putStr (showVal a6) ; putChar ' '
      putChar '|'         ; putChar ' '
      putStr (showVal a7) ; putStr "  "
      putStr (showVal a8) ; putStr "  "
@@ -72,8 +71,8 @@ showRowNrc [a1,a2,a3,a4,a5,a6,a7,a8,a9] =
      putStr (showVal a4) ; 
      putChar '|'         ; putChar ' '
      putStr (showVal a5) ; putChar ' '
-     putChar '|'         ; putChar ' '
-     putStr (showVal a6) ; 
+     putChar '|'         ; 
+     putStr (showVal a6) ; putChar ' '
      putChar '|'         ; putChar ' '
      putStr (showVal a7) ; putStr "  "
      putStr (showVal a8) ; 
