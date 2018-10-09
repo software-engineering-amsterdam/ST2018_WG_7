@@ -6,7 +6,7 @@ where
 import Data.List
 import System.Random
 
---Assignment 1, time 12:40
+-- Assignment 4, time 00:40
 
 type Row    = Int 
 type Column = Int 
@@ -18,7 +18,7 @@ positions = [1..9]
 values    = [1..9] 
 
 blocks :: [[Int]]
-blocks = [[1..3],[4..6],[7..9],[2..4], [6..8]]
+blocks = [[1..3],[4..6],[7..9]]
 
 showVal :: Value -> String
 showVal 0 = " "
@@ -65,47 +65,12 @@ grid2sud gr = \ (r,c) -> pos gr (r,c)
 showSudoku :: Sudoku -> IO()
 showSudoku = showGrid . sud2grid
 
--------------------------------------------------------------------------------------
-
--- bl takes a row/column number, and returns what rows/colums share this block.
--- for row number 5 it will return 4,5,6, because rows 4, 5, and 6 share a block.
-
--- bl has two important uses: In the sameblock function, which we can fix by returning multiple blocks.
--- The other use is in the subGrid method.
-blMultiple :: Int -> [[Int]]
-blMultiple x = filter (elem x) blocks 
-
 bl :: Int -> [Int]
 bl x = concat $ filter (elem x) blocks 
 
--- the subGrid method returns all values if this coordinates subgrid.
--- our updated blocks field now holds all blocks for a given row or column.
--- the original subGrid method combines the row's block and column's block to get all subgrid coordinates.
--- unfortunately, with our new blocks field, we suddenly have to combine row and column blocks into the appropriate block.
--- we define the new method nrcBlock to check whether a block is part of the NRC blocks.
-nrcBlock :: [Int] -> Bool
-nrcBlock a  | a == [2..4] = True
-            | a == [6..8] = True
-            | otherwise   = False
-
--- we then only combine NRC blocks with eachother, and non NRC blocks with eachother, and collect the values in the subgrids.
-nrcSubgrid :: Sudoku -> (Row, Column) -> [Value]
-nrcSubgrid s (r, c) = [s (rNRC, cNRC) | rNRC <- (concat [rBlock | rBlock <- blMultiple r, nrcBlock rBlock]), 
-                                        cNRC <- (concat [cBlock | cBlock <- blMultiple c, nrcBlock cBlock])]
-
-origSubgrid :: Sudoku -> (Row, Column) -> [Value]
-origSubgrid s (r, c) = [s (rOrig, cOrig) | rOrig <- (concat [rBlock | rBlock <- blMultiple r, not (nrcBlock rBlock)]), 
-                                           cOrig <- (concat [cBlock | cBlock <- blMultiple c, not (nrcBlock cBlock)])]
-
--- subGridInjective needs to perform actions on each subgrid individually. We therefore return subgrid values as separate lists.
-subGrids :: Sudoku -> (Row, Column) -> [[Value]]
-subGrids s (r,c) = [nrcSubgrid s (r, c), origSubgrid s (r, c)]
-
--- subGrid :: Sudoku -> (Row,Column) -> [Value]
--- subGrid s (r,c) = 
---   [ s (r',c') | r' <- bl r, c' <- bl c ]
-
--------------------------------------------------------------------------------------
+subGrid :: Sudoku -> (Row,Column) -> [Value]
+subGrid s (r,c) = 
+  [ s (r',c') | r' <- bl r, c' <- bl c ]
 
 freeInSeq :: [Value] -> [Value]
 freeInSeq seq = values \\ seq 
@@ -118,15 +83,8 @@ freeInColumn :: Sudoku -> Column -> [Value]
 freeInColumn s c = 
   freeInSeq [ s (i,c) | i <- positions ]
 
--------------------------------------------------------------------------------------
-
--- freeInSubgrid checks what values are not in the set of values in this coordinate's subgrid
--- the new version of this method should return the values which are free in all of it's subgrids.
 freeInSubgrid :: Sudoku -> (Row,Column) -> [Value]
--- freeInSubgrid s (r,c) = freeInSeq (subGrid s (r,c))
-freeInSubgrid s (r,c) = foldr1 intersect [freeInSeq sg | sg <- (subGrids s (r,c))]
-
--------------------------------------------------------------------------------------
+freeInSubgrid s (r,c) = freeInSeq (subGrid s (r,c))
 
 freeAtPos :: Sudoku -> (Row,Column) -> [Value]
 freeAtPos s (r,c) = 
@@ -145,16 +103,9 @@ colInjective :: Sudoku -> Column -> Bool
 colInjective s c = injective vs where 
    vs = filter (/= 0) [ s (i,c) | i <- positions ]
 
--------------------------------------------------------------------------------------
-
--- subgridInjective checks whether values of one subgrid only appear once.
--- the new version of this method will check this for each subgrid of a coordinate.
 subgridInjective :: Sudoku -> (Row,Column) -> Bool
--- subgridInjective s (r,c) = injective vs where 
---    vs = filter (/= 0) (subGrid s (r,c))
-subgridInjective s (r,c) = all (==True) [injective (filter (/= 0) sg) | sg <- subGrids s (r, c)]
-
--------------------------------------------------------------------------------------
+subgridInjective s (r,c) = injective vs where 
+   vs = filter (/= 0) (subGrid s (r,c))
 
 consistent :: Sudoku -> Bool
 consistent s = and $
@@ -187,36 +138,18 @@ extendNode (s,constraints) (r,c,vs) =
      sortBy length3rd $ 
          prune (r,c,v) constraints) | v <- vs ]
 
--------------------------------------------------------------------------------------
-
---prune uses sameblock, which is incompatible with the NRC sudoku, as coordinates might be in multiple blocks.
 prune :: (Row,Column,Value) 
       -> [Constraint] -> [Constraint]
--- prune _ [] = []
--- prune (r,c,v) ((x,y,zs):rest)
---   | r == x = (x,y,zs\\[v]) : prune (r,c,v) rest
---   | c == y = (x,y,zs\\[v]) : prune (r,c,v) rest
---   | sameblock (r,c) (x,y) = 
---         (x,y,zs\\[v]) : prune (r,c,v) rest
---   | otherwise = (x,y,zs) : prune (r,c,v) rest
 prune _ [] = []
 prune (r,c,v) ((x,y,zs):rest)
   | r == x = (x,y,zs\\[v]) : prune (r,c,v) rest
   | c == y = (x,y,zs\\[v]) : prune (r,c,v) rest
-  | shareblock (r,c) (x,y) = 
+  | sameblock (r,c) (x,y) = 
         (x,y,zs\\[v]) : prune (r,c,v) rest
   | otherwise = (x,y,zs) : prune (r,c,v) rest
 
--- since sameblock is built on the assumption that coordinates only share one block, 
--- we define a new function shareblock.
-shareblock :: (Row,Column) -> (Row,Column) -> Bool
-shareblock (r,c) (x,y) = (not (null (intersect (blMultiple r) (blMultiple x)))) &&
-                         (not (null (intersect (blMultiple c) (blMultiple y)))) 
-
--- sameblock :: (Row,Column) -> (Row,Column) -> Bool
--- sameblock (r,c) (x,y) = bl r == bl x && bl c == bl y 
-
--------------------------------------------------------------------------------------
+sameblock :: (Row,Column) -> (Row,Column) -> Bool
+sameblock (r,c) (x,y) = bl r == bl x && bl c == bl y 
 
 initNode :: Grid -> [Node]
 initNode gr = let s = grid2sud gr in 
@@ -413,8 +346,47 @@ filledPositions s = [ (r,c) | r <- positions,
 
 genProblem :: Node -> IO Node
 genProblem n = do ys <- randomize xs
-                  return (minimalize n ys)
+                  return (minimalize (removeThreeBlocks n) ys)
    where xs = filledPositions (fst n)
+
+---------------------------------------------
+
+-- For us to generate a solveable sudoku with three blocks, it is important to consider how we can figure out a solution to a cell.
+-- Suppose we generate a sudoku with three empty blocks at the leftmost column of blocks. Lets say we already know where the '1'
+-- cell is filled out in the top middle and top right blocks. This leaves only one row for the '1' cell in our top left block.
+
+-- However, there is no possible way to find out in what column the '1' cell will go. Even if we know the '1' positions of 
+-- the center block and middle right block, and the bottom middle block and bottom right block, we will know the rows of all '1's,
+-- But have no information on how to place them in our leftmost column of blocks, since there is no information on '1's columns.
+
+-- Filling out the rest of the sudoku won't help either, because this is a problem for each number.
+
+-- Even with two empty leftmost blocks we run into some issues, as we're not certain what columns we stick the '1's in. Solving the rest
+-- of the puzzle might give us more information on where to place the numbers however, since we have some column information.
+-- I suspect these won't be solveable, as we'll only eliminate one of the three columns in the adjacent blocks.
+-- Since we can only fit three values in the column of the block that isn't empty adjacent to the two empty blocks (bottom left),
+-- we'll only be able to cross off three values per column, leaving us with two positions for each number in the top left block,
+-- and the same two positions for those numbers in the middle left block, leaving the puzzle unsolvable,
+-- since no further column information will ever be revealed.
+
+-- It should be noted that any transformation of a sudoku where an entire column of blocks, or rows is switched still has the same solutions
+-- when transformed respectively.
+
+-- The only solution is to generate sudokus with at most two adjacent empty blocks. A solution to this is to erase the diagonal blocks.
+-- Sudokus with 4 or more empty blocks cannot be constructed without being equivalent to a sudoku with two adjacent empty blocks.
+-- Therefore they won't be solveable.
+
+blockCoordinates :: [Int] -> [(Row, Column)]
+blockCoordinates indices = [(r, c) | r <- indices, c <- indices]
+
+removeThreeBlocksInternal :: Node -> [(Row, Column)] -> Node
+removeThreeBlocksInternal n [] = n
+removeThreeBlocksInternal n ((r,c):rcs) = removeThreeBlocksInternal (eraseN n (r,c)) rcs
+
+removeThreeBlocks :: Node -> Node
+removeThreeBlocks n = removeThreeBlocksInternal n (concat [blockCoordinates indices | indices <- [[1..3], [4..6], [7..9]]])
+
+---------------------------------------------
 
 main :: IO ()
 main = do [r] <- rsolveNs [emptyN]
@@ -422,17 +394,3 @@ main = do [r] <- rsolveNs [emptyN]
           s  <- genProblem r
           showNode s
 
--------------------------------------------------------------------------------------
-
-exampleNRC :: Grid
-exampleNRC = [[0,0,0, 3,0,0, 0,0,0],
-              [0,0,0, 7,0,0, 3,0,0],
-              [2,0,0, 0,0,0, 0,0,8],
-              [0,0,6, 0,0,5, 0,0,0],
-              [0,9,1, 6,0,0, 0,0,0],
-              [3,0,0, 0,7,1, 2,0,0],
-              [0,0,0, 0,0,0, 0,3,1],
-              [0,8,0, 0,4,0, 0,0,0],
-              [0,0,2, 0,0,0, 0,0,0]]
-
--------------------------------------------------------------------------------------
