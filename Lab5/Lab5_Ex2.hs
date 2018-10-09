@@ -1,34 +1,35 @@
-module Sjoerd_Lab5_Ex3_v2
+module Lab5_Ex2
 
 where 
 
 import Data.List
 import System.Random
 
--- This code builds directly on lecture5.hs code, only Ex3 is new. Therefore it considers regular sudokus
+{-
+Refactored in such a way that there is no notion anymore of row-, column- or grid-constraints.
+A constraint can be defined as a list of 9 position for which the injective function must apply.
+Therefore there is nomore any difference between a row-, column-, or gridconstraint. As long
+as the list of constraints holds the corresponding positions they will be applied.
 
+Refactoring the original code and creating this version took more time then modifying the
+original code when incorporating the NRC constraint. Once this refactoring is done adding or
+changing the constraints is a lot easier in this version, it took about 5 minutes to add the
+NRC constraints (see Lab5GenericNRC.hs). Adding the NRC constraints is easier because this version
+is extensible. Just add a list of positions for which the injective function should be applied
+and your ready to go.
 
--- Ex 3
-minimalTester :: IO Bool
-minimalTester = do 
-            [r] <- rsolveNs [emptyN]
-            s <- (genProblem r)
-            ys <- randomize (filledPositions (fst r))
-            let mybool = sud2grid(fst(minimalize s ys)) == sud2grid(fst s) 
-                      && uniqueSol s -- Takes 4 minutes to complete...
+When taking the number of lines of code for efficiency metric this version should be more
+efficien.
 
-            return mybool
--- If the grid cannot be futher minimalized by the minimalize function, and there's only one solution, the sudoku must be minimal.
--- Alternatively, I could make something that tries to remove an element but
--- leave the rest of the grid as it is, then check whether there's a single
--- solution, and do that for every element in the grid.
--- Time: 30min
+Time spent: 3:30
+-}
 
--- Lecture5 code
 type Row    = Int 
 type Column = Int 
 type Value  = Int
 type Grid   = [[Value]]
+type Position = (Row,Column)
+type Constrnt = [[Position]]
 
 positions, values :: [Int]
 positions = [1..9]
@@ -36,6 +37,27 @@ values    = [1..9]
 
 blocks :: [[Int]]
 blocks = [[1..3],[4..6],[7..9]]
+
+rowConstrnt :: Constrnt
+rowConstrnt = [[(r,c)| c <- values ] | r <- values ]
+
+columnConstrnt :: Constrnt
+columnConstrnt = [[(r,c)| r <- values ] | c <- values ]
+
+blockConstrnt :: Constrnt
+blockConstrnt = [[(r,c)| r <- b1, c <- b2 ] | b1 <- blocks, b2 <- blocks ]
+
+-- All constraint that should be met
+allConstrnts :: Constrnt
+allConstrnts = rowConstrnt ++ columnConstrnt ++ blockConstrnt
+               -- ++ [[(2,2),(2,5),(2,8),(5,2),(5,5),(5,8),(8,2),(8,5),(8,8)]]
+               -- ++ [[(1,1),(1,2),(1,3),(2,4),(2,5),(2,6),(3,7),(3,8),(3,9)],
+               --     [(4,1),(4,2),(4,3),(5,4),(5,5),(5,6),(6,7),(6,8),(6,9)],
+               --     [(7,1),(7,2),(7,3),(8,4),(8,5),(8,6),(9,7),(9,8),(9,9)]]
+
+-- Give the constraints that apply to a given position
+positionConstrns :: Position -> Constrnt
+positionConstrns p = filter (elem p) allConstrnts
 
 showVal :: Value -> String
 showVal 0 = " "
@@ -67,7 +89,7 @@ showGrid [as,bs,cs,ds,es,fs,gs,hs,is] =
     showRow gs; showRow hs; showRow is
     putStrLn ("+-------+-------+-------+")
 
-type Sudoku = (Row,Column) -> Value
+type Sudoku = Position -> Value
 
 sud2grid :: Sudoku -> Grid
 sud2grid s = 
@@ -76,64 +98,34 @@ sud2grid s =
 grid2sud :: Grid -> Sudoku
 grid2sud gr = \ (r,c) -> pos gr (r,c) 
   where 
-  pos :: [[a]] -> (Row,Column) -> a 
+  pos :: [[a]] -> Position -> a 
   pos gr (r,c) = (gr !! (r-1)) !! (c-1)
 
 showSudoku :: Sudoku -> IO()
 showSudoku = showGrid . sud2grid
 
-bl :: Int -> [Int]
-bl x = concat $ filter (elem x) blocks 
-
-subGrid :: Sudoku -> (Row,Column) -> [Value]
-subGrid s (r,c) = 
-  [ s (r',c') | r' <- bl r, c' <- bl c ]
-
-freeInSeq :: [Value] -> [Value]
-freeInSeq seq = values \\ seq 
-
-freeInRow :: Sudoku -> Row -> [Value]
-freeInRow s r = 
-  freeInSeq [ s (r,i) | i <- positions  ]
-
-freeInColumn :: Sudoku -> Column -> [Value]
-freeInColumn s c = 
-  freeInSeq [ s (i,c) | i <- positions ]
-
-freeInSubgrid :: Sudoku -> (Row,Column) -> [Value]
-freeInSubgrid s (r,c) = freeInSeq (subGrid s (r,c))
-
-freeAtPos :: Sudoku -> (Row,Column) -> [Value]
-freeAtPos s (r,c) = 
-  (freeInRow s r) 
-   `intersect` (freeInColumn s c) 
-   `intersect` (freeInSubgrid s (r,c)) 
+-- Given a partially solved sudoku and the list of constraints
+-- determine the possible values for a position.
+freeAtPos :: Sudoku -> Position -> Constrnt -> [Value]
+freeAtPos s p xs = let 
+   ys = filter (elem p) xs -- Filter out any constraint that is not valid for the position
+ in 
+  if null ys then values
+  else foldl1 intersect (map ((values \\) . map s) ys)
 
 injective :: Eq a => [a] -> Bool
 injective xs = nub xs == xs
 
-rowInjective :: Sudoku -> Row -> Bool
-rowInjective s r = injective vs where 
-   vs = filter (/= 0) [ s (r,i) | i <- positions ]
+-- Does the injective hold for the given positions?
+constrntInjective :: Sudoku -> [Position] -> Bool
+constrntInjective s ps = injective vs where 
+   vs = filter (/= 0) (map s ps)
 
-colInjective :: Sudoku -> Column -> Bool
-colInjective s c = injective vs where 
-   vs = filter (/= 0) [ s (i,c) | i <- positions ]
-
-subgridInjective :: Sudoku -> (Row,Column) -> Bool
-subgridInjective s (r,c) = injective vs where 
-   vs = filter (/= 0) (subGrid s (r,c))
-
+-- A valid solution should satisfy all constraints
 consistent :: Sudoku -> Bool
-consistent s = and $
-               [ rowInjective s r |  r <- positions ]
-                ++
-               [ colInjective s c |  c <- positions ]
-                ++
-               [ subgridInjective s (r,c) | 
-                    r <- [1,4,7], c <- [1,4,7]]
+consistent s = and (map (constrntInjective s) allConstrnts)
 
-extend :: Sudoku -> ((Row,Column),Value) -> Sudoku
+extend :: Sudoku -> (Position,Value) -> Sudoku
 extend = update
 
 update :: Eq a => (a -> b) -> (a,b) -> a -> b 
@@ -155,25 +147,22 @@ extendNode (s,constraints) (r,c,vs) =
      sortBy length3rd $ 
          prune (r,c,v) constraints) | v <- vs ]
 
-prune :: (Row,Column,Value) 
-      -> [Constraint] -> [Constraint]
+prune :: (Row,Column,Value) -> [Constraint] -> [Constraint]
 prune _ [] = []
 prune (r,c,v) ((x,y,zs):rest)
-  | r == x = (x,y,zs\\[v]) : prune (r,c,v) rest
-  | c == y = (x,y,zs\\[v]) : prune (r,c,v) rest
-  | sameblock (r,c) (x,y) = 
-        (x,y,zs\\[v]) : prune (r,c,v) rest
-  | otherwise = (x,y,zs) : prune (r,c,v) rest
+  | sameConstraint (r,c) (x,y) = (x,y,zs\\[v]) : prune (r,c,v) rest
+  | otherwise                  = (x,y,zs) : prune (r,c,v) rest
 
-sameblock :: (Row,Column) -> (Row,Column) -> Bool
-sameblock (r,c) (x,y) = bl r == bl x && bl c == bl y 
+-- Given any two positions, is there at least one constraint that applies to both?
+sameConstraint :: Position -> Position -> Bool
+sameConstraint p1 p2 = positionConstrns p1 `intersect` positionConstrns p2 /= []
 
 initNode :: Grid -> [Node]
 initNode gr = let s = grid2sud gr in 
               if (not . consistent) s then [] 
               else [(s, constraints s)]
 
-openPositions :: Sudoku -> [(Row,Column)]
+openPositions :: Sudoku -> [Position]
 openPositions s = [ (r,c) | r <- positions,  
                             c <- positions, 
                             s (r,c) == 0 ]
@@ -183,8 +172,7 @@ length3rd (_,_,zs) (_,_,zs') = compare (length zs) (length zs')
 
 constraints :: Sudoku -> [Constraint] 
 constraints s = sortBy length3rd 
-    [(r,c, freeAtPos s (r,c)) | 
-                       (r,c) <- openPositions s ]
+    [(r,c, freeAtPos s (r,c) allConstrnts) | (r,c) <- openPositions s ]
 
 data Tree a = T a [Tree a] deriving (Eq,Ord,Show)
 
@@ -343,21 +331,21 @@ uniqueSol node = singleton (solveNs [node]) where
   singleton [x] = True
   singleton (x:y:zs) = False
 
-eraseS :: Sudoku -> (Row,Column) -> Sudoku
+eraseS :: Sudoku -> Position -> Sudoku
 eraseS s (r,c) (x,y) | (r,c) == (x,y) = 0
                      | otherwise      = s (x,y)
 
-eraseN :: Node -> (Row,Column) -> Node
+eraseN :: Node -> Position -> Node
 eraseN n (r,c) = (s, constraints s) 
   where s = eraseS (fst n) (r,c) 
 
-minimalize :: Node -> [(Row,Column)] -> Node
+minimalize :: Node -> [Position] -> Node
 minimalize n [] = n
 minimalize n ((r,c):rcs) | uniqueSol n' = minimalize n' rcs
                          | otherwise    = minimalize n  rcs
   where n' = eraseN n (r,c)
 
-filledPositions :: Sudoku -> [(Row,Column)]
+filledPositions :: Sudoku -> [Position]
 filledPositions s = [ (r,c) | r <- positions,  
                               c <- positions, s (r,c) /= 0 ]
 
@@ -366,9 +354,9 @@ genProblem n = do ys <- randomize xs
                   return (minimalize n ys)
    where xs = filledPositions (fst n)
 
--- main :: IO ()
--- main = do [r] <- rsolveNs [emptyN]
---           showNode r
---           s  <- genProblem r
---           showNode s
-
+main2 :: IO ()
+main2 = do 
+          [r] <- rsolveNs [emptyN]
+          showNode r
+          s  <- genProblem r
+          showNode s
