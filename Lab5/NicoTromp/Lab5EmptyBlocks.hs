@@ -107,10 +107,26 @@ cleanCells n (x:xs) = eraseN (cleanCells n xs) x
 cleanBlocks :: Node -> [(Row, Column)] -> Node
 cleanBlocks n xs = cleanCells n (concatMap (\(r,c) -> [(r',c') | r' <- blocks !! (r-1), c' <- blocks !! (c-1)]) xs)
 
+shuffleBlocks :: IO [(Row, Column)]
+shuffleBlocks = randomize [(r,c) | r <- [1..3], c <- [1..3]]
+
+no3Adjacent :: [(Row, Column)] -> Bool
+no3Adjacent xs = all (\ys -> length ys < 3) [ filter (\(r,c) -> r == r') xs | r' <- [1..3]] &&
+                 all (\ys -> length ys < 3) [ filter (\(r,c) -> c == c') xs | c' <- [1..3]]
+
+-- Randomizes the order of the blocks and ensures that there are no three empty
+-- blocks adjacent in a row or column
+blocksToEmpty :: Int -> IO [(Row, Column)]
+blocksToEmpty n = do xs <- shuffleBlocks
+                     let xs' = take n xs
+                     if no3Adjacent xs' then return (sort xs')
+                     else blocksToEmpty n
+
 checkEmptyBlockSudoku :: Int -> IO ()
 checkEmptyBlockSudoku n = do [r] <- rsolveNs [emptyN]
                              showNode r
-                             xs <- randomize [(r,c) | r <- [1..3], c <- [1..3]]
+                             xs <- shuffleBlocks
+                             -- xs <- blocksToEmpty n
                              let xs' = take n xs
                              let r' = cleanBlocks r xs'
                              if uniqueSol r' then do
