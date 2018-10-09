@@ -6,6 +6,7 @@ import Test.QuickCheck
 import Sjoerd_Lab5_Ex1
 -- import Sjoerd_Lab5_Ex2
 import Sjoerd_Lab5_Ex3_v2
+import Sjoerd_Lab5_Ex4
 import Sjoerd_Lab5_Ex5
 
 -------------------------------------------------------------------------------
@@ -58,6 +59,7 @@ execEx1 = do
 -- +-------+-------+-------+
 
 -- Time: 2h, would've been less if the Lecture5 code'd been documented
+-- see Sjoerd_Lab5_Ex1
 
 -------------------------------------------------------------------------------
 -- == Assignment 2 == --
@@ -65,18 +67,27 @@ execEx1 = do
 execEx2 = do
     Sjoerd_Lab5_Ex5.solveAndShow exercise1
 
-
+-- Time spent: 1h
+-- see Sjoerd_Lab5_Ex5, it contains exercise 2 as well.
 -------------------------------------------------------------------------------
 -- == Assignment 3 == --
 execEx3 = do
     x <- minimalTester
     print x
 
+-- See Sjoerd_Lab5_Ex3_v2.hs for the code itself
+
+-------------------------------------------------------------------------------
+-- == Assignment 4 == --
+execEx4 = do
+    exec4
+-- see Sjoerd_Lab5_Ex4
+-- Time: 1h
 -------------------------------------------------------------------------------
 -- == Assignment 5 == --
 execEx5 = do
     copyOfMain
-
+-- 1min
 
 
 main = do
@@ -87,5 +98,7 @@ main = do
     putStrLn "\n-- == Assignment 3 == --" 
     putStrLn "Please wait...\nIs a randomly generated sudoku minimal? " 
     execEx3
+    putStrLn "\n-- == Assignment 4 == --\nGenerating sudoku with 3 empty squares:" 
+    execEx4
     putStrLn "\n-- == Assignment 5 == --\nGenerating NRC conform sudoku:" 
-    copyOfMain
+    execEx5

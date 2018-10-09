@@ -47,11 +47,17 @@ emptySquares node [] = node
 emptySquares node (squareToEmpty:squaresToEmpty) = emptySquares (eraseN node squareToEmpty) squaresToEmpty
 
 -- Generates a random sudoku with at least three empty blocks. This sudoku isn't necessarily minimal
-main :: IO ()
-main = do [r] <- rsolveNs [emptyN]
+-- exec4 :: IO ()
+exec4 = do
+          [r] <- rsolveNs [emptyN]
           showNode r
           s  <- genProblemEmptyBlocks r 3
           showNode s
+-- main :: IO ()
+-- main = do [r] <- rsolveNs [emptyN]
+--           showNode r
+--           s  <- genProblemEmptyBlocks r 3
+--           showNode s
 
 
 
