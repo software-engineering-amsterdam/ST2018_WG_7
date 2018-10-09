@@ -6,7 +6,10 @@ import Lecture5
 
 {-
 Select randomly the blocks to empty and then generate a Sudoku problem with the cleaned Sudoku.
-If there is no unique solution possible this is reported.
+If there is no unique Sudoku for a given combination of solution and empty blocks, a 
+new attempt is done using a new solution and another combination of empty blocks.
+This might take very long since the empty blocks are not chosen structured, a possible Sudoku
+might be missed over and over again.
 
 3 empty blocks is possible:
 checkEmptyBlockSudoku 3
@@ -67,9 +70,35 @@ checkEmptyBlockSudoku 4
 | 3 6 9 |       | 1     |
 +-------+-------+-------+
 
+5 empty blocks don't seem to be possible.
+Have run the generation of empty block Sudoku's for about an hour.
+
 
 Time spent: 1:00
 -}
+
+example3EmptyBlocks :: Grid
+example3EmptyBlocks = [[4,2,0,3,0,8,0,0,0],
+                       [0,0,9,2,0,1,0,0,0],
+                       [0,0,5,9,7,0,0,0,0],
+                       [6,3,0,0,0,0,0,0,5],
+                       [0,0,1,0,0,0,0,8,0],
+                       [7,0,0,0,0,0,0,4,0],
+                       [0,6,0,0,0,0,7,0,0],
+                       [9,0,0,0,0,0,0,0,8],
+                       [8,5,3,0,0,0,1,0,0]]
+
+
+example4EmptyBlocks :: Grid
+example4EmptyBlocks =[[0,0,0,2,7,0,0,0,0],
+                      [0,0,0,5,0,4,0,0,0],
+                      [0,0,0,9,1,0,0,0,0],
+                      [2,0,0,0,0,0,0,7,4],
+                      [4,0,8,0,0,0,0,5,3],
+                      [7,5,0,0,0,0,6,0,2],
+                      [0,8,0,0,0,0,0,9,0],
+                      [0,0,0,0,0,0,0,6,7],
+                      [3,6,9,0,0,0,1,0,0]]
 
 cleanCells :: Node -> [(Row, Column)] -> Node
 cleanCells n []     = n
@@ -87,5 +116,4 @@ checkEmptyBlockSudoku n = do [r] <- rsolveNs [emptyN]
                              if uniqueSol r' then do
                                 s  <- genProblem r'
                                 showNode s
-                             else putStrLn ("--- Failed.\n There is no unique solution possible whith clean blocks: "
-                                           ++ (show  xs')) 
+                             else checkEmptyBlockSudoku n
