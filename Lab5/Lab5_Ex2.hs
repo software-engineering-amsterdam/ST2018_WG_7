@@ -18,8 +18,9 @@ NRC constraints (see Lab5GenericNRC.hs). Adding the NRC constraints is easier be
 is extensible. Just add a list of positions for which the injective function should be applied
 and your ready to go.
 
-When taking the number of lines of code for efficiency metric this version should be more
-efficien.
+The refactored code of exercise2 is a lot slower than the code provided in lecture5. 
+We trade in readability and extendability for peformance. Please see the Readme for peformance test
+results.
 
 Time spent: 3:30
 -}
