@@ -8,8 +8,8 @@ import System.Random
 {-
 Refactored in such a way that there is no notion anymore of row-, column- or grid-constraints.
 A constraint can be defined as a list of 9 position for which the injective function must apply.
-Therefore there is nomore any difference between a row-, column-, or gridconstraint. As long
-as the list of constraints holds the corresponding positions they will be applied.
+Therefore there is no more any difference between a row-, column-, or gridconstraint. As long
+as all the constraints in the list hold, the (partial) solution is ok.
 
 Refactoring the original code and creating this version took more time then modifying the
 original code when incorporating the NRC constraint. Once this refactoring is done adding or
@@ -17,6 +17,8 @@ changing the constraints is a lot easier in this version, it took about 5 minute
 NRC constraints (see Lab5GenericNRC.hs). Adding the NRC constraints is easier because this version
 is extensible. Just add a list of positions for which the injective function should be applied
 and your ready to go.
+
+Around lines 65 to 62 there are a couple of examples that show how easy it is to add new constraints.
 
 The refactored code of exercise2 is a lot slower than the code provided in lecture5. 
 We trade in readability and extendability for peformance. Please see the Readme for peformance test
@@ -51,7 +53,10 @@ blockConstrnt = [[(r,c)| r <- b1, c <- b2 ] | b1 <- blocks, b2 <- blocks ]
 -- All constraint that should be met
 allConstrnts :: Constrnt
 allConstrnts = rowConstrnt ++ columnConstrnt ++ blockConstrnt
+-- This is an example constraint that enforces the injective to be applied
+-- to all the middle numbers of each subgrid.
                -- ++ [[(2,2),(2,5),(2,8),(5,2),(5,5),(5,8),(8,2),(8,5),(8,8)]]
+-- This are the NRC constraint which can be added to the list in order to solve NRC Sdudoku's.
                -- ++ [[(1,1),(1,2),(1,3),(2,4),(2,5),(2,6),(3,7),(3,8),(3,9)],
                --     [(4,1),(4,2),(4,3),(5,4),(5,5),(5,6),(6,7),(6,8),(6,9)],
                --     [(7,1),(7,2),(7,3),(8,4),(8,5),(8,6),(9,7),(9,8),(9,9)]]
