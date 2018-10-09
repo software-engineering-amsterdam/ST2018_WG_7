@@ -20,11 +20,7 @@ Time spend: 3,5 hours
 
 --Finds all parents of a node
 parents :: Node -> [Node]
-parents n = [eraseN n (r,c) | 
-              r <- positions, 
-              c <- positions, 
-              elem (r,c) $ filledPositions (fst n)
-            ]
+parents n = [eraseN n p | p <- filledPositions (fst n)]
 
 {-
 Applying length to unknown lists is generally a bad idea, both practically due to infinite lists,
