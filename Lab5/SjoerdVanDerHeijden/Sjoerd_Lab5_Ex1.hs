@@ -14,21 +14,25 @@ nrcBlocks = [[2..4],[6..8]]
 bl :: Int -> [[Int]]
 bl x = [(concat $ filter (elem x) blocks), (concat $ filter (elem x) nrcBlocks)]
 
+-- General function to find in which subgrid a square is. Works for NRC sudokus, as well as any other new types of block added.
 subGrid :: Sudoku -> (Row,Column) -> [[Value]]
 subGrid s (r,c) = 
   [ [s (r',c') | r' <- (bl r)!!i, c' <- (bl c)!!i] 
   | i <- [0.. length(bl r)-1 ] ]
 
+-- Finds the intersection of all lists in another list.
 allIntersect :: [[Int]] -> [Int]
 allIntersect mygrids = [ x | x <- [1..9], all (elem x) (filter (/=[]) mygrids)]
 
 freeInSubgrid :: Sudoku -> (Row,Column) -> [Value]
 freeInSubgrid s (r,c) = allIntersect (map freeInSeq (subGrid s (r,c)))
 
+-- Finds if all subgrids that contain a given square are interjective.
 subgridInjective :: Sudoku -> (Row,Column) -> Bool
 subgridInjective s (r,c) = and [injective v | v <- vs ] where 
    vs = [filter (/= 0) subg | subg <- (subGrid s (r,c))]
 
+-- Finds if a square shares any block with another square.
 sameblock :: (Row,Column) -> (Row,Column) -> Bool
 sameblock (r,c) (x,y) = or [subgr!!i == subgx!!i && subgc!!i == subgy!!i | i <- [0..length subgr -1] ] 
   where subgr = bl r

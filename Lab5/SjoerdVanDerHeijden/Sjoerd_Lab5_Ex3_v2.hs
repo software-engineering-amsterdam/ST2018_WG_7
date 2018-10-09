@@ -19,6 +19,10 @@ minimalTester = do
                       && uniqueSol s -- Takes 4 minutes to complete...
 
             return mybool
+-- If the grid cannot be futher minimalized by the minimalize function, and there's only one solution, the sudoku must be minimal.
+-- Alternatively, I could make something that tries to remove an element but
+-- leave the rest of the grid as it is, then check whether there's a single
+-- solution, and do that for every element in the grid.
 -- Time: 30min
 
 -- Lecture5 code
