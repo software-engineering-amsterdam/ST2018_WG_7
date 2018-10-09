@@ -1,0 +1,9 @@
+To classify problems in difficulty, we could look at what is necessary to complete the sudoku. Not all sudokus require guessing for example, and within a sudoku we can count the number of required guesses, and the required number of moves without guessing in order to solve the sudoku.
+
+Of course difficulty is a subjective measure, and thus we might have a hard time predicting how hard a sudoku will be with these metrics. In Pelánek's data we look at sudokus solved online. This might skew the data. When I solve a sudoku, I fill in the possible numbers at a square, and when guessing I make a note. If this is not possible on the sites used, this might show sudokus where this is extensively required to look a lot harder in the results.
+
+To generate an easy to solve by hand minimal problem, we take a hard to solve by hand problem, and switch the rows and columns within a block such that the top left is always empty for example. We then switch the block rows and columns such that the top left is always the emptiest.
+Also, we might choose to remap the number such that the number with the most missing cells is remapped to 1, in descending order to 9.
+Of course, to test these methods we could let them loose on these sudoku websites to see whether they are easier to solve.
+
+Generating a hard sudoku problem we want to make sure these metrics are the highest, as described by Pelánek. Taking table 3 from Pelánek's article at https://arxiv.org/pdf/1403.7373.pdf, we might be able to build a sudoku which is hard to solve by hand by looking at an technique which closely resembles human performance on sudokus, and find the optima for time taken at each operation the algorithm performs. These worst case scenario sudokus might be good candidates for a hard puzzle to solve by hand as a human.
