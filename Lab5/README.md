@@ -41,4 +41,60 @@
 +---------+-----------+---------+
 [()]
 ```
+## --== EXERCISE 2 ==--
+```
+-- == Assignment 2 == --
++-------+-------+-------+
+| 4 2 9 | 3 6 7 | 5 8 1 |
+| 1 8 6 | 4 2 5 | 9 7 3 |
+| 5 3 7 | 8 1 9 | 6 2 4 |
++-------+-------+-------+
+| 9 1 2 | 6 7 4 | 8 3 5 |
+| 3 7 5 | 2 8 1 | 4 9 6 |
+| 8 6 4 | 9 5 3 | 7 1 2 |
++-------+-------+-------+
+| 2 9 1 | 5 4 8 | 3 6 7 |
+| 6 5 8 | 7 3 2 | 1 4 9 |
+| 7 4 3 | 1 9 6 | 2 5 8 |
++-------+-------+-------+
++-------+-------+-------+
+|   2   |     7 |       |
+| 1 8   |       |   7   |
+|       |       |     4 |
++-------+-------+-------+
+| 9     |     4 |     5 |
+| 3     |   8   |       |
+|     4 |       |   1   |
++-------+-------+-------+
+|       | 5     | 3     |
+| 6   8 |   3   | 1 4   |
+| 7     | 1 9   |       |
++-------+-------+-------+
+```
 
+```
+λ ghci PerformanceEx1.hs
+*PerformanceEx1> :set +s
+*PerformanceEx1> runPerformanceTest1
+-- == Running Lecture5 solver == --
+True
+(7.17 secs, 3,998,016,632 bytes)
+```
+
+
+```
+λ ghci PerformanceEx2.hs
+*PerformanceEx2> :set +s
+*PerformanceEx2> runPerformanceTest2
+-- == Running refactored solver == --
+True
+(18.70 secs, 3,737,028,848 bytes)
+```
+
+## --== EXERCISE 3 ==--
+-- == Exercise 3 Minimal sudokus == --
+Testing 10 sudokus ...
++++ OK, Tested 10 sudokus
+## --== EXERCISE 4 ==--
+## --== EXERCISE 5 ==--
+## --== EXERCISE 6 ==--
