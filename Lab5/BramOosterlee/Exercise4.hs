@@ -364,9 +364,10 @@ genProblem n = do ys <- randomize xs
 -- Even with two empty leftmost blocks we run into some issues, as we're not certain what columns we stick the '1's in. Solving the rest
 -- of the puzzle might give us more information on where to place the numbers however, since we have some column information.
 -- I suspect these won't be solveable, as we'll only eliminate one of the three columns in the adjacent blocks.
+
 -- Since we can only fit three values in the column of the block that isn't empty adjacent to the two empty blocks (bottom left),
 -- we'll only be able to cross off three values per column, leaving us with two positions for each number in the top left block,
--- and the same two positions for those numbers in the middle left block, leaving the puzzle unsolvable,
+-- and the same two positions for those numbers in the middle left block, leaving the puzzle possibly unsolvable,
 -- since no further column information will ever be revealed.
 
 -- It should be noted that any transformation of a sudoku where an entire column of blocks, or rows is switched still has the same solutions
