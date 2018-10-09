@@ -1,4 +1,4 @@
-module Exercise4
+module Lab5_Ex4
 
 where
 

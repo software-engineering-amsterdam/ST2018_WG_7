@@ -6,6 +6,8 @@ import System.Random
 import Lab5_Ex1
 import Lab5_Ex2
 import Lab5_Ex3
+import Lab5_Ex4
+import Lab5_Ex5
 
 -------------------------------------------------------------------------------
 -- == Assignment 1 == --
@@ -36,7 +38,6 @@ execEx1 = do
 execEx2 = do
     main2
 
-
 -------------------------------------------------------------------------------
 -- == Assignment 3 == --
 execEx3 = do
@@ -44,13 +45,16 @@ execEx3 = do
 
 -------------------------------------------------------------------------------
 -- == Assignment 4 == --
+execEx4 = do
+    runExercise4
 
 -------------------------------------------------------------------------------
 -- == Assignment 5 == --
+execEx5 = do
+    main5
 
-
-
-
+-------------------------------------------------------------------------------
+-- == Main == --
 main = do
     putStrLn "\n-- == Assignment 1 == --" 
     execEx1
@@ -60,6 +64,6 @@ main = do
     -- putStrLn "Please wait...\nIs a randomly generated sudoku minimal? " 
     execEx3
     putStrLn "\n-- == Assignment 4 == --\nGenerating sudoku with 3 empty squares:" 
-    -- execEx4
+    execEx4
     putStrLn "\n-- == Assignment 5 == --\nGenerating NRC conform sudoku:" 
-    -- execEx5
+    execEx5
