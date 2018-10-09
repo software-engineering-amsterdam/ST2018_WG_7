@@ -84,7 +84,8 @@ checkEmptyBlockSudoku n = do [r] <- rsolveNs [emptyN]
                              xs <- randomize [(r,c) | r <- [1..3], c <- [1..3]]
                              let xs' = take n xs
                              let r' = cleanBlocks r xs'
-                             s  <- genProblem r'
-                             if uniqueSol r' then showNode s
+                             if uniqueSol r' then do
+                                s  <- genProblem r'
+                                showNode s
                              else putStrLn ("--- Failed.\n There is no unique solution possible whith clean blocks: "
                                            ++ (show  xs')) 
