@@ -181,5 +181,7 @@ Generating NRC conform sudoku:
 |       7 | 2         |   4     |
 +---------+-----------+---------+
 ```
+
 ## --== EXERCISE 6 ==--
 
+[Explanation exercise 6](Lab5_Ex6.txt)
