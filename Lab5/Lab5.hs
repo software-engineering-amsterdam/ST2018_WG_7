@@ -5,6 +5,7 @@ import System.Random
 
 import Lab5_Ex1
 import Lab5_Ex2
+import Lab5_Ex3
 
 -------------------------------------------------------------------------------
 -- == Assignment 1 == --
@@ -39,7 +40,7 @@ execEx2 = do
 -------------------------------------------------------------------------------
 -- == Assignment 3 == --
 execEx3 = do
-	main3
+    runExercise3
 
 -------------------------------------------------------------------------------
 -- == Assignment 4 == --
@@ -55,10 +56,10 @@ main = do
     execEx1
     putStrLn "\n-- == Assignment 2 == --" 
     execEx2
-    putStrLn "\n-- == Assignment 3 == --" 
-    putStrLn "Please wait...\nIs a randomly generated sudoku minimal? " 
+    -- putStrLn "\n-- == Assignment 3 == --" 
+    -- putStrLn "Please wait...\nIs a randomly generated sudoku minimal? " 
     execEx3
     putStrLn "\n-- == Assignment 4 == --\nGenerating sudoku with 3 empty squares:" 
-    execEx4
+    -- execEx4
     putStrLn "\n-- == Assignment 5 == --\nGenerating NRC conform sudoku:" 
-    execEx5
+    -- execEx5
