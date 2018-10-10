@@ -8,6 +8,56 @@ import System.Random
 
 -- This file buils on Lecture5 code, so it considers regular sudokus
 
+-- Generates a random sudoku with at least nToEmpty empty blocks. This sudoku isn't necessarily minimal
+genProblemEmptyBlocks :: Node -> Int -> IO Node
+genProblemEmptyBlocks node nToEmpty = do 
+                  squaresToEmpty <- getSquaresOfPickedBlocks nToEmpty
+                  let m = emptySquares node squaresToEmpty
+                  o <- (genProblem m)
+                  return o
+                  -- if length (solveNs [o]) > 0 then return o else genProblemEmptyBlocks node nToEmpty 
+
+-- Generates a list of random integers between 1 and 3 of length n
+-- source: https://stackoverflow.com/a/30741139
+randomList :: Int -> IO([Int])
+randomList 0 = return []
+randomList n = do
+  r  <- randomRIO (1,3)
+  rs <- randomList (n-1)
+  return (r:rs) 
+
+-- Generates a list of n unique tuples, each signifying one of nine blocks in a sudoku.
+pickBlocks :: Int -> IO [(Int,Int)]
+pickBlocks n = do 
+        as <- randomList n
+        bs <- randomList n
+        let cs = (zip as bs)
+        if (nub cs) == cs then return cs else pickBlocks n
+
+-- Finds the coordinates of all squares within n randomly chosen sudoku blocks.
+getSquaresOfPickedBlocks :: Int -> IO [(Int,Int)]
+getSquaresOfPickedBlocks n = do
+        cs <- pickBlocks n 
+        let squaresToEmpty = concat [ [(a,b) | a <- bl ((fst c)*3), b <- bl ((snd c)*3) ] | c <- cs ]
+        return squaresToEmpty
+
+-- Empties all squares at the given coordinates.
+emptySquares :: Node -> [(Int,Int)] -> Node
+emptySquares node [] = node
+emptySquares node (squareToEmpty:squaresToEmpty) = emptySquares (eraseN node squareToEmpty) squaresToEmpty
+
+-- Generates a random sudoku with at least three empty blocks. This sudoku isn't necessarily minimal
+-- exec4 :: IO ()
+exec4 = do
+          [r] <- rsolveNs [emptyN]
+          showNode r
+          s  <- genProblemEmptyBlocks r 3
+          showNode s
+-- main :: IO ()
+-- main = do [r] <- rsolveNs [emptyN]
+--           showNode r
+--           s  <- genProblemEmptyBlocks r 3
+--           showNode s
 
 
 
@@ -352,9 +402,9 @@ genProblem n = do ys <- randomize xs
                   return (minimalize n ys)
    where xs = filledPositions (fst n)
 
-main :: IO ()
-main = do [r] <- rsolveNs [emptyN]
-          showNode r
-          s  <- genProblem r
-          showNode s
+-- main :: IO ()
+-- main = do [r] <- rsolveNs [emptyN]
+--           showNode r
+--           s  <- genProblem r
+--           showNode s
 
