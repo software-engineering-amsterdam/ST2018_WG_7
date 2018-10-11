@@ -7,24 +7,51 @@ import Data.List
 import System.Random
 import System.IO.Unsafe
 
-
+-- Source: https://stackoverflow.com/a/4695002
+isPrime k = null [ x | x <- [2..k - 1], k `mod`x  == 0]
 
 -------------------------------------------------------------------------------
 -- == Exercise 1 == --
 exM :: Integer -> Integer -> Integer -> Integer
 exM x 0 divisor = 1 `rem` divisor
-exM x power divisor |even power = (exM x (power `div` 2) divisor)^2 `rem` divisor
+exM x power divisor | even power = (exM x (power `div` 2) divisor)^2 `rem` divisor
                     | otherwise = (exM x (power-1) divisor * x) `rem` divisor
+
+-------------------------------------------------------------------------------
+-- == Exercise 2 == --
+
+{-
+I like it well enough now:
+*Sjoerd_Lab6> :set +s
+*Sjoerd_Lab6> expM 9999999 999999 53425021
+7655597
+(0.41 secs, 8,308,576 bytes)
+*Sjoerd_Lab6> exM 9999999 999999 53425021
+7655597
+(0.02 secs, 76,352 bytes)
+
+This shows that my exM function is a lot more efficient than the old exM function.
+-}
 
 -------------------------------------------------------------------------------
 -- == Exercise 3 == --
 composites :: [Integer]
-composites = [n | n <- [1..], any (\x -> 0 == n `mod` x) [2..(div n 3)+1] ]
+composites = [n | n <- [1..], not (isPrime n) ]
+
+doExec3 = do
+    putStrLn "-- == Exercise 3 == --" 
+    putStrLn "Showing 10 composites" 
+    putStrLn (show (take 10 (composites)) )
 
 -------------------------------------------------------------------------------
 -- == Exercise 4 == --
 fBreaker :: Int -> [Integer]
 fBreaker k = [composite | composite <- composites, unsafePerformIO (primeTestsF k composite)]
+
+doExec4 = do
+    putStrLn "-- == Exercise 4 == --" 
+    putStrLn "Showing 10 composite numbers that pass primeTestsF for k = 2" 
+    putStrLn (show (take 10 (fBreaker 2)) )
 
 {-
  I should've used unsafePerformIO so much sooner, it is beautiful and makes
@@ -48,6 +75,13 @@ carmichael = [ (6*k+1)*(12*k+1)*(18*k+1) |
 fBreakerCarmichael :: Int -> [Integer]
 fBreakerCarmichael k = [nCarmichael | nCarmichael <- carmichael, unsafePerformIO (primeTestsF k nCarmichael)]
 
+doExec5 = do 
+    putStrLn "-- == Exercise 5 == --" 
+    putStrLn "Showing carmichael numbers that pass primeTestsF for k = 1"
+    putStrLn (show (take 5 (fBreakerCarmichael 1)))
+    putStrLn "Showing carmichael numbers that pass primeTestsF for k = 1000"
+    putStrLn (show (take 5 (fBreakerCarmichael 1000)))
+
 {-
  Each carmichael number very often gives a false positive in primeTestsF.
  All carmichael numbers Carmichael numbers should always give false positives
@@ -66,15 +100,85 @@ fBreakerCarmichael k = [nCarmichael | nCarmichael <- carmichael, unsafePerformIO
 mrBreakerCarmichael :: Int -> [Integer]
 mrBreakerCarmichael k = [nCarmichael | nCarmichael <- carmichael, unsafePerformIO (primeMR k nCarmichael)]
 
+doExec6_1 = do
+    putStrLn "-- == Exercise 6.1 == --" 
+    putStrLn "Showing 5 carmichael numbers that pass primeMR"
+    putStrLn (show (take 5 (mrBreakerCarmichael 2)) )
 {-
  primeMR returns fewer false positives for carmichael numbers.
-
- 
+ This is as expected, as the property that is tested for in primeMR is different
+ than the property of Carmichael numbers, contrary to primeTestsF.
 -}
 
 -------------------------------------------------------------------------------
 -- == Exercise 6: round 2 == --
+-- Source: Turner's sieve, https://wiki.haskell.org/Prime_numbers
+primesT :: [Int]
+primesT = sieve [2..]
+          where
+          sieve (p:xs) = p : sieve [x | x <- xs, rem x p > 0]
 
+-- mersennePrimes = [(2^p)-1 | p <- primesT, isPrime ((2^p)-1) ]
+mersennePrimes = [(2^p)-1 | p <- primesT, unsafePerformIO (primeMR 3 ((2^p)-1)) ]
+
+doExec6_2 = do
+    putStrLn "-- == Exercise 6.2 == --" 
+    putStrLn "Showing the 15 first Mersenne primes"
+    putStrLn (show (take 15 mersennePrimes) )
+
+
+-------------------------------------------------------------------------------
+-- == Exercise 7 == --
+
+-- Source: https://wiki.haskell.org/Prime_numbers#Calculating_Primes_in_a_Given_Range
+-- primesFromToA a b = (if a<3 then [2] else []) 
+--                       ++ [i | i <- [o,o+2..b], ar ! i]
+--   where 
+--     o  = max (if even a then a+1 else a) 3   -- first odd in the segment
+--     r  = floor . sqrt $ fromIntegral b + 1
+--     ar = accumArray (\_ _ -> False) True (o,b)  -- initially all True,
+--           [(i,()) | p <- [3,5..r]
+--                     , let q  = p*p      -- flip every multiple of an odd 
+--                           s  = 2*p                         -- to False
+--                           (n,x) = quotRem (o - q) s 
+--                           q2 = if  o <= q  then q
+--                                else  q + (n + signum x)*s
+--                     , i <- [q2,q2+s..b] ]
+
+ -- [ x <- [2^n..2^(n+1)-1], primeMR 5 x ]
+
+randomPrimeGen :: Integer -> IO Integer
+randomPrimeGen n = do
+    x <- randomRIO (2^n,2^(n+1)-1)
+    isprime <- primeMR 5 x
+    if isprime then return x else randomPrimeGen n
+
+randomCoprimeGen :: Integer -> IO Integer
+randomCoprimeGen n = do
+    x <- randomRIO (1,n-1)
+    iscoprime <- coPrime x n
+    if iscoprime then return x else randomCoprimeGen n
+
+generateTwoPrimes n = do
+    x <- randomPrimeGen n
+    y <- randomPrimeGen n
+    let m = (x*y)
+    let totientM = totient m
+    e <- randomCoprimeGen totientM
+    myMessage^(x*y)
+
+
+
+
+
+-------------------------------------------------------------------------------
+-- == Main == --
+main = do
+    doExec3
+    doExec4
+    doExec5
+    doExec6_1
+    doExec6_2
 
 
 
