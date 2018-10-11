@@ -29,6 +29,6 @@ lCFInternal (x:xs) k = do
 
 -- least composite number is 4.
 
--- When we increase k in primeTestsF, we increase the number of random integers we use in the
--- modular exponentiation check for k and n. By taking a larger sample size, we perform the check on more
+-- When we increase k in primeTestsF, we increase the number of random integers we use in
+-- Fermat's primality check for k and n. By taking a larger sample size, we perform the check on more
 -- numbers, and thus increase the certainty whether n is a prime.
