@@ -16,7 +16,7 @@ exM x y n | y == 0    = 1 `mod` n
 composites :: [Integer]
 composites = [n | n <- [3..], any (==True) [mrComposite x n | x <- [2..n-1]]]
 
---Assignment 4, time 00:30
+--Assignment 4, time 00:40
 leastCompositeFail :: Int -> IO Integer
 leastCompositeFail k = lCFInternal Lab6.composites k
 
@@ -28,3 +28,7 @@ lCFInternal (x:xs) k = do
 						else (lCFInternal xs k)
 
 -- least composite number is 4.
+
+-- When we increase k in primeTestsF, we increase the number of random integers we use in the
+-- modular exponentiation check for k and n. By taking a larger sample size, we perform the check on more
+-- numbers, and thus increase the certainty whether n is a prime.
