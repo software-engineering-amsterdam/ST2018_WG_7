@@ -14,7 +14,9 @@ import Lecture6
 --           where xm = x `mod` n
 --                 xhp = exM xm (p `div` 2) n
 
+
 -- EXERCISE 2 --
+
 {-
 Within GHCI, the REPL that I use, it is possible to instruct it to show
 the time and memory consumption of each function.
@@ -42,4 +44,41 @@ takes more time and memory then when the values stay small.
 Our optimized exM function ensures that the numbers Haskell has to do the
 calculation on stay small. Hence the optimized form is more efficient both time-
 and memorywise.
+-}
+
+
+-- EXERCISE 3 --
+
+-- See Lecture1.hs
+-- composites :: [Integer]
+-- composites = [ n | n <- [2..], any (\a -> exM a (n-1) n /= 1) [2..(n-1)]]
+
+
+-- EXERCISE 4 --
+
+-- -- Tests the Fermat Primality Test, it prints the first composite number for which
+-- -- the primality check fails.
+findFirstFailingComposite :: Int -> [Integer] -> IO Integer
+findFirstFailingComposite k (n:ns) = do v <- primeTestsF k n
+                                        if v then return n
+                                        else findFirstFailingComposite k ns
+
+testFermatPrimalityTest k = findFirstFailingComposite k composites
+
+-- See Bram, we did it together :-)
+
+
+-- EXERCISE 5 --
+
+carmichael :: [Integer]
+carmichael = [ (6*k+1)*(12*k+1)*(18*k+1) | k <- [2..], prime (6*k+1), prime (12*k+1), prime (18*k+1) ]
+
+firstCarmichael = head carmichael
+
+{-
+A Carmichael number is a multiplication of three prime numbers. Becuse it is made of three prime numbers there are
+no other factors then the three original prime numbers. Because these factors are prime numbers the Fermat
+primality test will not recognize it as a factor. Since there are only three factors the change that the primality
+test will select them at random. As long as k is small almost all the time a non-factor is selected. This will
+result in a false positive.
 -}
