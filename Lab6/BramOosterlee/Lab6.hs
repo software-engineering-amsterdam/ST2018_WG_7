@@ -4,11 +4,6 @@ import Data.List
 import System.Random
 import Lecture6
 
---Assignment 1, time 00:05
-exM :: Integer -> Integer -> Integer -> Integer
-exM x y n | y == 0    = 1 `mod` n
-          | otherwise = (Lab6.exM x (y-1) n) * (x `mod` n)
-
 --Assignment 2, time
 -- todo: optimize to find the composites more efficiently
 
@@ -24,13 +19,13 @@ primeCheck (x:xs) k = do
 						then return x 
 						else (primeCheck xs k)
 
-primeFailTest :: [Integer] -> Int -> IO Integer
-primeFailTest l k = do
+primeFalsePositiveTest :: [Integer] -> Int -> IO Integer
+primeFalsePositiveTest l k = do
 							x <- sequence [(primeCheck l k) | x <- [1..100]]
 							return (minimum x)
 
-leastCompositeFailTest :: Int -> IO Integer
-leastCompositeFailTest k = primeFailTest Lab6.composites k
+leastCompositeFalsePositiveTest :: Int -> IO Integer
+leastCompositeFalsePositiveTest k = primeFalsePositiveTest Lab6.composites k
 
 -- the least composite is 9 according to the tests.
 
@@ -49,8 +44,8 @@ carmichael = [ (6*k+1)*(12*k+1)*(18*k+1) |
       prime (12*k+1), 
       prime (18*k+1) ]
 
-carmichaelFailTest :: Int -> IO Integer
-carmichaelFailTest k = primeFailTest carmichael k
+carmichaelFalsePositiveTest :: Int -> IO Integer
+carmichaelFalsePositiveTest k = primeFalsePositiveTest carmichael k
 
 -- the primecheck on the carmichael numbers fails at the first carmichael number, 294409.
 
@@ -74,3 +69,40 @@ carmichaelFailTest k = primeFailTest carmichael k
 
 -- We therefore usually see the first carmichael number as a false positive.
 
+--Assignment 6 time 02:30
+primeCheckMR :: [Integer] -> Int -> IO Integer
+primeCheckMR (x:xs) k = do
+						y <- primeMR k x
+						if y 
+						then return x 
+						else (primeCheck xs k)
+
+primeFalsePositiveTestMR :: [Integer] -> Int -> IO Integer
+primeFalsePositiveTestMR l k = do
+							x <- sequence [(primeCheckMR l k) | x <- [1..100]]
+							return (minimum x)
+
+carmichaelFalsePositiveMRTest :: Int -> IO Integer
+carmichaelFalsePositiveMRTest k = primeFalsePositiveTestMR carmichael k
+
+-- With primeCheckMR, we see that the result is 56052361 more often than our first carmichael number
+-- 294409, found with the previous exercise.
+
+
+-- The following implementation will calculate all mersenne primes, given enough time.
+-- The issue is that the line {l <- (mersenneSequenceInternal xs k)} turns the IO [Integer] list into
+-- an Integer list. This requires the system to first calculate the left over mersenne primes list
+-- before continuing, which is never completed.
+
+-- The code therefore never returns a value.
+mersenneSequenceInternal :: [Integer] -> Int -> IO [Integer]
+mersenneSequenceInternal (x:xs) k = do
+										y <- primeMR k (2^x-1)
+										if y 
+										then do
+											l <- (mersenneSequenceInternal xs k)
+											return ([2^x-1] ++ l)
+										else (mersenneSequenceInternal xs k)
+
+mersenneSequence :: Int -> [IO Integer]
+mersenneSequence = mersenneSequenceInternal primes

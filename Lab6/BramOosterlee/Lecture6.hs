@@ -110,8 +110,11 @@ coprimes = filter (uncurry coprime) pairs
 expM ::  Integer -> Integer -> Integer -> Integer
 expM x y = rem (x^y)
 
+--Assignment 1, time 00:20
 exM :: Integer -> Integer -> Integer -> Integer
-exM = expM -- to be replaced by a fast version
+exM x y n | y == 0    = 1 `mod` n
+          | even y    = ((exM x (y `div` 2) n) ^ 2) `mod` n
+          | otherwise = (exM x (y-1) n) * (x `mod` n)
 
 primeTestF :: Integer -> IO Bool
 primeTestF n = do 
