@@ -84,7 +84,7 @@ result in a false positive.
 The first Carmichael number the code above generates uses 37, 73 and 109 as the factors
 -}
 
--- EXERCISE 6 --
+-- EXERCISE 6.1 --
 
 findFirstFailingMR :: Int -> [Integer] -> IO Integer
 findFirstFailingMR k (n:ns) = do v <- primeMR k n
@@ -97,3 +97,22 @@ testMRPrimalityTest k = findFirstFailingMR k carmichael
 Using the code above it is possible to get false positves as long as k is kept small.
 The bigger k is the bigger the first Carmichael number is that fails the test.
 -}
+
+
+-- EXERCISE 6.2 --
+
+isPrime :: Integer -> IO (Integer, Bool)
+isPrime n = do v <- primeMR 10 n
+               return (n,v)
+
+-- mersennePrimes m = do ps <- sequence $ (take m [ isPrime (2^p - 1) | p <- [2..], prime p ])
+mersennePrimes :: Integer -> IO [Integer]
+mersennePrimes m = do ps <- sequence $ [ isPrime (2^p - 1) | p <- [2..m], prime p ]
+                      return (map fst (filter snd ps))
+
+main :: Integer -> IO ()
+main m = do ps <- mersennePrimes m
+            putStrLn (show ps)
+
+
+    
