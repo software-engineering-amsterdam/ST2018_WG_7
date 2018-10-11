@@ -111,11 +111,11 @@ expM ::  Integer -> Integer -> Integer -> Integer
 expM x y = rem (x^y)
 
 exM :: Integer -> Integer -> Integer -> Integer
-exM x p n | p == 0    = 1
-          | even p    = xhp^2 `rem` n
-          | otherwise = (xm * xhp^2) `rem` n
-          where xm = x `rem` n
-                xhp = exM xm (p `div` 2) n
+exM x p n | p < 0     = error "Negative exponent"    
+          | p == 0    = 1
+          | even p    = (exM x' (p `div` 2) n)^2 `rem` n
+          | otherwise = x' * (exM x' (p-1) n) `rem` n
+          where x' = x `rem` n
 
 primeTestF :: Integer -> IO Bool
 primeTestF n = do 
