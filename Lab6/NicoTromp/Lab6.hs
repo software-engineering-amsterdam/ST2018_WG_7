@@ -101,22 +101,17 @@ The bigger k is the bigger the first Carmichael number is that fails the test.
 
 -- EXERCISE 6.2 --
 
-isPrime :: Integer -> IO (Bool, Integer)
-isPrime n = do v <- primeMR 10 n
-               return (v,n)
+nextMersennePrime :: Integer -> IO (Integer, Integer)
+nextMersennePrime p | prime p = do v <- primeMR 10 (2^p-1)
+                                   if v then return (p, (2^p-1))
+                                   else nextMersennePrime (p+1)
+                    | otherwise = nextMersennePrime (p+1)
 
-mersennePrimes :: Integer -> IO [Integer]
-mersennePrimes p = do ps <- sequence $ [ isPrime (2^p' - 1) | p' <- [2..p], prime p' ]
-                      return (map snd (filter fst ps))
+showNextMersennePrime :: Integer -> Integer -> IO ()
+showNextMersennePrime n p = do mp <- nextMersennePrime p
+                               putStrLn ((show n) ++ "\t" ++ (show (fst mp)) ++ "\t" ++ (show (snd mp)))
+                               showNextMersennePrime (n+1) ((fst mp)+1)
 
-showPrimes :: [Integer] -> IO ()
-showPrimes []     = putStrLn "That's all folks..."
-showPrimes (p:ps) = do putStrLn ("MP = " ++ (show p))
-                       showPrimes ps
-
-main :: Integer -> IO ()
-main m = do ps <- mersennePrimes m
-            showPrimes ps
-
-
-    
+mersennePrimes = do
+    putStrLn "Nr\tp\tMersenne prime"
+    showNextMersennePrime 1 2
