@@ -81,4 +81,19 @@ no other factors then the three original prime numbers. Because these factors ar
 primality test will not recognize it as a factor. Since there are only three factors the change that the primality
 test will select them at random. As long as k is small almost all the time a non-factor is selected. This will
 result in a false positive.
+The first Carmichael number the code above generates uses 37, 73 and 109 as the factors
+-}
+
+-- EXERCISE 6 --
+
+findFirstFailingMR :: Int -> [Integer] -> IO Integer
+findFirstFailingMR k (n:ns) = do v <- primeMR k n
+                                 if v then return n
+                                 else findFirstFailingMR k ns
+
+testMRPrimalityTest k = findFirstFailingMR k carmichael
+
+{-
+Using the code above it is possible to get false positves as long as k is kept small.
+The bigger k is the bigger the first Carmichael number is that fails the test.
 -}
