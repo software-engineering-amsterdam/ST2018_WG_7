@@ -2,13 +2,25 @@ module Sjoerd_Lab6 where
 
 import Data.List
 import Test.QuickCheck
+import Data.Time.Clock
 
-exM :: Integer -> Integer -> Integer -> Integer
-exM x 1 divisor = x `mod` divisor
-exM x power divisor | mod power 2 == 0 = (exM x (power `div` 2) divisor)^2
-                    | otherwise = exM x (power-1) divisor * x `mod` divisor
+import Lecture6
 
--- quicktester :: Integral a => a -> Bool
--- quicktester a = ((mod (a^32) 17) * (mod a 17)) == (mod (a^33) 17)
+-------------------------------------------------------------------------------
+-- == Assignment 1 == --
+-- exM :: Integer -> Integer -> Integer -> Integer
+-- exM x 1 divisor = x `mod` divisor
+-- exM x power divisor | mod power 2 == 0 = (exM x (power `div` 2) divisor)^2
+--                     | otherwise = exM x (power-1) divisor * x `mod` divisor
 
--- do justnow <- x; now <- getCurrentTime ; return (diffUTCTime justnow now)
+
+-------------------------------------------------------------------------------
+-- == Assignment 2 == --
+efficiencyTester = do 
+                    justnow <- getCurrentTime
+                    -- x <- arbitrary
+                    -- power <- arbitrary
+                    -- divisor <- arbitrary
+                    -- exM x power divisor
+                    now <- getCurrentTime
+                    return (diffUTCTime justnow now)

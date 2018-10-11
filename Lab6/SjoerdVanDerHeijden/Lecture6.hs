@@ -5,6 +5,12 @@ where
 
 import System.Random
 
+exM :: Integer -> Integer -> Integer -> Integer
+exM x 1 divisor = x `mod` divisor
+exM x power divisor | even power = (exM x (power `div` 2) divisor)^2
+                    | otherwise = exM x (power-1) divisor * x `mod` divisor
+
+
 factorsNaive :: Integer -> [Integer]
 factorsNaive n0 = factors' n0 2 where 
   factors' 1 _ = []
@@ -107,11 +113,11 @@ pairs = concatMap (\ n -> zip [1..n] (repeat n)) [1..]
 coprimes :: [(Integer,Integer)]
 coprimes = filter (uncurry coprime) pairs
 
-expM ::  Integer -> Integer -> Integer -> Integer
+expM ::  Integer -> Integer -> (Integer -> Integer)
 expM x y = rem (x^y)
 
-exM :: Integer -> Integer -> Integer -> Integer
-exM = expM -- to be replaced by a fast version
+-- exM :: Integer -> Integer -> Integer -> Integer
+-- exM = expM -- to be replaced by a fast version
 
 primeTestF :: Integer -> IO Bool
 primeTestF n = do 
