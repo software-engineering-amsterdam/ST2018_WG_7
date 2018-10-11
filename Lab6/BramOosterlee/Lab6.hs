@@ -16,4 +16,13 @@ exM x y n | y == 0    = 1 `mod` n
 composites :: [Integer]
 composites = [n | n <- [3..], any (==True) [mrComposite x n | x <- [2..n-1]]]
 
---Assignment 4, time 9:40
+--Assignment 4, time 00:30
+leastCompositeFail :: IO Integer
+leastCompositeFail = lCFInternal Lab6.composites
+
+lCFInternal :: [Integer] -> IO Integer
+lCFInternal (x:xs) = do
+						y <- primeTestF x
+						if (not y) 
+						then return x 
+						else (lCFInternal xs)
