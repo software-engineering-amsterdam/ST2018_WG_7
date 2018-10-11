@@ -148,7 +148,7 @@ primeMR k n = do
     then return False else primeMR (k-1) n
 
 composites :: [Integer]
-composites = error "not yet implemented"
+composites = [ n | n <- [2..], any (\a -> exM a (n-1) n /= 1) [2..(n-1)]]
 
 encodeDH :: Integer -> Integer -> Integer -> Integer
 encodeDH p k m = m*k `mod` p

@@ -43,3 +43,8 @@ Our optimized exM function ensures that the numbers Haskell has to do the
 calculation on stay small. Hence the optimized form is more efficient both time-
 and memorywise.
 -}
+
+-- EXERCISE 3 --
+
+-- composites :: [Integer]
+-- composites = [ n | n <- [2..], any (\a -> exM a (n-1) n /= 1) [2..(n-1)]]
