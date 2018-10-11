@@ -112,9 +112,9 @@ expM x y = rem (x^y)
 
 exM :: Integer -> Integer -> Integer -> Integer
 exM x p n | p == 0    = 1
-          | even p    = xhp^2 `mod` n
-          | otherwise = (xm * xhp^2) `mod` n
-          where xm = x `mod` n
+          | even p    = xhp^2 `rem` n
+          | otherwise = (xm * xhp^2) `rem` n
+          where xm = x `rem` n
                 xhp = exM xm (p `div` 2) n
 
 primeTestF :: Integer -> IO Bool
@@ -148,7 +148,7 @@ primeMR k n = do
     then return False else primeMR (k-1) n
 
 composites :: [Integer]
-composites = error "not yet implemented"
+composites = [ n | n <- [2..], any (\a -> exM a (n-1) n /= 1) [2..(n-1)]]
 
 encodeDH :: Integer -> Integer -> Integer -> Integer
 encodeDH p k m = m*k `mod` p
