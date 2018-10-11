@@ -14,7 +14,9 @@ import Lecture6
 --           where xm = x `mod` n
 --                 xhp = exM xm (p `div` 2) n
 
+
 -- EXERCISE 2 --
+
 {-
 Within GHCI, the REPL that I use, it is possible to instruct it to show
 the time and memory consumption of each function.
@@ -44,7 +46,22 @@ calculation on stay small. Hence the optimized form is more efficient both time-
 and memorywise.
 -}
 
+
 -- EXERCISE 3 --
 
+-- See Lecture1.hs
 -- composites :: [Integer]
 -- composites = [ n | n <- [2..], any (\a -> exM a (n-1) n /= 1) [2..(n-1)]]
+
+
+-- EXERCISE 4 --
+
+findFirstFailingComposite :: [Integer] -> IO Integer
+findFirstFailingComposite (n:ns) = do v <- primeTestF n
+                                      if not v then return n
+                                      else findFirstFailingComposite ns
+
+-- Tests the Fermat Primality Test, it prints the first composite number for which
+-- the primality check fails
+testFermatPrimalityTest = findFirstFailingComposite composites
+
