@@ -21,15 +21,15 @@ the time and memory consumption of each function.
 
 Below is the output of two runs with expM and exM.
 
-*Lab6> expM 9999999 999999 5
-4
-(0.21 secs, 8,334,496 bytes)
-*Lab6>
-
-*Lab6> exM 9999999 999999 5
-4
-(0.00 secs, 98,080 bytes)
+*Lab6> expM 9999999 999999 53425021
+7655597
+(0.20 secs, 8,339,632 bytes)
 *Lab6> 
+
+*Lab6> exM 9999999 999999 53425021
+7655597
+(0.00 secs, 102,336 bytes)
+*Lab6>
 
 This clearly shows that exM is both more efficient time- and memory wise.
 This can be explained by the fact that Haskell doesn't use the CPUs native 
