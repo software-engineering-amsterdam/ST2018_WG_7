@@ -7,8 +7,7 @@ import Data.List
 import System.Random
 import System.IO.Unsafe
 
--- I nabbed this from somewhere 
--- isPrime n = not (any (\x -> 0 == n `mod` x) [2..(div n 3)+1])
+-- Source: https://stackoverflow.com/a/4695002
 isPrime k = null [ x | x <- [2..k - 1], k `mod`x  == 0]
 
 -------------------------------------------------------------------------------
@@ -126,6 +125,51 @@ doExec6_2 = do
     putStrLn "-- == Exercise 6.2 == --" 
     putStrLn "Showing the 15 first Mersenne primes"
     putStrLn (show (take 15 mersennePrimes) )
+
+
+-------------------------------------------------------------------------------
+-- == Exercise 7 == --
+
+-- Source: https://wiki.haskell.org/Prime_numbers#Calculating_Primes_in_a_Given_Range
+-- primesFromToA a b = (if a<3 then [2] else []) 
+--                       ++ [i | i <- [o,o+2..b], ar ! i]
+--   where 
+--     o  = max (if even a then a+1 else a) 3   -- first odd in the segment
+--     r  = floor . sqrt $ fromIntegral b + 1
+--     ar = accumArray (\_ _ -> False) True (o,b)  -- initially all True,
+--           [(i,()) | p <- [3,5..r]
+--                     , let q  = p*p      -- flip every multiple of an odd 
+--                           s  = 2*p                         -- to False
+--                           (n,x) = quotRem (o - q) s 
+--                           q2 = if  o <= q  then q
+--                                else  q + (n + signum x)*s
+--                     , i <- [q2,q2+s..b] ]
+
+ -- [ x <- [2^n..2^(n+1)-1], primeMR 5 x ]
+
+randomPrimeGen :: Integer -> IO Integer
+randomPrimeGen n = do
+    x <- randomRIO (2^n,2^(n+1)-1)
+    isprime <- primeMR 5 x
+    if isprime then return x else randomPrimeGen n
+
+randomCoprimeGen :: Integer -> IO Integer
+randomCoprimeGen n = do
+    x <- randomRIO (1,n-1)
+    iscoprime <- coPrime x n
+    if iscoprime then return x else randomCoprimeGen n
+
+generateTwoPrimes n = do
+    x <- randomPrimeGen n
+    y <- randomPrimeGen n
+    let m = (x*y)
+    let totientM = totient m
+    e <- randomCoprimeGen totientM
+    myMessage^(x*y)
+
+
+
+
 
 -------------------------------------------------------------------------------
 -- == Main == --
