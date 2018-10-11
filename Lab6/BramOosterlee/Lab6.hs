@@ -17,12 +17,14 @@ composites :: [Integer]
 composites = [n | n <- [3..], any (==True) [mrComposite x n | x <- [2..n-1]]]
 
 --Assignment 4, time 00:30
-leastCompositeFail :: IO Integer
-leastCompositeFail = lCFInternal Lab6.composites
+leastCompositeFail :: Int -> IO Integer
+leastCompositeFail k = lCFInternal Lab6.composites k
 
-lCFInternal :: [Integer] -> IO Integer
-lCFInternal (x:xs) = do
-						y <- primeTestF x
+lCFInternal :: [Integer] -> Int -> IO Integer
+lCFInternal (x:xs) k = do
+						y <- primeTestsF k x
 						if (not y) 
 						then return x 
-						else (lCFInternal xs)
+						else (lCFInternal xs k)
+
+-- least composite number is 4.
