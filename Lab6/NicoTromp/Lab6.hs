@@ -101,14 +101,13 @@ The bigger k is the bigger the first Carmichael number is that fails the test.
 
 -- EXERCISE 6.2 --
 
-isPrime :: Integer -> IO (Integer, Bool)
+isPrime :: Integer -> IO (Bool, Integer)
 isPrime n = do v <- primeMR 10 n
-               return (n,v)
+               return (v,n)
 
--- mersennePrimes m = do ps <- sequence $ (take m [ isPrime (2^p - 1) | p <- [2..], prime p ])
 mersennePrimes :: Integer -> IO [Integer]
 mersennePrimes p = do ps <- sequence $ [ isPrime (2^p' - 1) | p' <- [2..p], prime p' ]
-                      return (map fst (filter snd ps))
+                      return (map snd (filter fst ps))
 
 showPrimes :: [Integer] -> IO ()
 showPrimes []     = putStrLn "That's all folks..."
