@@ -107,12 +107,17 @@ isPrime n = do v <- primeMR 10 n
 
 -- mersennePrimes m = do ps <- sequence $ (take m [ isPrime (2^p - 1) | p <- [2..], prime p ])
 mersennePrimes :: Integer -> IO [Integer]
-mersennePrimes m = do ps <- sequence $ [ isPrime (2^p - 1) | p <- [2..m], prime p ]
+mersennePrimes p = do ps <- sequence $ [ isPrime (2^p' - 1) | p' <- [2..p], prime p' ]
                       return (map fst (filter snd ps))
+
+showPrimes :: [Integer] -> IO ()
+showPrimes []     = putStrLn "That's all folks..."
+showPrimes (p:ps) = do putStrLn ("MP = " ++ (show p))
+                       showPrimes ps
 
 main :: Integer -> IO ()
 main m = do ps <- mersennePrimes m
-            putStrLn (show ps)
+            showPrimes ps
 
 
     
