@@ -23,12 +23,18 @@ leastCompositeFail k = lCFInternal Lab6.composites k
 lCFInternal :: [Integer] -> Int -> IO Integer
 lCFInternal (x:xs) k = do
 						y <- primeTestsF k x
-						if (not y) 
+						if y 
 						then return x 
 						else (lCFInternal xs k)
 
--- least composite number is 4.
+leastCompositeFailTest :: Int -> IO Integer
+leastCompositeFailTest k = do
+							x <- sequence [(leastCompositeFail k) | x <- [1..100]]
+							return (minimum x)
+
+-- the least composite is 9 according to the tests.
 
 -- When we increase k in primeTestsF, we increase the number of random integers we use in
 -- Fermat's primality check for k and n. By taking a larger sample size, we perform the check on more
 -- numbers, and thus increase the certainty whether n is a prime.
+
