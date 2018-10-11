@@ -112,9 +112,9 @@ expM x y = rem (x^y)
 
 exM :: Integer -> Integer -> Integer -> Integer
 exM x p n | p == 0    = 1
-          | even p    = xhp^2 `mod` n
-          | otherwise = (xm * xhp^2) `mod` n
-          where xm = x `mod` n
+          | even p    = xhp^2 `rem` n
+          | otherwise = (xm * xhp^2) `rem` n
+          where xm = x `rem` n
                 xhp = exM xm (p `div` 2) n
 
 primeTestF :: Integer -> IO Bool
