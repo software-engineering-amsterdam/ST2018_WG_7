@@ -45,7 +45,12 @@ runExercise4 = do r <- genRandomSudoku
  it returns a minimal sudoku, otherwise it tries again. Beware using n=5 as it
  might take very long, higher than 5 results in an infinite loop as this is
  theoretically impossible.
+ A solution is generated and then n blocks are randomly emptied. If there is a unique solution
+ to this Sudoku the Sudoku problem is printed. If there is nu unique solution another solution is 
+ genereated, and printend, for which three blocks are cleared and the Sudoku is checked. This process
+ continues until time runs out or a unique solution is found.
 -}
+
 cleanCells :: Node -> [(Row, Column)] -> Node
 cleanCells n []     = n
 cleanCells n (x:xs) = eraseN (cleanCells n xs) x
@@ -55,6 +60,13 @@ cleanBlocks n xs = cleanCells n (concatMap (\(r,c) -> [(r',c') | r' <- blocks !!
 
 shuffleBlocks :: IO [(Row, Column)]
 shuffleBlocks = randomize [(r,c) | r <- [1..3], c <- [1..3]]
+
+{-
+The code below has been written just before the deadline and has not been tested thoroughly, hence it is
+left as comment. It is meant to ensure there are at most 2 blocks in a row or column that will
+be emptied.
+It can easily being enabled by uncommenting it together with line 82 and placing line 81 in comment.
+-}
 
 -- no3Adjacent :: [(Row, Column)] -> Bool
 -- no3Adjacent xs = all (\ys -> length ys < 3) [ filter (\(r,c) -> r == r') xs | r' <- [1..3]] &&
