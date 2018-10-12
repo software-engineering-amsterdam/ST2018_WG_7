@@ -135,12 +135,6 @@ generateLargePrime :: Int -> IO Integer
 generateLargePrime n = do p <- generateNumber n
                           nextPrime p
 
-choosePublicKey :: Integer -> Integer
-choosePublicKey n = head [ x | x <- [13..(n-1)], gcd n x == 1]
-
-choosePrivateKey :: Integer -> Integer -> Integer
-choosePrivateKey e t = invM e t
-
 string2Integer :: String -> Integer
 string2Integer []     = 0
 string2Integer (c:cs) = 256 * string2Integer cs + toInteger (ord c)
@@ -157,14 +151,12 @@ bitLength = 1024 `div` 8
 
 rsaDemo msg = do p <- generateLargePrime bitLength
                  q <- generateLargePrime bitLength
-                 let n = p*q
-                 let t = (p-1)*(q-1)
-                 let e = choosePublicKey n
-                 let d = choosePrivateKey e t
+                 let pub = rsaPublic p q
+                 let priv = rsaPrivate p q
   
                  let m = string2Integer msg  
-                 let m' = rsaEncode (e, n) m
+                 let m' = rsaEncode pub m
                  putStrLn ("Encoded message: " ++ (show m'))
-                 let m'' = rsaDecode (d, n) m'
+                 let m'' = rsaDecode priv m'
 
                  putStrLn ("Decoded message: " ++ (show (integer2String m'')))
