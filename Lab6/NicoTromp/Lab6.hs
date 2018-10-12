@@ -102,7 +102,7 @@ The bigger k is the bigger the first Carmichael number is that fails the test.
 -- EXERCISE 6.2 --
 
 nextMersennePrime :: Integer -> IO (Integer, Integer)
-nextMersennePrime p | prime p = do v <- primeMR 10 (2^p-1)
+nextMersennePrime p | prime p = do v <- primeMR 1 (2^p-1)
                                    if v then return (p, (2^p-1))
                                    else nextMersennePrime (p+1)
                     | otherwise = nextMersennePrime (p+1)
