@@ -1,7 +1,9 @@
 module Lab6 where
 
 import Data.List
+import Data.Char
 import System.Random
+
 import Lecture6
 
 -- EXERCISE 1 --
@@ -115,3 +117,46 @@ showNextMersennePrime n p = do mp <- nextMersennePrime p
 mersennePrimes = do
     putStrLn "Nr\tp\tMersenne prime"
     showNextMersennePrime 1 2
+
+-- EXERCISE 7 --
+
+generateNumber :: Int -> IO Integer
+generateNumber 1 = randomRIO (1, 9) :: IO Integer
+generateNumber n = do x <- generateNumber (n-1)
+                      y <- randomRIO (0, 9) :: IO Integer
+                      return (x * 10 + y)
+
+nextPrime :: Integer -> IO Integer
+nextPrime p = do v <- primeMR 10 p
+                 if v then return p
+                 else nextPrime (p+1)   
+
+generateLargePrime :: Int -> IO Integer
+generateLargePrime n = do p <- generateNumber n
+                          nextPrime p
+
+choosePublicKey :: Integer -> Integer
+choosePublicKey n = head [ x | x <- [13..(n-1)], gcd n x == 1]
+
+choosePrivateKey :: Integer -> Integer -> Integer
+choosePrivateKey e t = until (\d -> d*e `mod` t == 1) (+t) (t `div` e)
+
+digitize :: String -> Integer -> Integer
+digitize [c] x   = x * 256 + toInteger (ord c)
+digitize (c:cs) x = digitize cs (x * 256 + toInteger (ord c))
+
+rsaDemo msg = do p <- generateLargePrime 5
+                 q <- generateLargePrime 5
+                 let n = p*q
+                 let t = (p-1)*(q-1)
+                 let e = choosePublicKey n
+                 let d = choosePrivateKey e t
+  
+                 let m = digitize msg 0
+                 putStrLn ("Original message: " ++ (show m))
+  
+                 let m' = rsaEncode (e, n) m
+                 putStrLn ("Encrypted message: " ++ (show m'))
+  
+                 let m'' = rsaDecode (d, n) m'
+                 putStrLn ("Decrypted message: " ++ (show m''))
