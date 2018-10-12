@@ -142,8 +142,12 @@ choosePrivateKey :: Integer -> Integer -> Integer
 choosePrivateKey e t = until (\d -> d*e `mod` t == 1) (+t) (t `div` e)
 
 digitize :: String -> Integer -> Integer
-digitize [c] x   = x * 256 + toInteger (ord c)
+digitize [] x     = x
 digitize (c:cs) x = digitize cs (x * 256 + toInteger (ord c))
+
+characterize :: Integer -> String
+characterize 0 = ""
+characterize n = characterize (n `div` 256) ++ [chr (fromInteger (n `mod` 256))]
 
 rsaDemo msg = do p <- generateLargePrime 5
                  q <- generateLargePrime 5
@@ -159,4 +163,4 @@ rsaDemo msg = do p <- generateLargePrime 5
                  putStrLn ("Encrypted message: " ++ (show m'))
   
                  let m'' = rsaDecode (d, n) m'
-                 putStrLn ("Decrypted message: " ++ (show m''))
+                 putStrLn ("Decrypted message: " ++ (show (characterize m'')))
