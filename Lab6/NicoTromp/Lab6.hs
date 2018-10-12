@@ -141,13 +141,13 @@ choosePublicKey n = head [ x | x <- [13..(n-1)], gcd n x == 1]
 choosePrivateKey :: Integer -> Integer -> Integer
 choosePrivateKey e t = until (\d -> d*e `mod` t == 1) (+t) (t `div` e)
 
-digitize :: String -> Integer -> Integer
-digitize [] x     = x
-digitize (c:cs) x = digitize cs (x * 256 + toInteger (ord c))
+string2Integer :: String -> Integer
+string2Integer []     = 0
+string2Integer (c:cs) = 256 * string2Integer cs + toInteger (ord c)
 
-characterize :: Integer -> String
-characterize 0 = ""
-characterize n = characterize (n `div` 256) ++ [chr (fromInteger (n `mod` 256))]
+integer2String :: Integer -> String
+integer2String 0 = ""
+integer2String n = (chr (fromInteger (n `mod` 256))) : integer2String (n `div` 256)
 
 rsaDemo msg = do p <- generateLargePrime 5
                  q <- generateLargePrime 5
@@ -156,11 +156,11 @@ rsaDemo msg = do p <- generateLargePrime 5
                  let e = choosePublicKey n
                  let d = choosePrivateKey e t
   
-                 let m = digitize msg 0
+                 let m = string2Integer msg
                  putStrLn ("Original message: " ++ (show m))
   
                  let m' = rsaEncode (e, n) m
                  putStrLn ("Encrypted message: " ++ (show m'))
   
                  let m'' = rsaDecode (d, n) m'
-                 putStrLn ("Decrypted message: " ++ (show (characterize m'')))
+                 putStrLn ("Decrypted message: " ++ (show (integer2String m'')))
