@@ -140,7 +140,6 @@ choosePublicKey n = head [ x | x <- [13..(n-1)], gcd n x == 1]
 
 choosePrivateKey :: Integer -> Integer -> Integer
 choosePrivateKey e t = invM e t
--- choosePrivateKey e t = until (\d -> d*e `mod` t == 1) (+t) (t `div` e)
 
 string2Integer :: String -> Integer
 string2Integer []     = 0
