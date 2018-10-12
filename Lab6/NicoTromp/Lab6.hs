@@ -139,7 +139,8 @@ choosePublicKey :: Integer -> Integer
 choosePublicKey n = head [ x | x <- [13..(n-1)], gcd n x == 1]
 
 choosePrivateKey :: Integer -> Integer -> Integer
-choosePrivateKey e t = until (\d -> d*e `mod` t == 1) (+t) (t `div` e)
+choosePrivateKey e t = invM e t
+-- choosePrivateKey e t = until (\d -> d*e `mod` t == 1) (+t) (t `div` e)
 
 string2Integer :: String -> Integer
 string2Integer []     = 0
@@ -149,8 +150,8 @@ integer2String :: Integer -> String
 integer2String 0 = ""
 integer2String n = (chr (fromInteger (n `mod` 256))) : integer2String (n `div` 256)
 
-rsaDemo msg = do p <- generateLargePrime 5
-                 q <- generateLargePrime 5
+rsaDemo msg = do p <- generateLargePrime 128
+                 q <- generateLargePrime 128
                  let n = p*q
                  let t = (p-1)*(q-1)
                  let e = choosePublicKey n
@@ -163,4 +164,6 @@ rsaDemo msg = do p <- generateLargePrime 5
                  putStrLn ("Encrypted message: " ++ (show m'))
   
                  let m'' = rsaDecode (d, n) m'
-                 putStrLn ("Decrypted message: " ++ (show (integer2String m'')))
+                 putStrLn ("Decrypted message: " ++ (show m''))
+
+                 putStrLn ("Readable message: " ++ (show (integer2String m'')))
