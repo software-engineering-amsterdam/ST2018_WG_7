@@ -149,20 +149,22 @@ integer2String :: Integer -> String
 integer2String 0 = ""
 integer2String n = (chr (fromInteger (n `mod` 256))) : integer2String (n `div` 256)
 
-rsaDemo msg = do p <- generateLargePrime 128
-                 q <- generateLargePrime 128
+{-
+Demo program dat encodes and decodes a message using RSA public-private key encryption.
+The current key length is set to 1024 bits.
+-}
+bitLength = 1024 `div` 8
+
+rsaDemo msg = do p <- generateLargePrime bitLength
+                 q <- generateLargePrime bitLength
                  let n = p*q
                  let t = (p-1)*(q-1)
                  let e = choosePublicKey n
                  let d = choosePrivateKey e t
   
-                 let m = string2Integer msg
-                 putStrLn ("Original message: " ++ (show m))
-  
+                 let m = string2Integer msg  
                  let m' = rsaEncode (e, n) m
-                 putStrLn ("Encrypted message: " ++ (show m'))
-  
+                 putStrLn ("Encoded message: " ++ (show m'))
                  let m'' = rsaDecode (d, n) m'
-                 putStrLn ("Decrypted message: " ++ (show m''))
 
-                 putStrLn ("Readable message: " ++ (show (integer2String m'')))
+                 putStrLn ("Decoded message: " ++ (show (integer2String m'')))
