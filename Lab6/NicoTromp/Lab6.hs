@@ -120,20 +120,7 @@ mersennePrimes = do
 
 -- EXERCISE 7 --
 
-generateNumber :: Int -> IO Integer
-generateNumber 1 = randomRIO (1, 9) :: IO Integer
-generateNumber n = do x <- generateNumber (n-1)
-                      y <- randomRIO (0, 9) :: IO Integer
-                      return (x * 10 + y)
-
-nextPrime :: Integer -> IO Integer
-nextPrime p = do v <- primeMR 10 p
-                 if v then return p
-                 else nextPrime (p+1)   
-
-generateLargePrime :: Int -> IO Integer
-generateLargePrime n = do p <- generateNumber n
-                          nextPrime p
+-- Support function for conversion of strings to integers and visa versa
 
 string2Integer :: String -> Integer
 string2Integer []     = 0
@@ -142,6 +129,26 @@ string2Integer (c:cs) = 256 * string2Integer cs + toInteger (ord c)
 integer2String :: Integer -> String
 integer2String 0 = ""
 integer2String n = (chr (fromInteger (n `mod` 256))) : integer2String (n `div` 256)
+
+-- RSA related functions.
+
+-- Generates a integer with a given number of digts.
+-- Special care has been taken to ensure that the left most digit is not 0.
+generateNumber :: Int -> IO Integer
+generateNumber 1 = randomRIO (1, 9) :: IO Integer
+generateNumber n = do x <- generateNumber (n-1)
+                      y <- randomRIO (0, 9) :: IO Integer
+                      return (x * 10 + y)
+-- Given an input value returns the first prime that is equal or greater
+-- then the input value.
+nextPrime :: Integer -> IO Integer
+nextPrime p = do v <- primeMR 10 p
+                 if v then return p
+                 else nextPrime (p+1)   
+
+generateLargePrime :: Int -> IO Integer
+generateLargePrime n = do p <- generateNumber n
+                          nextPrime p
 
 {-
 Demo program dat encodes and decodes a message using RSA public-private key encryption.
