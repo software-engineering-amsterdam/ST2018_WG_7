@@ -29,7 +29,7 @@ count (T _ []) = 1
 count (T _ xs) = 1 + foldl (\z x -> z + count x) 0 xs
 
 depth :: Tree a -> Int
-depth (T _ []) = 0
+depth (T _ []) = 1
 depth (T _ ts) = foldl max 0 (map depth ts) + 1
 
 mapT :: (a -> b) -> Tree a -> Tree b
@@ -46,8 +46,11 @@ foldT f (T x ts) = f x (map (foldT f) ts)
 
 count' :: Tree a -> Int
 count' (T _ []) = 1
-count' t        = foldT (\_ ns -> 1 + (sum ns)) t
+count' t        = foldT (\_ ns -> 1 + sum ns) t
 
--- depth' :: Tree a -> Int
+depth' :: Tree a -> Int
+depth' (T _ []) = 1
+depth' t        = foldT (\_ ns -> 1 + maximum ns) t
+
 -- collect' :: Tree a -> [a]
 -- mapT' :: (a -> b) -> Tree a -> Tree b
