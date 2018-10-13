@@ -46,7 +46,7 @@ foldT f (T x ts) = f x (map (foldT f) ts)
 
 count' :: Tree a -> Int
 count' (T _ []) = 1
-count' (T _ xs) = 1 + (foldT (\_ ys -> count' ys) xs)
+count' t        = foldT (\_ ns -> 1 + (sum ns)) t
 
 -- depth' :: Tree a -> Int
 -- collect' :: Tree a -> [a]
