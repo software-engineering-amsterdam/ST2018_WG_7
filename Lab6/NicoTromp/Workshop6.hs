@@ -50,7 +50,7 @@ count' t        = foldT (\_ ns -> 1 + sum ns) t
 
 depth' :: Tree a -> Int
 depth' (T _ []) = 1
-depth' t        = foldT (\_ ns -> 1 + maximum ns) t
+depth' t        = foldT (\_ ns -> 1 + maximum (0:ns)) t
 
 -- collect' :: Tree a -> [a]
 -- mapT' :: (a -> b) -> Tree a -> Tree b
