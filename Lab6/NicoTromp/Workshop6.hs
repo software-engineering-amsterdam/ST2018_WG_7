@@ -52,5 +52,8 @@ depth' :: Tree a -> Int
 depth' (T _ []) = 1
 depth' t        = foldT (\_ ns -> 1 + maximum (0:ns)) t
 
--- collect' :: Tree a -> [a]
--- mapT' :: (a -> b) -> Tree a -> Tree b
+collect' :: Tree a -> [a]
+collect' = foldT (\n ns -> n:concat ns)
+
+mapT' :: (a -> b) -> Tree a -> Tree b
+mapT' f = foldT (\n ns -> T (f n) ns)
