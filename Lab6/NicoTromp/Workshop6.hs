@@ -57,3 +57,14 @@ collect' = foldT (\n ns -> n:concat ns)
 
 mapT' :: (a -> b) -> Tree a -> Tree b
 mapT' f = foldT (\n ns -> T (f n) ns)
+
+grow :: (node -> [node]) -> node -> Tree node
+grow f seed = T seed (map (grow f) (f seed))
+-- if x < 6 --> 2^(6+1) - 1 = 127
+
+infTree :: Tree Integer
+infTree = grow (\ n -> [n+1,n+1]) 0
+
+takeT :: Int -> Tree a -> Tree a
+takeT 0 (T x xs) = T x [] 
+takeT n (T x xs) = T x (map (takeT (n-1)) xs)
