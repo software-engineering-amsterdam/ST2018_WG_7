@@ -3,6 +3,7 @@ module Lecture6
 
 where 
 
+import Test.QuickCheck 
 import Data.List
 import System.Random
 import System.IO.Unsafe
@@ -147,29 +148,37 @@ doExec6_2 = do
 
  -- [ x <- [2^n..2^(n+1)-1], primeMR 5 x ]
 
-randomPrimeGen :: Integer -> IO Integer
-randomPrimeGen n = do
+randomPrimeGen :: Integer -> Integer -> IO Integer
+randomPrimeGen n m = do
     x <- randomRIO (2^n,2^(n+1)-1)
     isprime <- primeMR 5 x
-    if isprime then return x else randomPrimeGen n
+    if (isprime && x /= m) then return x else randomPrimeGen n m
 
-randomCoprimeGen :: Integer -> IO Integer
-randomCoprimeGen n = do
-    x <- randomRIO (1,n-1)
-    iscoprime <- coPrime x n
-    if iscoprime then return x else randomCoprimeGen n
+ex7Demonstration :: Integer -> Integer -> IO (Integer, Integer)
+ex7Demonstration x bitlength = do
+    p <- randomPrimeGen bitlength 0
+    q <- randomPrimeGen bitlength p
+    let e = rsaPublic p q
+    let d = rsaPrivate p q
+    let encodedX = rsaEncode e (mod x (p*q))
+    let decodedX = rsaDecode d encodedX
+    -- return (mod x (p*q), decodedX, p , q)
+    return (mod x (p*q), decodedX)
 
-generateTwoPrimes n = do
-    x <- randomPrimeGen n
-    y <- randomPrimeGen n
-    let m = (x*y)
-    let totientM = totient m
-    e <- randomCoprimeGen totientM
-    myMessage^(x*y)
+-- ex7quickCheck :: Integer -> IO Bool
+-- ex7quickCheck x = do 
+--     result <- ex7Demonstration x 10
+--     return (fst result == snd result)
+--     -- where result = ex7Demonstration x 10
 
+ex7quickCheck :: Integer -> Bool
+ex7quickCheck x = fst result == snd result
+    where result = unsafePerformIO (ex7Demonstration x 10 )
 
-
-
+doExec7 = do
+    putStrLn "-- == Exercise 7.2 == --" 
+    putStrLn "Checking whether x mod n == x^(ed) mod n for 100 x:"
+    quickCheck ex7quickCheck
 
 -------------------------------------------------------------------------------
 -- == Main == --
@@ -179,6 +188,7 @@ main = do
     doExec5
     doExec6_1
     doExec6_2
+    doExec7
 
 
 
