@@ -167,12 +167,12 @@ rsaDemo msg = do p <- generateLargePrime bitLength
                  printf "q\t= %X\n\n" p
                  let pub = rsaPublic p q
                  let priv = rsaPrivate p q
-                 printf "public\t= %X\n" (fst pub)
-                 printf "private\t= %X\n\n" (fst priv)
+                 printf "Public key\t= %X\n" (fst pub)
+                 printf "Private key\t= %X\n\n" (fst priv)
   
                  let m = string2Integer msg  
                  let m' = rsaEncode pub m
-                 printf "Encoded message: %X\n\n" m'
+                 printf "Encoded message = %X\n\n" m'
                  let m'' = rsaDecode priv m'
 
-                 putStrLn ("Decoded message: " ++ (show (integer2String m'')))
+                 putStrLn ("Decoded message = " ++ (show (integer2String m'')))

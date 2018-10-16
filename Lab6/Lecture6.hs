@@ -5,6 +5,7 @@ where
 
 import System.Random
 import Data.Char
+import Text.Printf
 
 -- == Exercise 1 == --
 exM :: Integer -> Integer -> Integer -> Integer
@@ -192,11 +193,10 @@ integer2String n = (chr (fromInteger (n `mod` 256))) : integer2String (n `div` 2
 -- Generates a integer with a given number of digts.
 -- Special care has been taken to ensure that the left most digit is not 0.
 generateNumber :: Int -> IO Integer
-generateNumber 1 = randomRIO (1, 9) :: IO Integer
+generateNumber 1 = randomRIO (1, 15) :: IO Integer
 generateNumber n = do x <- generateNumber (n-1)
-                      y <- randomRIO (0, 9) :: IO Integer
-                      return (x * 10 + y)
-
+                      y <- randomRIO (0, 15) :: IO Integer
+                      return (x * 16 + y)
 -- Given an input value returns the first prime that is equal or greater
 -- then the input value.
 nextPrime :: Integer -> IO Integer
@@ -213,19 +213,23 @@ generateLargePrime n = do p <- generateNumber n
 Demo program dat encodes and decodes a message using RSA public-private key encryption.
 The current key length is set to 1024 bits.
 -}
-numberOfDigits = 1024 `div` 8
+bitLength = 1024 `div` 4
 
-rsaDemo msg = do p <- generateLargePrime numberOfDigits
-                 q <- generateLargePrime numberOfDigits
+rsaDemo msg = do p <- generateLargePrime bitLength
+                 q <- generateLargePrime bitLength
+                 printf "p\t= %X\n" p
+                 printf "q\t= %X\n\n" p
                  let pub = rsaPublic p q
                  let priv = rsaPrivate p q
+                 printf "Public key\t= %X\n" (fst pub)
+                 printf "Private key\t= %X\n\n" (fst priv)
   
                  let m = string2Integer msg  
                  let m' = rsaEncode pub m
-                 putStrLn ("Encoded message: " ++ (show m'))
+                 printf "Encoded message = %X\n\n" m'
                  let m'' = rsaDecode priv m'
 
-                 putStrLn ("Decoded message: " ++ (show (integer2String m'')))
+                 putStrLn ("Decoded message = " ++ (show (integer2String m'')))
 
 -- Lecture code down here --
 factorsNaive :: Integer -> [Integer]
@@ -456,5 +460,5 @@ main = do
     putStrLn "\n-- == Exercise 6.2 == --"
     putStrLn "Please run the function: mersennePrimes seperately as it never halts" 
     putStrLn "\n-- == Exercise 7 == --"
-    putStrLn "Message to encode: Dit is een geheim bericht voor Bert. Niet doorvertellen!"
+    putStrLn "Message to encode: Dit is een geheim bericht voor Bert. Niet doorvertellen!\n"
     rsaDemo  "Dit is een geheim bericht voor Bert. Niet doorvertellen!"
