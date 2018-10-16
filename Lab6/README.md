@@ -1,6 +1,6 @@
 # LAB6
 
-**How to run?** Run the `main` function inside module `Lab6` too run all tests.
+**How to run?** Run the `main` function inside module `Lecture6` too run all tests.
 
 ## --== EXERCISE 1 ==--
 ```
