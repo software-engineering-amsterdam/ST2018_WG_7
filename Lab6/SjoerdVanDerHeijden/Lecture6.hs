@@ -5,8 +5,11 @@ where
 
 import Test.QuickCheck 
 import Data.List
+import Data.Time.Clock
+import Control.Exception
 import System.Random
 import System.IO.Unsafe
+
 
 -- Source: https://stackoverflow.com/a/4695002
 isPrime k = null [ x | x <- [2..k - 1], k `mod`x  == 0]
@@ -20,6 +23,48 @@ exM x power divisor | even power = (exM x (power `div` 2) divisor)^2 `rem` divis
 
 -------------------------------------------------------------------------------
 -- == Exercise 2 == --
+
+-- ex2helper = do 
+--   x <- randomRIO (1,100000)
+--   power <- randomRIO (1,100000)
+--   divisor <- randomRIO (1,100000)
+--   return (exM x power divisor)
+
+-- source: https://stackoverflow.com/a/30741139
+randomList :: Int -> IO([Integer])
+randomList 0 = return []
+randomList n = do
+  r  <- randomRIO (1,100000)
+  rs <- randomList (n-1)
+  return (r:rs) 
+
+-- this helped: https://chrisdone.com/posts/measuring-duration-in-haskell
+ex2 :: Int -> IO ()
+ex2 n = do
+    start <- getCurrentTime
+    x <- (randomList n)
+    power <- (randomList n)
+    divisor <- (randomList n)
+    end <- getCurrentTime
+
+    startExM <- getCurrentTime
+    let exmList = [exM (x!!i) (power!!i) (divisor!!i) | i <- [0..n-1] ]
+    evaluate (last exmList)
+    endExM <- getCurrentTime
+
+    startExpM <- getCurrentTime
+    let expmList = [expM (x!!i) (power!!i) (divisor!!i) | i <- [0..n-1] ]
+    evaluate (last expmList)
+    endExpM <- getCurrentTime
+    
+    putStr "Generating random numbers took: "
+    print (diffUTCTime end start)
+    putStr "Using exM took: "
+    print (diffUTCTime endExM startExM)
+    putStr "Using expM took: "
+    print (diffUTCTime endExpM startExpM)
+
+ 
 
 {-
 I like it well enough now:
@@ -119,7 +164,7 @@ primesT = sieve [2..]
           where
           sieve (p:xs) = p : sieve [x | x <- xs, rem x p > 0]
 
--- mersennePrimes = [(2^p)-1 | p <- primesT, isPrime ((2^p)-1) ]
+mersennePrimes :: [Int]
 mersennePrimes = [(2^p)-1 | p <- primesT, unsafePerformIO (primeMR 3 ((2^p)-1)) ]
 
 doExec6_2 = do
@@ -131,45 +176,23 @@ doExec6_2 = do
 -------------------------------------------------------------------------------
 -- == Exercise 7 == --
 
--- Source: https://wiki.haskell.org/Prime_numbers#Calculating_Primes_in_a_Given_Range
--- primesFromToA a b = (if a<3 then [2] else []) 
---                       ++ [i | i <- [o,o+2..b], ar ! i]
---   where 
---     o  = max (if even a then a+1 else a) 3   -- first odd in the segment
---     r  = floor . sqrt $ fromIntegral b + 1
---     ar = accumArray (\_ _ -> False) True (o,b)  -- initially all True,
---           [(i,()) | p <- [3,5..r]
---                     , let q  = p*p      -- flip every multiple of an odd 
---                           s  = 2*p                         -- to False
---                           (n,x) = quotRem (o - q) s 
---                           q2 = if  o <= q  then q
---                                else  q + (n + signum x)*s
---                     , i <- [q2,q2+s..b] ]
-
- -- [ x <- [2^n..2^(n+1)-1], primeMR 5 x ]
-
+-- Generates a random prime with a given bitlength, and not the same as the given number m.
 randomPrimeGen :: Integer -> Integer -> IO Integer
-randomPrimeGen n m = do
-    x <- randomRIO (2^n,2^(n+1)-1)
+randomPrimeGen bitlength m = do
+    x <- randomRIO (2^bitlength,2^(bitlength+1)-1)
     isprime <- primeMR 5 x
-    if (isprime && x /= m) then return x else randomPrimeGen n m
+    if (isprime && x /= m) then return x else randomPrimeGen bitlength m
 
 ex7Demonstration :: Integer -> Integer -> IO (Integer, Integer)
 ex7Demonstration x bitlength = do
-    p <- randomPrimeGen bitlength 0
-    q <- randomPrimeGen bitlength p
+    p <- randomPrimeGen (abs(bitlength)) 0  -- abs() just to make sure the bitlength is always positive
+    q <- randomPrimeGen (abs(bitlength)) p
     let e = rsaPublic p q
     let d = rsaPrivate p q
     let encodedX = rsaEncode e (mod x (p*q))
     let decodedX = rsaDecode d encodedX
-    -- return (mod x (p*q), decodedX, p , q)
     return (mod x (p*q), decodedX)
 
--- ex7quickCheck :: Integer -> IO Bool
--- ex7quickCheck x = do 
---     result <- ex7Demonstration x 10
---     return (fst result == snd result)
---     -- where result = ex7Demonstration x 10
 
 ex7quickCheck :: Integer -> Bool
 ex7quickCheck x = fst result == snd result
