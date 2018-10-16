@@ -218,7 +218,7 @@ bitLength = 1024 `div` 4
 rsaDemo msg = do p <- generateLargePrime bitLength
                  q <- generateLargePrime bitLength
                  printf "p\t= %X\n" p
-                 printf "q\t= %X\n\n" p
+                 printf "q\t= %X\n\n" q
                  let pub = rsaPublic p q
                  let priv = rsaPrivate p q
                  printf "Public key\t= %X\n" (fst pub)
@@ -460,5 +460,5 @@ main = do
     putStrLn "\n-- == Exercise 6.2 == --"
     putStrLn "Please run the function: mersennePrimes seperately as it never halts" 
     putStrLn "\n-- == Exercise 7 == --"
-    putStrLn "Message to encode: Dit is een geheim bericht voor Bert. Niet doorvertellen!\n"
+    putStrLn "rsaDemo \"Dit is een geheim bericht voor Bert. Niet doorvertellen!\"\n"
     rsaDemo  "Dit is een geheim bericht voor Bert. Niet doorvertellen!"

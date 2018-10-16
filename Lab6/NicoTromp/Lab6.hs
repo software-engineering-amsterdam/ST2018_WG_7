@@ -164,7 +164,7 @@ bitLength = 1024 `div` 4
 rsaDemo msg = do p <- generateLargePrime bitLength
                  q <- generateLargePrime bitLength
                  printf "p\t= %X\n" p
-                 printf "q\t= %X\n\n" p
+                 printf "q\t= %X\n\n" q
                  let pub = rsaPublic p q
                  let priv = rsaPrivate p q
                  printf "Public key\t= %X\n" (fst pub)
