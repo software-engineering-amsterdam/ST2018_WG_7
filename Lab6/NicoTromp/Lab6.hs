@@ -2,6 +2,7 @@ module Lab6 where
 
 import Data.List
 import Data.Char
+import Text.Printf
 import System.Random
 
 import Lecture6
@@ -138,10 +139,10 @@ integer2String n = (chr (fromInteger (n `mod` 256))) : integer2String (n `div` 2
 -- Generates a integer with a given number of digts.
 -- Special care has been taken to ensure that the left most digit is not 0.
 generateNumber :: Int -> IO Integer
-generateNumber 1 = randomRIO (1, 9) :: IO Integer
+generateNumber 1 = randomRIO (1, 15) :: IO Integer
 generateNumber n = do x <- generateNumber (n-1)
-                      y <- randomRIO (0, 9) :: IO Integer
-                      return (x * 10 + y)
+                      y <- randomRIO (0, 15) :: IO Integer
+                      return (x * 16 + y)
 -- Given an input value returns the first prime that is equal or greater
 -- then the input value.
 nextPrime :: Integer -> IO Integer
@@ -158,16 +159,20 @@ generateLargePrime n = do p <- generateNumber n
 Demo program dat encodes and decodes a message using RSA public-private key encryption.
 The current key length is set to 1024 bits.
 -}
-bitLength = 1024 `div` 8
+bitLength = 1024 `div` 4
 
 rsaDemo msg = do p <- generateLargePrime bitLength
                  q <- generateLargePrime bitLength
+                 printf "p\t= %X\n" p
+                 printf "q\t= %X\n\n" p
                  let pub = rsaPublic p q
                  let priv = rsaPrivate p q
+                 printf "public\t= %X\n" (fst pub)
+                 printf "private\t= %X\n\n" (fst priv)
   
                  let m = string2Integer msg  
                  let m' = rsaEncode pub m
-                 putStrLn ("Encoded message: " ++ (show m'))
+                 printf "Encoded message: %X\n\n" m'
                  let m'' = rsaDecode priv m'
 
                  putStrLn ("Decoded message: " ++ (show (integer2String m'')))
