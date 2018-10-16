@@ -10,11 +10,11 @@ import Lecture6
 
 -- See Lecture1.hs
 -- exM :: Integer -> Integer -> Integer -> Integer
--- exM x p n | p == 0    = 1
---           | even p    = xhp^2 `mod` n
---           | otherwise = (xm * xhp^2) `mod` n
---           where xm = x `mod` n
---                 xhp = exM xm (p `div` 2) n
+-- exM x p n | p < 0     = error "Negative exponent"    
+--           | p == 0    = 1
+--           | even p    = (exM x' (p `div` 2) n)^2 `rem` n
+--           | otherwise = x' * (exM x' (p-1) n) `rem` n
+--           where x' = x `rem` n
 
 
 -- EXERCISE 2 --
